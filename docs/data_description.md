@@ -54,6 +54,14 @@
 - `scene_tags`：场景标签。
 - `expected_center`：预期匹配中心点。
 
+当前前端已提供 3 张可显示演示占位图：
+
+- `frontend/public/demo/uav_view_001.jpg`
+- `frontend/public/demo/uav_view_002.jpg`
+- `frontend/public/demo/uav_view_003.jpg`
+
+这些图片用于保证前端演示路径可访问，不代表真实航拍数据。后续如获得真实图片，可保持文件名不变直接替换。
+
 ## 6. vision_tile_index
 
 视觉匹配候选瓦片索引：

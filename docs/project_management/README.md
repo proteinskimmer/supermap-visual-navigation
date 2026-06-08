@@ -26,6 +26,7 @@
 | `10_acceptance_checklist.md` | 阶段验收清单和最终提交清单 |
 | `11_progress_tracking_template.md` | 日报、周会、阻塞和决策记录模板 |
 | `12_project_status_log.md` | 项目推进状态日志，跨对话同步当前进度 |
+| `13_status_gates.md` | 严格状态门禁，区分 mock、运行验证、SuperMap 验证和交付就绪 |
 
 ## 外部专题文档
 
@@ -72,6 +73,7 @@
 
 1. `12_project_status_log.md`
 2. `08_task_board.md`
-3. 当前任务对应的分工文档
+3. `13_status_gates.md`
+4. 当前任务对应的分工文档
 
 这样可以避免重复解释项目背景，也能保证任务状态连续。

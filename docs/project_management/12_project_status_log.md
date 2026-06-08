@@ -25,6 +25,7 @@
 | SuperMap 接入预案 | Review | 已完成 iDesktopX、iServer、iClient3D 操作流程、服务地址记录模板、验收清单和服务配置读取接口 |
 | 官方文档本地化 | Todo | 已预留 `docs/vendor/supermap_official/`，下载动作已暂停，目录当前无文档文件 |
 | 比赛材料 | Review | 已有系统设计、部署说明、数据说明、源码结构说明、PPT 初稿、答辩讲稿、演示视频脚本、截图清单、真实数据清单和提交包模板；PPT 文件、截图和视频未实际生成 |
+| 版本管理 | Runtime Verified | 已初始化 Git 仓库并创建基线提交 `fed8b4f Establish mock prototype baseline` |
 
 ## 里程碑状态
 
@@ -85,6 +86,35 @@
   - SuperMap 软件和 iServer 服务尚未接入。
   - 官方文档本地化目录为空。
   - 视觉真实图片文件仍未放入仓库。
+
+### 2026-06-08 严格监督整改与运行验证
+
+- 严格状态口径已落地：
+  - 新增 `docs/project_management/13_status_gates.md`。
+  - 任务看板不再混用 `Review` 表示完成，改为 `Mock Done`、`Runtime Verified`、`SuperMap Verified`、`Delivery Draft`、`Delivery Ready`。
+  - 当前对外口径限定为“方案 + mock 闭环初稿 + SuperMap 接入预案 + 部分运行验证”，不得称为可交付系统。
+- 环境依赖已完成：
+  - 已创建 Conda 环境 `supermap_nav`。
+  - 后端依赖 `fastapi[standard]` 和 `pytest` 已安装在 `supermap_nav`。
+  - 前端依赖已安装到 `frontend/node_modules`。
+- 运行验证已完成：
+  - `pytest backend/tests` 通过：4 passed，1 warning。
+  - `scripts/check_backend_smoke_full.ps1` 通过。
+  - `npm run build` 通过，生成前端生产构建。
+- 视觉图片问题已缓解：
+  - 已新增 3 张可显示 jpg 演示占位图：
+    - `frontend/public/demo/uav_view_001.jpg`
+    - `frontend/public/demo/uav_view_002.jpg`
+    - `frontend/public/demo/uav_view_003.jpg`
+  - 这些图片只作为演示占位图，不冒充真实航拍图片；若需要真实航拍效果，后续替换同名文件即可。
+- Git 问题已解决：
+  - 已初始化 Git 仓库。
+  - 已创建基线提交：`fed8b4f Establish mock prototype baseline`。
+  - `frontend/node_modules/` 和 `frontend/dist/` 已被 `.gitignore` 忽略。
+- 仍未完成：
+  - 浏览器前端页面尚未完成截图验收。
+  - 前后端真实 dev server 联调和彩排尚未记录证据。
+  - SuperMap 软件、iServer 服务和真实 iClient3D 场景仍未验证。
 
 ### 2026-06-08 SuperMap 接入预案
 
@@ -282,15 +312,14 @@
 
 ## 下一步建议
 
-优先进入 M2 真实运行验收：
+优先进入 M2 浏览器闭环验收和 M1 SuperMap 实接：
 
-1. 使用 Anaconda 创建 `supermap_nav` 环境。
-2. 安装后端依赖。
-3. 安装前端依赖。
-4. 启动后端并访问 `/api/health`。
-5. 启动前端并打开工作台页面。
-6. 修复运行中暴露的问题。
-7. 使用当前 mock 场景完成一次从任务加载到报告生成的演示彩排。
-8. SuperMap 服务发布后，在 `demo_data/task_demo.json` 的 `layers[].service_url` 填入服务地址，并在 `SuperMapScene.vue` 中接入真实 iClient3D 场景。
-9. 将通过项从 `Review` 更新为 `Done`。
-10. 补充视觉样例真实图片文件或可公开图片 URL，使三张视觉样例可以在前端直接展示。
+1. 启动后端并访问 `/api/health`。
+2. 启动前端并打开工作台页面。
+3. 使用当前 mock 场景完成一次从任务加载到报告生成的演示彩排。
+4. 截图记录工作台、航线规划、风险评分、动态重规划、视觉匹配和报告页面。
+5. SuperMap 软件安装完成后，按 `docs/supermap_integration/README.md` 发布 iServer 服务。
+6. 在 `config/supermap_services.local.json` 和 `demo_data/task_demo.json` 的 `layers[].service_url` 填入真实服务地址。
+7. 在 `SuperMapScene.vue` 中接入真实 iClient3D 场景并截图验收。
+8. 将通过项升级到 `Runtime Verified` 或 `SuperMap Verified`。
+9. 用真实截图制作 PPT 文件并录制演示视频。

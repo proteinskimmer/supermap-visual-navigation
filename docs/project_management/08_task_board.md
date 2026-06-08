@@ -92,3 +92,4 @@
 | 2026-06-08 | 已在前端增加演示闭环状态清单和控制按钮前置状态约束。 |
 | 2026-06-08 | 后端 smoke 通过；前端 `npm run build` 因 `frontend/node_modules` 不存在、`vite` 未安装失败，等待依赖安装后验收。 |
 | 2026-06-08 | 已继续拆分前端组件，新增独立报告视图和高程剖面组件；后端已补统一异常处理、Pydantic 响应模型、mock API 测试和增强 smoke 脚本。 |
+| 2026-06-08 | 严格状态门禁已建立；`supermap_nav` 环境、后端 pytest、增强 smoke、前端 npm build 均已通过；Git 基线提交 `fed8b4f` 已创建。 |

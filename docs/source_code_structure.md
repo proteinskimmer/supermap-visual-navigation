@@ -13,6 +13,8 @@ E:\supermap_project
       test_mock_api.py     mock API 契约测试
     requirements.txt       后端 pip 依赖
   frontend/
+    public/
+      demo/               视觉样例演示占位图
     src/
       components/
         EmptyState.vue     通用空状态

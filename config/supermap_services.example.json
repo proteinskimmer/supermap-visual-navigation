@@ -1,0 +1,68 @@
+{
+  "iserver": {
+    "base_url": "http://localhost:8090/iserver",
+    "manager_url": "http://localhost:8090/iserver/manager",
+    "version": "2025",
+    "workspace_path": "",
+    "coordinate_system": "WGS84"
+  },
+  "services": {
+    "scene": {
+      "name": "",
+      "url": "",
+      "type": "3d",
+      "status": "todo"
+    },
+    "map": {
+      "name": "",
+      "url": "",
+      "type": "map",
+      "status": "todo"
+    },
+    "data": {
+      "name": "",
+      "url": "",
+      "type": "data",
+      "status": "todo"
+    },
+    "spatial_analysis": {
+      "name": "",
+      "url": "",
+      "type": "spatial_analysis",
+      "status": "optional"
+    }
+  },
+  "layers": {
+    "task_area": {
+      "dataset": "task_area",
+      "service": "data",
+      "geometry": "Polygon"
+    },
+    "risk_zone": {
+      "dataset": "risk_zone",
+      "service": "data",
+      "geometry": "Polygon"
+    },
+    "obstacle": {
+      "dataset": "obstacle",
+      "service": "data",
+      "geometry": "Point"
+    },
+    "road": {
+      "dataset": "road",
+      "service": "data",
+      "geometry": "LineString"
+    },
+    "water": {
+      "dataset": "water",
+      "service": "data",
+      "geometry": "Polygon"
+    },
+    "building": {
+      "dataset": "building",
+      "service": "data",
+      "geometry": "Polygon"
+    }
+  }
+}
+

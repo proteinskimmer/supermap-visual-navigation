@@ -1,0 +1,420 @@
+{
+  "task": {
+    "id": "task_001",
+    "name": "low-altitude patrol demo",
+    "display_name": "低空巡检示范任务",
+    "area": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [116.1000, 39.1000],
+          [116.2350, 39.1000],
+          [116.2350, 39.2150],
+          [116.1000, 39.2150],
+          [116.1000, 39.1000]
+        ]
+      ]
+    },
+    "start": [116.1120, 39.1120, 120.0],
+    "target": [116.2210, 39.2030, 130.0],
+    "params": {
+      "min_height_m": 80,
+      "max_height_m": 300,
+      "safe_distance_m": 50,
+      "max_distance_m": 18000
+    }
+  },
+  "layers": [
+    {
+      "id": "terrain",
+      "name": "地形 DEM",
+      "type": "terrain",
+      "visible": true,
+      "service_url": ""
+    },
+    {
+      "id": "imagery",
+      "name": "遥感影像",
+      "type": "imagery",
+      "visible": true,
+      "service_url": ""
+    },
+    {
+      "id": "risk_zone",
+      "name": "风险区",
+      "type": "polygon",
+      "visible": true,
+      "service_url": ""
+    },
+    {
+      "id": "obstacle",
+      "name": "障碍物",
+      "type": "point",
+      "visible": true,
+      "service_url": ""
+    }
+  ],
+  "risk_zones": [
+    {
+      "id": "risk_fire_001",
+      "name": "山火风险区",
+      "type": "fire",
+      "level": 5,
+      "buffer_m": 120,
+      "active": true,
+      "polygon": [
+        [116.1480, 39.1420],
+        [116.1770, 39.1440],
+        [116.1800, 39.1660],
+        [116.1530, 39.1700],
+        [116.1480, 39.1420]
+      ]
+    },
+    {
+      "id": "risk_landslide_001",
+      "name": "塌方风险区",
+      "type": "landslide",
+      "level": 4,
+      "buffer_m": 90,
+      "active": true,
+      "polygon": [
+        [116.1900, 39.1760],
+        [116.2110, 39.1760],
+        [116.2110, 39.1920],
+        [116.1900, 39.1930],
+        [116.1900, 39.1760]
+      ]
+    }
+  ],
+  "obstacles": [
+    {
+      "id": "obs_tower_001",
+      "name": "通信塔",
+      "type": "tower",
+      "position": [116.1320, 39.1600, 185.0],
+      "height_m": 65,
+      "buffer_m": 80
+    },
+    {
+      "id": "obs_building_001",
+      "name": "高层建筑",
+      "type": "building",
+      "position": [116.2040, 39.1310, 160.0],
+      "height_m": 52,
+      "buffer_m": 60
+    }
+  ],
+  "vision_images": [
+    {
+      "id": "demo_uav_001",
+      "task_id": "task_001",
+      "name": "河谷巡检视角 01",
+      "query_image": "/demo/uav_view_001.jpg",
+      "capture_time_s": 74,
+      "resolution": [1280, 720],
+      "camera": {
+        "fov_deg": 74,
+        "height_m": 125,
+        "pitch_deg": -38
+      },
+      "scene_tags": ["road", "vegetation", "river"],
+      "expected_center": [116.1755, 39.1635, 125.0]
+    },
+    {
+      "id": "demo_uav_002",
+      "task_id": "task_001",
+      "name": "居民区边缘视角 02",
+      "query_image": "/demo/uav_view_002.jpg",
+      "capture_time_s": 126,
+      "resolution": [1280, 720],
+      "camera": {
+        "fov_deg": 68,
+        "height_m": 132,
+        "pitch_deg": -42
+      },
+      "scene_tags": ["building", "road", "open-space"],
+      "expected_center": [116.2055, 39.1850, 132.0]
+    },
+    {
+      "id": "demo_uav_003",
+      "task_id": "task_001",
+      "name": "起飞区回看视角 03",
+      "query_image": "/demo/uav_view_003.jpg",
+      "capture_time_s": 38,
+      "resolution": [1280, 720],
+      "camera": {
+        "fov_deg": 72,
+        "height_m": 118,
+        "pitch_deg": -35
+      },
+      "scene_tags": ["launch-area", "field", "road"],
+      "expected_center": [116.1325, 39.1365, 118.0]
+    }
+  ],
+  "vision_tile_index": [
+    {
+      "tile_id": "tile_018",
+      "task_id": "task_001",
+      "name": "起飞区西南瓦片",
+      "center": [116.1125, 39.1185, 110.0],
+      "bbox": [
+        [116.1040, 39.1110],
+        [116.1210, 39.1110],
+        [116.1210, 39.1260],
+        [116.1040, 39.1260]
+      ],
+      "source": "demo_remote_sensing_mosaic",
+      "feature_count": 980
+    },
+    {
+      "tile_id": "tile_021",
+      "task_id": "task_001",
+      "name": "低密建筑瓦片",
+      "center": [116.1355, 39.1395, 118.0],
+      "bbox": [
+        [116.1270, 39.1320],
+        [116.1440, 39.1320],
+        [116.1440, 39.1470],
+        [116.1270, 39.1470]
+      ],
+      "source": "demo_remote_sensing_mosaic",
+      "feature_count": 1320
+    },
+    {
+      "tile_id": "tile_034",
+      "task_id": "task_001",
+      "name": "河谷道路瓦片",
+      "center": [116.1755, 39.1635, 125.0],
+      "bbox": [
+        [116.1670, 39.1560],
+        [116.1840, 39.1560],
+        [116.1840, 39.1710],
+        [116.1670, 39.1710]
+      ],
+      "source": "demo_remote_sensing_mosaic",
+      "feature_count": 1540
+    },
+    {
+      "tile_id": "tile_041",
+      "task_id": "task_001",
+      "name": "北侧居民区瓦片",
+      "center": [116.2055, 39.1850, 132.0],
+      "bbox": [
+        [116.1970, 39.1775],
+        [116.2140, 39.1775],
+        [116.2140, 39.1925],
+        [116.1970, 39.1925]
+      ],
+      "source": "demo_remote_sensing_mosaic",
+      "feature_count": 1710
+    },
+    {
+      "tile_id": "tile_052",
+      "task_id": "task_001",
+      "name": "目标区东侧瓦片",
+      "center": [116.2205, 39.2020, 130.0],
+      "bbox": [
+        [116.2120, 39.1945],
+        [116.2290, 39.1945],
+        [116.2290, 39.2095],
+        [116.2120, 39.2095]
+      ],
+      "source": "demo_remote_sensing_mosaic",
+      "feature_count": 1190
+    }
+  ],
+  "vision_matches": [
+    {
+      "match_id": "match_demo_001",
+      "task_id": "task_001",
+      "image_id": "demo_uav_001",
+      "query_image": "/demo/uav_view_001.jpg",
+      "provider": "precomputed_demo",
+      "status": "completed",
+      "algorithm_trace": [
+        "image_normalize",
+        "tile_retrieve_top3",
+        "local_feature_match",
+        "ransac_verify"
+      ],
+      "candidates": [
+        {
+          "tile_id": "tile_034",
+          "confidence": 0.87,
+          "matched_points": 142,
+          "inlier_ratio": 0.71,
+          "bbox": [
+            [116.1670, 39.1560],
+            [116.1840, 39.1560],
+            [116.1840, 39.1710],
+            [116.1670, 39.1710]
+          ],
+          "center": [116.1755, 39.1635, 125.0],
+          "offset_m": [12.5, -8.2],
+          "status": "best",
+          "reason": "道路弯折、水体边界和植被纹理同时匹配"
+        },
+        {
+          "tile_id": "tile_021",
+          "confidence": 0.62,
+          "matched_points": 74,
+          "inlier_ratio": 0.43,
+          "bbox": [
+            [116.1270, 39.1320],
+            [116.1440, 39.1320],
+            [116.1440, 39.1470],
+            [116.1270, 39.1470]
+          ],
+          "center": [116.1355, 39.1395, 118.0],
+          "offset_m": [-38.0, 19.4],
+          "status": "candidate",
+          "reason": "道路方向相似，但建筑纹理一致性较低"
+        },
+        {
+          "tile_id": "tile_041",
+          "confidence": 0.48,
+          "matched_points": 39,
+          "inlier_ratio": 0.28,
+          "bbox": [
+            [116.1970, 39.1775],
+            [116.2140, 39.1775],
+            [116.2140, 39.1925],
+            [116.1970, 39.1925]
+          ],
+          "center": [116.2055, 39.1850, 132.0],
+          "offset_m": [96.4, 42.0],
+          "status": "rejected",
+          "reason": "粗检索相似，但 RANSAC 内点比例不足"
+        }
+      ]
+    },
+    {
+      "match_id": "match_demo_002",
+      "task_id": "task_001",
+      "image_id": "demo_uav_002",
+      "query_image": "/demo/uav_view_002.jpg",
+      "provider": "precomputed_demo",
+      "status": "completed",
+      "algorithm_trace": [
+        "image_normalize",
+        "tile_retrieve_top3",
+        "local_feature_match",
+        "ransac_verify"
+      ],
+      "candidates": [
+        {
+          "tile_id": "tile_041",
+          "confidence": 0.84,
+          "matched_points": 128,
+          "inlier_ratio": 0.68,
+          "bbox": [
+            [116.1970, 39.1775],
+            [116.2140, 39.1775],
+            [116.2140, 39.1925],
+            [116.1970, 39.1925]
+          ],
+          "center": [116.2055, 39.1850, 132.0],
+          "offset_m": [-9.8, 14.2],
+          "status": "best",
+          "reason": "居民区道路网格和屋顶块面匹配稳定"
+        },
+        {
+          "tile_id": "tile_052",
+          "confidence": 0.59,
+          "matched_points": 67,
+          "inlier_ratio": 0.39,
+          "bbox": [
+            [116.2120, 39.1945],
+            [116.2290, 39.1945],
+            [116.2290, 39.2095],
+            [116.2120, 39.2095]
+          ],
+          "center": [116.2205, 39.2020, 130.0],
+          "offset_m": [44.6, 35.8],
+          "status": "candidate",
+          "reason": "目标区道路方向接近，但建筑密度差异较大"
+        },
+        {
+          "tile_id": "tile_034",
+          "confidence": 0.45,
+          "matched_points": 35,
+          "inlier_ratio": 0.24,
+          "bbox": [
+            [116.1670, 39.1560],
+            [116.1840, 39.1560],
+            [116.1840, 39.1710],
+            [116.1670, 39.1710]
+          ],
+          "center": [116.1755, 39.1635, 125.0],
+          "offset_m": [-112.0, -61.5],
+          "status": "rejected",
+          "reason": "水体边界特征与输入图不一致"
+        }
+      ]
+    },
+    {
+      "match_id": "match_demo_003",
+      "task_id": "task_001",
+      "image_id": "demo_uav_003",
+      "query_image": "/demo/uav_view_003.jpg",
+      "provider": "precomputed_demo",
+      "status": "completed",
+      "algorithm_trace": [
+        "image_normalize",
+        "tile_retrieve_top3",
+        "local_feature_match",
+        "ransac_verify"
+      ],
+      "candidates": [
+        {
+          "tile_id": "tile_021",
+          "confidence": 0.81,
+          "matched_points": 116,
+          "inlier_ratio": 0.66,
+          "bbox": [
+            [116.1270, 39.1320],
+            [116.1440, 39.1320],
+            [116.1440, 39.1470],
+            [116.1270, 39.1470]
+          ],
+          "center": [116.1355, 39.1395, 118.0],
+          "offset_m": [8.4, -11.3],
+          "status": "best",
+          "reason": "起飞区道路交叉口和开阔地边界匹配"
+        },
+        {
+          "tile_id": "tile_018",
+          "confidence": 0.64,
+          "matched_points": 82,
+          "inlier_ratio": 0.45,
+          "bbox": [
+            [116.1040, 39.1110],
+            [116.1210, 39.1110],
+            [116.1210, 39.1260],
+            [116.1040, 39.1260]
+          ],
+          "center": [116.1125, 39.1185, 110.0],
+          "offset_m": [-51.0, -33.5],
+          "status": "candidate",
+          "reason": "开阔地纹理相似，缺少稳定建筑边缘"
+        },
+        {
+          "tile_id": "tile_034",
+          "confidence": 0.42,
+          "matched_points": 31,
+          "inlier_ratio": 0.21,
+          "bbox": [
+            [116.1670, 39.1560],
+            [116.1840, 39.1560],
+            [116.1840, 39.1710],
+            [116.1670, 39.1710]
+          ],
+          "center": [116.1755, 39.1635, 125.0],
+          "offset_m": [122.0, 88.0],
+          "status": "rejected",
+          "reason": "纹理召回但几何一致性未通过"
+        }
+      ]
+    }
+  ]
+}

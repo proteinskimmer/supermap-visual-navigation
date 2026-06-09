@@ -88,3 +88,27 @@
 - `offset_m`：估计偏移。
 - `status`：候选状态，包含 `best`、`candidate`、`rejected`。
 - `reason`：候选解释原因。
+## 2026-06-09 Luojia 自动视觉瓦片数据
+
+当前 `vision_tile_index` 由 `scripts/generate_luojia_vision_tiles.py` 从真实珞珈山正射影像自动生成，不再手写固定 5 个瓦片。
+
+生成输入：
+
+- `data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif`
+- `data_sources/luojia_mountain/raw_test_data/珞珈山影像.tfw`
+
+生成输出：
+
+- `demo_data/generated/luojia_vision_tiles.json`
+- `frontend/public/demo/vision_tiles/*.png`
+- `demo_data/task_demo.json` 中的 `vision_tile_index`
+- `demo_data/gis_export/vision_tile.geojson`
+
+自动瓦片新增字段：
+
+- `tile_image`：瓦片缩略图。
+- `pixel_bbox`：源影像像素窗口。
+- `grid`：瓦片行列号。
+- `source_image`：源 TIFF 路径。
+- `feature_count_method`：特征数量代理指标的来源。
+- `preview_stats`：缩略图采样统计。

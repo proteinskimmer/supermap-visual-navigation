@@ -14,6 +14,7 @@
 8. `08_idesktopx_local_verification.md`：记录本机 iDesktopX 安装结构、样例数据、许可说明和启动链路验收。
 9. `09_idesktopx_demo_data_import.md`：记录 demo GeoJSON 数据包生成、iDesktopX 导入顺序、字段说明和样式建议。
 10. `09_iserver_local_verification.md`：记录本机 iServer 2025U1A 安装结构、正确启动方式、端口和 HTTP 页面验收。
+11. `06_luojia_mountain_data_import_plan.md`：记录珞珈山真实/半真实三维场景数据的 SuperMap 导入、发布和前端接入方案。
 
 ## 当前策略
 
@@ -29,6 +30,8 @@
 - 当前 `3D-CBD` 只作为官方样例链路验证；下一门禁是发布 `low_altitude_demo` 自建服务并替换前端配置。
 - 当前已核验本机 iServer 2025U1A：必须从 `bin` 目录运行 `iserver.bat -start`，默认端口 `8090`，`/iserver`、服务列表、管理页和帮助页均已返回 HTTP 200。
 - iServer 当前仅达到安装与运行入口验收；真实 `3D-CBD` 或项目三维服务 URL、iClient3D `scene.open(sceneUrl)` 浏览器渲染截图仍待完成。
+- 当前已整理珞珈山数据副本到 `data_sources/luojia_mountain`；该数据包优先走 SuperMap iDesktopX/iServer 链路，不以 ArcGIS Pro 作为主处理方案。
+- 珞珈山服务未发布前，不覆盖当前已验收的 `config/supermap_services.local.json`；先使用 `config/supermap_services.luojia.example.json` 作为候选配置模板。
 
 ## 最小跑通目标
 

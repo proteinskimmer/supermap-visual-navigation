@@ -1,0 +1,124 @@
+{
+  "scene_id": "luojia_mountain",
+  "display_name": "Luojia Mountain demo scene",
+  "source_dir": "data_sources/luojia_mountain",
+  "projection": {
+    "type": "transverse_mercator",
+    "datum": "CGCS2000",
+    "epsg": 4547,
+    "central_meridian_deg": 114.0,
+    "false_easting": 500000.0,
+    "false_northing": 0.0,
+    "semi_major_axis": 6378137.0,
+    "inverse_flattening": 298.257223563
+  },
+  "extent": {
+    "projected": {
+      "west": 534169.8512101675,
+      "south": 3379309.826421168,
+      "east": 535710.0512101675,
+      "north": 3380150.0264211684
+    }
+  },
+  "orthophoto": {
+    "path": "raw_test_data/珞珈山影像.tif",
+    "world_file": "raw_test_data/珞珈山影像.tfw",
+    "texture_url": "/demo/luojia_ortho_preview.jpg"
+  },
+  "terrain": {
+    "source": {
+      "type": "points_csv",
+      "path": "raw_test_data/区域地形点.csv",
+      "encoding": "utf-8-sig",
+      "x_field": "X",
+      "y_field": "Y",
+      "z_field": "Z"
+    },
+    "grid": {
+      "cols": 72,
+      "rows": 40
+    },
+    "output": "frontend/public/demo/luojia_terrain_preview.json"
+  },
+  "buildings": {
+    "source": {
+      "type": "shapefile_polygon",
+      "path": "raw_student_output/珞珈山周边建筑3D.shp",
+      "encoding": "utf-8"
+    },
+    "height": {
+      "field": "HEIGHT_M",
+      "default_m": 18.0,
+      "min_m": 6.0,
+      "max_m": 90.0
+    },
+    "id_prefix": "luojia_building",
+    "output": "frontend/public/demo/luojia_buildings_preview.json"
+  },
+  "outputs": {
+    "manifest": "frontend/public/demo/luojia_scene_manifest.json"
+  },
+  "supermap": {
+    "workspace": "supermap_file_root/luojia_workspace/luojia_mountain_demo.smwu",
+    "datasource": "supermap_file_root/luojia_workspace/luojia_mountain_demo.udbx",
+    "datasource_alias": "luojia_mountain_demo",
+    "map_name": "luojia_mountain_map",
+    "summary": "supermap_file_root/luojia_workspace/build_summary.json",
+    "imports": [
+      {
+        "kind": "raster",
+        "path": "raw_test_data/珞珈山影像.tif",
+        "dataset": "luojia_ortho",
+        "options": {
+          "is_import_as_grid": false,
+          "is_build_pyramid": true
+        },
+        "add_to_map": true
+      },
+      {
+        "kind": "raster",
+        "path": "raw_student_output/珞珈山DEM.tif",
+        "dataset": "luojia_dem",
+        "options": {
+          "is_import_as_grid": true,
+          "is_build_pyramid": true
+        },
+        "add_to_map": false
+      },
+      {
+        "kind": "shape",
+        "path": "raw_student_output/区域地形点.shp",
+        "dataset": "luojia_terrain_points",
+        "options": {
+          "is_import_as_3d": true,
+          "source_file_charset": "UTF-8"
+        },
+        "add_to_map": true
+      },
+      {
+        "kind": "shape",
+        "path": "raw_student_output/珞珈山周边建筑3D.shp",
+        "dataset": "luojia_buildings_3d",
+        "options": {
+          "is_import_as_3d": false,
+          "source_file_charset": "UTF-8"
+        },
+        "add_to_map": true
+      }
+    ]
+  },
+  "optional_layers": [
+    {
+      "name": "risk_zones",
+      "description": "Optional polygon layer for no-fly or temporary risk areas."
+    },
+    {
+      "name": "route_corridor",
+      "description": "Optional line or polygon layer for planned route corridor validation."
+    },
+    {
+      "name": "vision_tiles",
+      "description": "Optional footprint layer for synthetic-view matching tiles."
+    }
+  ]
+}

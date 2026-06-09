@@ -1,0 +1,45 @@
+{
+  "scene_id": "luojia_mountain",
+  "display_name": "Luojia Mountain demo scene",
+  "projection": {
+    "type": "transverse_mercator",
+    "datum": "CGCS2000",
+    "epsg": 4547,
+    "central_meridian_deg": 114.0,
+    "false_easting": 500000.0,
+    "false_northing": 0.0,
+    "semi_major_axis": 6378137.0,
+    "inverse_flattening": 298.257223563
+  },
+  "orthophoto": {
+    "texture_url": "/demo/luojia_ortho_preview.jpg",
+    "path": "raw_test_data/珞珈山影像.tif"
+  },
+  "exports": {
+    "terrain": {
+      "output": "E:\\supermap_project\\frontend\\public\\demo\\luojia_terrain_preview.json",
+      "vertices": 2880,
+      "triangles": 5538,
+      "z_min": 5.96,
+      "z_max": 103.06
+    },
+    "buildings": {
+      "output": "E:\\supermap_project\\frontend\\public\\demo\\luojia_buildings_preview.json",
+      "count": 169
+    }
+  },
+  "optional_layers": [
+    {
+      "name": "risk_zones",
+      "description": "Optional polygon layer for no-fly or temporary risk areas."
+    },
+    {
+      "name": "route_corridor",
+      "description": "Optional line or polygon layer for planned route corridor validation."
+    },
+    {
+      "name": "vision_tiles",
+      "description": "Optional footprint layer for synthetic-view matching tiles."
+    }
+  ]
+}

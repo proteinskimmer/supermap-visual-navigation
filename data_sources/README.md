@@ -19,6 +19,19 @@ data_sources/
     screenshots/
 ```
 
+当前已整理的数据包：
+
+```text
+data_sources/luojia_mountain/
+```
+
+该目录包含珞珈山正射影像、DEM、地形点、建筑面和 ArcGIS TIN 备份。详细说明见：
+
+```text
+data_sources/luojia_mountain/README.md
+docs/supermap_integration/06_luojia_mountain_data_import_plan.md
+```
+
 最低必交：
 
 ```text

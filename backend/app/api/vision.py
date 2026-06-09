@@ -1,7 +1,22 @@
 from fastapi import APIRouter, HTTPException, Query
 
 from app.api.responses import ok
-from app.models.schemas import ApiResponse, VisionImage, VisionMatchRequest, VisionMatchResult, VisionTile
+from app.models.schemas import (
+    ApiResponse,
+    SyntheticViewRequest,
+    SyntheticViewResponse,
+    VisionImage,
+    VisionMatchRequest,
+    VisionMatchResult,
+    VisionTile,
+    VisualLocalizationRequest,
+    VisualLocalizationResult,
+)
+from app.services.synthetic_view_service import (
+    build_synthetic_view_response,
+    get_localization,
+    localize_with_synthetic_views,
+)
 from app.services.vision_service import (
     get_match_by_id,
     get_match_result,
@@ -41,3 +56,36 @@ def vision_match_detail(match_id: str):
     if result:
         return ok(result)
     raise HTTPException(status_code=404, detail=f"vision match not found: {match_id}")
+
+
+@router.post("/vision/synthetic-views", response_model=ApiResponse[SyntheticViewResponse])
+def vision_synthetic_views(payload: SyntheticViewRequest):
+    return ok(
+        build_synthetic_view_response(
+            task_id=payload.task_id,
+            image_id=payload.image_id,
+            initial_pose=payload.initial_pose.model_dump() if payload.initial_pose else None,
+            route_prior_pose=payload.route_prior_pose.model_dump() if payload.route_prior_pose else None,
+            top_k_tiles=payload.top_k_tiles,
+        )
+    )
+
+
+@router.post("/vision/localize", response_model=ApiResponse[VisualLocalizationResult])
+def vision_localize(payload: VisualLocalizationRequest):
+    if payload.matcher_mode not in {"synthetic_v04", "precomputed"}:
+        raise HTTPException(status_code=400, detail=f"unsupported matcher mode: {payload.matcher_mode}")
+    return ok(
+        localize_with_synthetic_views(
+            task_id=payload.task_id,
+            image_id=payload.image_id,
+            initial_pose=payload.initial_pose.model_dump() if payload.initial_pose else None,
+            route_prior_pose=payload.route_prior_pose.model_dump() if payload.route_prior_pose else None,
+            top_k_tiles=payload.top_k_tiles,
+        )
+    )
+
+
+@router.get("/vision/localizations/{image_id}", response_model=ApiResponse[VisualLocalizationResult])
+def vision_localization_detail(image_id: str, task_id: str = Query(default="task_001")):
+    return ok(get_localization(task_id, image_id))

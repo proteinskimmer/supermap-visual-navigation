@@ -13,6 +13,8 @@ const props = defineProps({
   visionResult: { type: Object, default: null },
   visionTiles: { type: Array, default: () => [] },
   currentPoint: { type: Array, default: null },
+  actualFlightTrail: { type: Array, default: () => [] },
+  referenceFlightTrail: { type: Array, default: () => [] },
 });
 
 const bounds = computed(() => {
@@ -71,7 +73,7 @@ function candidateClass(candidate) {
 </script>
 
 <template>
-  <svg viewBox="0 0 100 100" class="mission-map" role="img" aria-label="mission map">
+  <svg viewBox="0 0 100 100" class="mission-map" role="img" aria-label="任务态势图">
     <defs>
       <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
         <path d="M 10 0 L 0 0 0 10" fill="none" stroke="#d8e1ea" stroke-width="0.25" />
@@ -125,6 +127,23 @@ function candidateClass(candidate) {
       class="route-line route-replanned"
     />
 
+    <polyline
+      v-if="referenceFlightTrail.length >= 2"
+      :points="pointsAttr(referenceFlightTrail)"
+      class="flight-trail flight-trail-reference"
+    />
+
+    <polyline
+      v-if="actualFlightTrail.length >= 2"
+      :points="pointsAttr(actualFlightTrail)"
+      class="flight-trail flight-trail-actual-halo"
+    />
+    <polyline
+      v-if="actualFlightTrail.length >= 2"
+      :points="pointsAttr(actualFlightTrail)"
+      class="flight-trail flight-trail-actual"
+    />
+
     <g v-if="visionTiles.length">
       <polygon
         v-for="tile in visionTiles"
@@ -164,3 +183,28 @@ function candidateClass(candidate) {
     />
   </svg>
 </template>
+
+<style scoped>
+.flight-trail {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.flight-trail-reference {
+  stroke: rgba(255, 255, 255, 0.82);
+  stroke-width: 0.75;
+  stroke-dasharray: 2 1.2;
+}
+
+.flight-trail-actual-halo {
+  stroke: rgba(0, 0, 0, 0.48);
+  stroke-width: 2.2;
+}
+
+.flight-trail-actual {
+  stroke: rgba(0, 224, 255, 0.95);
+  stroke-width: 1.15;
+}
+</style>

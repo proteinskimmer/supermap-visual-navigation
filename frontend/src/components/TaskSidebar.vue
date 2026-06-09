@@ -33,47 +33,7 @@ defineEmits([
 
 <template>
   <aside class="side-panel">
-    <section class="panel-section">
-      <h2>任务</h2>
-      <EmptyState v-if="!tasks.length" title="任务未加载" message="等待后端返回任务列表。" />
-      <button v-for="task in tasks" v-else :key="task.id" class="task-button active">
-        <span>{{ task.display_name }}</span>
-        <small>{{ task.id }}</small>
-      </button>
-    </section>
-
-    <section class="panel-section">
-      <h2>图层</h2>
-      <EmptyState v-if="!layers.length" title="图层未加载" message="等待图层配置或 iServer 服务地址。" />
-      <label v-for="layer in layers" v-else :key="layer.id" class="toggle-row">
-        <input v-model="layer.visible" type="checkbox" />
-        <span>{{ layer.name }}</span>
-      </label>
-    </section>
-
-    <SuperMapServicePanel
-      :config="supermapConfig"
-      :status="supermapStatus"
-      :refreshing="supermapRefreshing"
-      @refresh="$emit('refresh-supermap')"
-    />
-
-    <section class="panel-section">
-      <h2>视觉样例</h2>
-      <EmptyState v-if="!visionImages.length" title="样例未加载" message="视觉模块可后置，当前不影响主流程。" />
-      <button
-        v-for="image in visionImages"
-        v-else
-        :key="image.id"
-        :class="['task-button', selectedVisionImageId === image.id ? 'active' : '']"
-        @click="$emit('select-vision-image', image.id)"
-      >
-        <span>{{ image.name }}</span>
-        <small>{{ image.id }} · {{ image.capture_time_s }}s</small>
-      </button>
-    </section>
-
-    <section class="panel-section">
+    <section class="panel-section control-dock">
       <h2>控制</h2>
       <div class="button-grid">
         <button :disabled="!selectedTask" @click="$emit('plan-routes')">规划</button>
@@ -86,14 +46,56 @@ defineEmits([
       </div>
     </section>
 
-    <section class="panel-section">
-      <h2>演示闭环</h2>
-      <ol class="demo-checklist">
-        <li v-for="step in demoSteps" :key="step.label" :class="{ done: step.done }">
-          <span></span>
-          {{ step.label }}
-        </li>
-      </ol>
-    </section>
+    <div class="side-panel-scroll">
+      <section class="panel-section">
+        <h2>任务</h2>
+        <EmptyState v-if="!tasks.length" title="任务未加载" message="等待后端返回任务列表。" />
+        <button v-for="task in tasks" v-else :key="task.id" class="task-button active">
+          <span>{{ task.display_name }}</span>
+          <small>{{ task.id }}</small>
+        </button>
+      </section>
+
+      <section class="panel-section">
+        <h2>图层</h2>
+        <EmptyState v-if="!layers.length" title="图层未加载" message="等待图层配置或 iServer 服务地址。" />
+        <label v-for="layer in layers" v-else :key="layer.id" class="toggle-row">
+          <input v-model="layer.visible" type="checkbox" />
+          <span>{{ layer.name }}</span>
+        </label>
+      </section>
+
+      <section class="panel-section">
+        <h2>演示闭环</h2>
+        <ol class="demo-checklist">
+          <li v-for="step in demoSteps" :key="step.label" :class="{ done: step.done }">
+            <span></span>
+            {{ step.label }}
+          </li>
+        </ol>
+      </section>
+
+      <section class="panel-section">
+        <h2>视觉样例</h2>
+        <EmptyState v-if="!visionImages.length" title="样例未加载" message="视觉模块可后置，当前不影响主流程。" />
+        <button
+          v-for="image in visionImages"
+          v-else
+          :key="image.id"
+          :class="['task-button', selectedVisionImageId === image.id ? 'active' : '']"
+          @click="$emit('select-vision-image', image.id)"
+        >
+          <span>{{ image.name }}</span>
+          <small>{{ image.id }} · {{ image.capture_time_s }}秒</small>
+        </button>
+      </section>
+
+      <SuperMapServicePanel
+        :config="supermapConfig"
+        :status="supermapStatus"
+        :refreshing="supermapRefreshing"
+        @refresh="$emit('refresh-supermap')"
+      />
+    </div>
   </aside>
 </template>

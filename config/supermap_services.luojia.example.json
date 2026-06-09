@@ -1,0 +1,63 @@
+{
+    "iserver":  {
+                    "base_url":  "http://localhost:8090/iserver",
+                    "manager_url":  "http://localhost:8090/iserver/admin-ui/home",
+                    "version":  "2025U1A",
+                    "workspace_path":  "E:\\supermap_project\\supermap_file_root\\luojia_workspace\\luojia_mountain_demo.smwu",
+                    "coordinate_system":  "CGCS2000_3_Degree_GK_CM_114E",
+                    "epsg":  4547
+                },
+    "services":  {
+                     "scene":  {
+                                   "name":  "3D-luojia_mountain_demo",
+                                   "url":  "http://localhost:8090/iserver/services/3D-luojia_mountain_demo/rest/realspace",
+                                   "resource_url":  "http://localhost:8090/iserver/services/3D-luojia_mountain_demo/rest/realspace/scenes/luojia_mountain_demo",
+                                   "metadata_url":  "http://localhost:8090/iserver/services/3D-luojia_mountain_demo/rest/realspace/scenes/luojia_mountain_demo.json",
+                                   "type":  "3d",
+                                   "status":  "verified"
+                               },
+                     "map":  {
+                                 "name":  "map-luojia_mountain_demo",
+                                 "url":  "http://localhost:8090/iserver/services/map-luojia_mountain_demo/rest/maps",
+                                 "resource_url":  "http://localhost:8090/iserver/services/map-luojia_mountain_demo/rest/maps/luojia_mountain_map",
+                                 "metadata_url":  "http://localhost:8090/iserver/services/map-luojia_mountain_demo/rest/maps/luojia_mountain_map.json",
+                                 "type":  "map",
+                                 "status":  "verified"
+                             },
+                     "data":  {
+                                  "name":  "data-luojia_mountain_demo",
+                                  "url":  "http://localhost:8090/iserver/services/data-luojia_mountain_demo/rest/data",
+                                  "type":  "data",
+                                  "status":  "verified"
+                              },
+                     "spatial_analysis":  {
+                                              "name":  "",
+                                              "url":  "",
+                                              "type":  "spatial_analysis",
+                                              "status":  "optional"
+                                          }
+                 },
+    "layers":  {
+                   "ortho":  {
+                                 "dataset":  "luojia_ortho",
+                                 "service":  "data",
+                                 "geometry":  "Raster"
+                             },
+                   "dem":  {
+                               "dataset":  "luojia_dem",
+                               "service":  "data",
+                               "geometry":  "Raster"
+                           },
+                   "terrain_points":  {
+                                          "dataset":  "luojia_terrain_points",
+                                          "service":  "data",
+                                          "geometry":  "PointZ"
+                                      },
+                   "buildings_3d":  {
+                                        "dataset":  "luojia_buildings_3d",
+                                        "service":  "data",
+                                        "geometry":  "Polygon",
+                                        "height_field":  "HEIGHT_M"
+                                    }
+               }
+}

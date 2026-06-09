@@ -49,7 +49,7 @@ const stats = computed(() => {
       message="选择航线并完成风险校验后显示地形和飞行高度。"
     />
     <div v-else class="profile-panel">
-      <svg class="profile-chart profile-chart-large" viewBox="0 0 100 100" role="img" aria-label="elevation profile">
+      <svg class="profile-chart profile-chart-large" viewBox="0 0 100 100" role="img" aria-label="高程剖面">
         <polyline points="0,86 100,86" class="profile-axis" />
         <polyline :points="chart.terrain" class="profile-terrain-line" />
         <polyline :points="chart.flight" class="profile-line" />
@@ -60,9 +60,9 @@ const stats = computed(() => {
       </div>
       <div class="profile-stats" v-if="stats">
         <span>采样点<strong>{{ stats.samples }}</strong></span>
-        <span>最小离地<strong>{{ Math.round(stats.minClearance) }} m</strong></span>
-        <span>最高地形<strong>{{ Math.round(stats.maxTerrain) }} m</strong></span>
-        <span>剖面长度<strong>{{ Math.round(stats.maxDistance) }} m</strong></span>
+        <span>最小离地<strong>{{ Math.round(stats.minClearance) }} 米</strong></span>
+        <span>最高地形<strong>{{ Math.round(stats.maxTerrain) }} 米</strong></span>
+        <span>剖面长度<strong>{{ Math.round(stats.maxDistance) }} 米</strong></span>
       </div>
     </div>
   </section>

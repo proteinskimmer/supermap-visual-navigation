@@ -8,12 +8,12 @@ $ErrorActionPreference = "Stop"
 
 $stateDir = Join-Path $ProjectRoot ".tmp\demo_runtime"
 $pidFiles = @(
-  Join-Path $stateDir "frontend.pid",
-  Join-Path $stateDir "backend.pid"
+  (Join-Path $stateDir "frontend.pid"),
+  (Join-Path $stateDir "backend.pid")
 )
 
 if ($StopIServer) {
-  $pidFiles += Join-Path $stateDir "iserver_launcher.pid"
+  $pidFiles += (Join-Path $stateDir "iserver_launcher.pid")
 }
 
 Write-Host "== Stop demo processes =="
@@ -34,9 +34,21 @@ foreach ($file in $pidFiles) {
 }
 
 foreach ($port in $Ports) {
+  $listenerPids = @()
   $connections = Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue
   foreach ($connection in $connections) {
-    $pidValue = $connection.OwningProcess
+    $listenerPids += $connection.OwningProcess
+  }
+
+  $netstatLines = netstat -ano | Select-String -Pattern "^\s*TCP\s+\S+:$port\s+\S+\s+LISTENING\s+(\d+)\s*$"
+  foreach ($line in $netstatLines) {
+    $match = [regex]::Match($line.Line, "LISTENING\s+(\d+)\s*$")
+    if ($match.Success) {
+      $listenerPids += [int]$match.Groups[1].Value
+    }
+  }
+
+  foreach ($pidValue in ($listenerPids | Sort-Object -Unique)) {
     $process = Get-Process -Id $pidValue -ErrorAction SilentlyContinue
     if ($process) {
       Write-Host "[STOP] port $port => $($process.ProcessName) pid=$pidValue"

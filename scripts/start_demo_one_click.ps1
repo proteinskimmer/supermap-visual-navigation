@@ -29,6 +29,27 @@ function Test-Url {
   }
 }
 
+function Test-BackendNavigationRoute {
+  param([int]$Port)
+  try {
+    Invoke-WebRequest `
+      -Uri "http://localhost:$Port/api/navigation/start" `
+      -UseBasicParsing `
+      -Method Post `
+      -ContentType "application/json" `
+      -Body "{}" `
+      -TimeoutSec 3 | Out-Null
+    return $true
+  }
+  catch {
+    if ($_.Exception.Response) {
+      $statusCode = [int]$_.Exception.Response.StatusCode
+      return $statusCode -eq 422
+    }
+    return $false
+  }
+}
+
 function Wait-Url {
   param([string]$Url, [int]$TimeoutSeconds = 60)
   $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
@@ -77,8 +98,17 @@ function Confirm-NewServiceStable {
     [string[]]$LogPaths
   )
 
-  Start-Sleep -Seconds 4
-  if (-not (Test-Url -Url $Url)) {
+  Start-Sleep -Seconds 3
+  $stable = $false
+  $deadline = (Get-Date).AddSeconds(15)
+  while ((Get-Date) -lt $deadline) {
+    if (Test-Url -Url $Url) {
+      $stable = $true
+      break
+    }
+    Start-Sleep -Seconds 1
+  }
+  if (-not $stable) {
     $logTail = Get-LogTail -Paths $LogPaths
     throw "$Name started but became unreachable: $Url`n$logTail"
   }
@@ -164,6 +194,9 @@ Write-Host "== Backend =="
 $backendUrl = "http://localhost:$BackendPort/api/health"
 if (Test-Url -Url $backendUrl) {
   Write-Host "[OK] backend already running: $backendUrl"
+  if (-not (Test-BackendNavigationRoute -Port $BackendPort)) {
+    throw "Backend is running but /api/navigation/start is missing. Run STOP_DEMO.bat, then START_DEMO.bat to load the R2 backend."
+  }
 }
 else {
   Write-Host "[START] backend on port $BackendPort"
@@ -176,6 +209,10 @@ else {
     -StderrLog $backendErrLog | Out-Null
   Wait-Url -Url $backendUrl -TimeoutSeconds 45
   Confirm-NewServiceStable -Name "backend" -Url $backendUrl -PidFile $backendPidFile -LogPaths @($backendOutLog, $backendErrLog)
+  if (-not (Test-BackendNavigationRoute -Port $BackendPort)) {
+    $logTail = Get-LogTail -Paths @($backendOutLog, $backendErrLog)
+    throw "Backend started, but /api/navigation/start is missing.`n$logTail"
+  }
 }
 
 Write-Host ""

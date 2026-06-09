@@ -22,6 +22,12 @@ export const api = {
   health: () => request("/health"),
   tasks: () => request("/tasks"),
   taskDetail: (taskId) => request(`/tasks/${taskId}`),
+  riskZones: (taskId) => request(`/tasks/${encodeURIComponent(taskId)}/risk-zones`),
+  updateRiskZones: (taskId, riskZones) =>
+    request(`/tasks/${encodeURIComponent(taskId)}/risk-zones`, {
+      method: "PUT",
+      body: JSON.stringify({ risk_zones: riskZones }),
+    }),
   layers: () => request("/layers"),
   supermapConfig: () => request("/supermap/config"),
   supermapServices: () => request("/supermap/services"),
@@ -38,6 +44,19 @@ export const api = {
     }),
   startSimulation: (body) =>
     request("/simulations/start", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  startNavigation: (body) =>
+    request("/navigation/start", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  navigationState: (sessionId, timeS) =>
+    request(`/navigation/state?session_id=${encodeURIComponent(sessionId)}&time_s=${encodeURIComponent(timeS)}`),
+  navigationTimeline: (sessionId) => request(`/navigation/timeline?session_id=${encodeURIComponent(sessionId)}`),
+  navigationReplan: (body) =>
+    request("/navigation/replan", {
       method: "POST",
       body: JSON.stringify(body),
     }),
@@ -58,6 +77,18 @@ export const api = {
       method: "POST",
       body: JSON.stringify(body),
     }),
+  visionSyntheticViews: (body) =>
+    request("/vision/synthetic-views", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  visionLocalize: (body) =>
+    request("/vision/localize", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  visionLocalizationDetail: (taskId, imageId) =>
+    request(`/vision/localizations/${encodeURIComponent(imageId)}?task_id=${encodeURIComponent(taskId)}`),
   visionMatchDetail: (matchId) => request(`/vision/matches/${encodeURIComponent(matchId)}`),
   report: (taskId) => request(`/reports/${taskId}`),
 };

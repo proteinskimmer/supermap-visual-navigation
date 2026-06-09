@@ -192,7 +192,10 @@ def _check_map_service(service: dict) -> dict:
 
 def _check_data_service(service: dict, layers: dict) -> dict:
     base_url = service.get("url", "").rstrip("/")
-    datasource = "low_altitude_demo"
+    datasources = _check_json_url(f"{base_url}/datasources.json" if base_url else "", "data datasources")
+    datasource_payload = datasources.get("payload") or {}
+    datasource_names = datasource_payload.get("datasourceNames") or []
+    datasource = datasource_names[0] if datasource_names else service.get("datasource", "low_altitude_demo")
     url = f"{base_url}/datasources/{quote(datasource)}/datasets.json" if base_url else ""
     datasets = _check_json_url(url, "data datasets")
     payload = datasets.get("payload") or {}
@@ -200,6 +203,10 @@ def _check_data_service(service: dict, layers: dict) -> dict:
 
     service_status = datasets.copy()
     service_status.pop("payload", None)
+    if not datasources.get("reachable") and datasets.get("reachable"):
+        service_status["runtime_status"] = "partial"
+        service_status["reachable"] = False
+        service_status["message"] = f"datasets ok, datasources failed: {datasources.get('message', '')}"
     expected = [layer.get("dataset") for layer in layers.values() if layer.get("dataset")]
     missing = sorted(set(expected) - set(dataset_names))
     if datasets.get("reachable") and missing:

@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-label="Synthetic low-confidence UAV frame">
+  <defs>
+    <linearGradient id="ground" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#263521"/>
+      <stop offset="0.45" stop-color="#536342"/>
+      <stop offset="1" stop-color="#1d2a25"/>
+    </linearGradient>
+    <filter id="blur">
+      <feGaussianBlur stdDeviation="8"/>
+    </filter>
+    <pattern id="scan" width="18" height="18" patternUnits="userSpaceOnUse">
+      <path d="M0 9 H18" stroke="#f3e7b8" stroke-opacity="0.08" stroke-width="3"/>
+      <path d="M9 0 V18" stroke="#0a120d" stroke-opacity="0.16" stroke-width="2"/>
+    </pattern>
+  </defs>
+  <rect width="1280" height="720" fill="url(#ground)"/>
+  <g opacity="0.72" filter="url(#blur)">
+    <path d="M-80 555 C160 442 252 484 445 380 C601 296 762 330 940 210 C1074 120 1190 132 1360 64 L1360 780 L-80 780 Z" fill="#15271f"/>
+    <path d="M20 220 C180 170 314 198 475 150 C610 110 760 126 930 80 C1050 47 1168 64 1308 28" fill="none" stroke="#9aa26d" stroke-width="42" stroke-opacity="0.28"/>
+    <path d="M110 626 C285 538 412 560 580 472 C750 382 895 396 1110 284" fill="none" stroke="#30352b" stroke-width="36" stroke-opacity="0.62"/>
+  </g>
+  <rect width="1280" height="720" fill="url(#scan)"/>
+  <g opacity="0.44">
+    <circle cx="260" cy="164" r="118" fill="#d8d1aa"/>
+    <circle cx="590" cy="290" r="170" fill="#e8e1c0"/>
+    <circle cx="1015" cy="212" r="205" fill="#d9d2ac"/>
+    <circle cx="820" cy="575" r="155" fill="#f0e7bd"/>
+  </g>
+  <g fill="none" stroke="#e7f8ff" stroke-opacity="0.62" stroke-width="3">
+    <path d="M440 360 H840"/>
+    <path d="M640 160 V560"/>
+    <circle cx="640" cy="360" r="96"/>
+  </g>
+  <g font-family="Consolas, Arial, sans-serif" fill="#eafaff">
+    <text x="36" y="52" font-size="28">SIM UAV FRAME 04</text>
+    <text x="36" y="88" font-size="20" fill="#ffde8a">LOW CONFIDENCE / SYNTHETIC OBSCURED VIEW</text>
+    <text x="36" y="682" font-size="18" fill="#a8c8d8">DEM + ORTHO + BUILDING CONTEXT PROXY</text>
+  </g>
+</svg>

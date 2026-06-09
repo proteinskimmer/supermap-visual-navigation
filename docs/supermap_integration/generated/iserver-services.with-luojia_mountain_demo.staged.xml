@@ -1,0 +1,193 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- 用户发布的服务配置信息 -->
+<application> 
+  <componentSets> 
+    <!--配置服务组件集合--> 
+  </componentSets>  
+  <providerSets> 
+    <!--配置服务提供者集合--> 
+  </providerSets>  
+  <components> 
+    <!--配置服务组件-->  
+    <component alias="map-low_altitude_demo" class="com.supermap.services.components.impl.MapImpl" enabled="true" initOnCreate="false" initPriority="0" instanceCount="0" interfaceNames="rest" name="map-low_altitude_demo" providers="map-low_altitude_demo"> 
+      <config class="com.supermap.services.components.MapConfig"> 
+        <useCache>true</useCache>  
+        <tileCacheConfig class="com.supermap.services.tilesource.UGCV5TileSourceInfo"> 
+          <datastoreType>TILES</datastoreType>  
+          <type>UGCV5</type>  
+          <outputPath>./output/cache</outputPath>  
+          <storageType>Original</storageType> 
+        </tileCacheConfig>  
+        <useUTFGridCache>false</useUTFGridCache>  
+        <useVectorTileCache>false</useVectorTileCache>  
+        <cacheResamplingDisabled>false</cacheResamplingDisabled>  
+        <expired>0</expired>  
+        <cacheReadOnly>false</cacheReadOnly> 
+      </config> 
+    </component>  
+    <component alias="data-low_altitude_demo" class="com.supermap.services.components.impl.DataImpl" enabled="true" initOnCreate="false" initPriority="0" instanceCount="0" interfaceNames="rest" name="data-low_altitude_demo" providers="data-low_altitude_demo"> 
+      <config class="com.supermap.services.components.DataConfig"> 
+        <editable>false</editable>  
+        <disableQueryCache>false</disableQueryCache> 
+      </config> 
+    </component>
+    <component alias="3D-low_altitude_demo" class="com.supermap.services.components.impl.RealspaceImpl" enabled="true" initOnCreate="false" initPriority="0" instanceCount="0" interfaceNames="rest" name="3D-low_altitude_demo" providers="3D-low_altitude_demo">
+      <config class="com.supermap.services.components.RealspaceConfig"/>
+    </component>
+    <component alias="map-luojia_mountain_demo" class="com.supermap.services.components.impl.MapImpl" enabled="true" initOnCreate="false" initPriority="0" instanceCount="0" interfaceNames="rest" name="map-luojia_mountain_demo" providers="map-luojia_mountain_demo">
+      <config class="com.supermap.services.components.MapConfig">
+        <useCache>true</useCache>
+        <tileCacheConfig class="com.supermap.services.tilesource.UGCV5TileSourceInfo">
+          <datastoreType>TILES</datastoreType>
+          <type>UGCV5</type>
+          <outputPath>./output/cache</outputPath>
+          <storageType>Original</storageType>
+        </tileCacheConfig>
+        <useUTFGridCache>false</useUTFGridCache>
+        <useVectorTileCache>false</useVectorTileCache>
+        <cacheResamplingDisabled>false</cacheResamplingDisabled>
+        <expired>0</expired>
+        <cacheReadOnly>false</cacheReadOnly>
+      </config>
+    </component>
+    <component alias="data-luojia_mountain_demo" class="com.supermap.services.components.impl.DataImpl" enabled="true" initOnCreate="false" initPriority="0" instanceCount="0" interfaceNames="rest" name="data-luojia_mountain_demo" providers="data-luojia_mountain_demo">
+      <config class="com.supermap.services.components.DataConfig">
+        <editable>false</editable>
+        <disableQueryCache>false</disableQueryCache>
+      </config>
+    </component>
+    <component alias="3D-luojia_mountain_demo" class="com.supermap.services.components.impl.RealspaceImpl" enabled="true" initOnCreate="false" initPriority="0" instanceCount="0" interfaceNames="rest" name="3D-luojia_mountain_demo" providers="3D-luojia_mountain_demo">
+      <config class="com.supermap.services.components.RealspaceConfig"/>
+    </component>
+
+ 
+  </components>  
+  <providers> 
+    <!--配置服务提供者-->  
+    <provider class="com.supermap.services.providers.UGCMapProvider" enabled="true" name="map-low_altitude_demo"> 
+      <config class="com.supermap.services.providers.UGCMapProviderSetting"> 
+        <cacheVersion>5.0</cacheVersion>  
+        <workspacePath>${fileManagerWorkDir}/demo_workspace/low_altitude_demo.smwu</workspacePath>  
+        <layerCountPerDataType>0</layerCountPerDataType>  
+        <multiThread>true</multiThread>  
+        <poolSize>0</poolSize>  
+        <ugcMapSettings/>  
+        <useCompactCache>false</useCompactCache>  
+        <extractCacheToFile>true</extractCacheToFile>  
+        <queryExpectCount>1000</queryExpectCount>  
+        <ignoreHashcodeWhenUseCache>false</ignoreHashcodeWhenUseCache>  
+        <isMultiInstance>false</isMultiInstance>  
+        <inflatDisabled>false</inflatDisabled>  
+        <mapEditable>false</mapEditable>  
+        <dpi>96.0</dpi>  
+        <fullLabelEnabled>false</fullLabelEnabled>  
+        <cacheDisabled>false</cacheDisabled>  
+        <tileCacheReadOnly>false</tileCacheReadOnly>  
+        <vectorTileCacheDisabled>false</vectorTileCacheDisabled>  
+        <vectorTileCacheReadOnly>false</vectorTileCacheReadOnly>  
+        <usePreGeneratedUGCV5Cache>false</usePreGeneratedUGCV5Cache>  
+        <throwExceptionWhenOutputMapError>true</throwExceptionWhenOutputMapError> 
+      </config> 
+    </provider>  
+    <provider class="com.supermap.services.providers.UGCDataProvider" enabled="true" name="data-low_altitude_demo"> 
+      <config class="com.supermap.services.providers.UGCDataProviderSetting"> 
+        <maxFeatures>1000</maxFeatures>  
+        <workspacePath>${fileManagerWorkDir}/demo_workspace/low_altitude_demo.smwu</workspacePath>  
+        <datasourceInfos/>  
+        <datasourceNames/>  
+        <attachmentsEnabled>true</attachmentsEnabled>  
+        <featureMetadatasEnabled>false</featureMetadatasEnabled>  
+        <isMultiInstance>false</isMultiInstance>  
+        <isDatasetsCheck>false</isDatasetsCheck>  
+        <disableFieldNameToUpperCase>false</disableFieldNameToUpperCase>  
+        <dataProviderDelayCommitSetting> 
+          <enabled>false</enabled>  
+          <commitMode>INTERVALUPDATE</commitMode>  
+          <countToCommit>1000</countToCommit>  
+          <updateInterval>3600</updateInterval>  
+          <hour>3</hour>  
+          <minute>0</minute>  
+          <dayOfWeek>1,2,3,4,5,6,7</dayOfWeek>  
+          <logEntireErrorMsg>false</logEntireErrorMsg> 
+        </dataProviderDelayCommitSetting>  
+        <maxFeatureWriteThreadCount>1</maxFeatureWriteThreadCount>  
+        <writePermitTimeout>120</writePermitTimeout>  
+        <ignoreTotalCount>false</ignoreTotalCount> 
+      </config> 
+    </provider>
+    <provider class="com.supermap.services.providers.UGCRealspaceProvider" enabled="true" name="3D-low_altitude_demo">
+      <config class="com.supermap.services.providers.UGCRealspaceProviderSetting">
+        <workspacePath>${fileManagerWorkDir}/demo_workspace_3d_auto/low_altitude_demo.smwu</workspacePath>
+        <xmlParse>false</xmlParse>
+        <publishAllDatasets>false</publishAllDatasets>
+        <output>./output</output>
+        <isMultiInstance>false</isMultiInstance>
+      </config>
+    </provider>
+    <provider class="com.supermap.services.providers.UGCMapProvider" enabled="true" name="map-luojia_mountain_demo">
+      <config class="com.supermap.services.providers.UGCMapProviderSetting">
+        <cacheVersion>5.0</cacheVersion>
+        <workspacePath>${fileManagerWorkDir}/luojia_workspace/luojia_mountain_demo.smwu</workspacePath>
+        <layerCountPerDataType>0</layerCountPerDataType>
+        <multiThread>true</multiThread>
+        <poolSize>0</poolSize>
+        <ugcMapSettings/>
+        <useCompactCache>false</useCompactCache>
+        <extractCacheToFile>true</extractCacheToFile>
+        <queryExpectCount>1000</queryExpectCount>
+        <ignoreHashcodeWhenUseCache>false</ignoreHashcodeWhenUseCache>
+        <isMultiInstance>false</isMultiInstance>
+        <inflatDisabled>false</inflatDisabled>
+        <mapEditable>false</mapEditable>
+        <dpi>96.0</dpi>
+        <fullLabelEnabled>false</fullLabelEnabled>
+        <cacheDisabled>false</cacheDisabled>
+        <tileCacheReadOnly>false</tileCacheReadOnly>
+        <vectorTileCacheDisabled>false</vectorTileCacheDisabled>
+        <vectorTileCacheReadOnly>false</vectorTileCacheReadOnly>
+        <usePreGeneratedUGCV5Cache>false</usePreGeneratedUGCV5Cache>
+        <throwExceptionWhenOutputMapError>true</throwExceptionWhenOutputMapError>
+      </config>
+    </provider>
+    <provider class="com.supermap.services.providers.UGCDataProvider" enabled="true" name="data-luojia_mountain_demo">
+      <config class="com.supermap.services.providers.UGCDataProviderSetting">
+        <maxFeatures>1000</maxFeatures>
+        <workspacePath>${fileManagerWorkDir}/luojia_workspace/luojia_mountain_demo.smwu</workspacePath>
+        <datasourceInfos/>
+        <datasourceNames/>
+        <attachmentsEnabled>true</attachmentsEnabled>
+        <featureMetadatasEnabled>false</featureMetadatasEnabled>
+        <isMultiInstance>false</isMultiInstance>
+        <isDatasetsCheck>false</isDatasetsCheck>
+        <disableFieldNameToUpperCase>false</disableFieldNameToUpperCase>
+        <dataProviderDelayCommitSetting>
+          <enabled>false</enabled>
+          <commitMode>INTERVALUPDATE</commitMode>
+          <countToCommit>1000</countToCommit>
+          <updateInterval>3600</updateInterval>
+          <hour>3</hour>
+          <minute>0</minute>
+          <dayOfWeek>1,2,3,4,5,6,7</dayOfWeek>
+          <logEntireErrorMsg>false</logEntireErrorMsg>
+        </dataProviderDelayCommitSetting>
+        <maxFeatureWriteThreadCount>1</maxFeatureWriteThreadCount>
+        <writePermitTimeout>120</writePermitTimeout>
+        <ignoreTotalCount>false</ignoreTotalCount>
+      </config>
+    </provider>
+    <provider class="com.supermap.services.providers.UGCRealspaceProvider" enabled="true" name="3D-luojia_mountain_demo">
+      <config class="com.supermap.services.providers.UGCRealspaceProviderSetting">
+        <workspacePath>${fileManagerWorkDir}/luojia_workspace/luojia_mountain_demo.smwu</workspacePath>
+        <xmlParse>false</xmlParse>
+        <publishAllDatasets>false</publishAllDatasets>
+        <output>./output</output>
+        <isMultiInstance>false</isMultiInstance>
+      </config>
+    </provider>
+
+ 
+  </providers> 
+</application>
+
+

@@ -119,6 +119,8 @@ Write-GeoJson -Path (Join-Path $OutputDir "obstacle.geojson") -Features $obstacl
 $tileFeatures = @()
 foreach ($tile in $demo.vision_tile_index) {
   $center = $tile.center
+  $grid = $tile.grid
+  $pixelBbox = $tile.pixel_bbox
   $tileFeatures += New-Feature `
     -Geometry @{ type = "Polygon"; coordinates = ,(Convert-BboxToPolygon -Bbox $tile.bbox) } `
     -Properties @{
@@ -127,6 +129,14 @@ foreach ($tile in $demo.vision_tile_index) {
       name = $tile.name
       source = $tile.source
       feature_count = $tile.feature_count
+      tile_image = $tile.tile_image
+      source_image = $tile.source_image
+      feature_count_method = $tile.feature_count_method
+      grid_row = if ($grid) { $grid.row } else { $null }
+      grid_col = if ($grid) { $grid.col } else { $null }
+      grid_rows = if ($grid) { $grid.rows } else { $null }
+      grid_cols = if ($grid) { $grid.cols } else { $null }
+      pixel_bbox = if ($pixelBbox) { ($pixelBbox -join ",") } else { "" }
       center_lon = $center[0]
       center_lat = $center[1]
       center_alt_m = $center[2]

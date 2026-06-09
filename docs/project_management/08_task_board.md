@@ -1,6 +1,8 @@
 # 项目任务看板
 
-状态说明：
+更新日期：2026-06-09
+
+## 状态说明
 
 - `Todo`：未开始。
 - `Doing`：进行中。
@@ -11,109 +13,123 @@
 - `Delivery Ready`：提交材料和彩排已完成。
 - `Blocked`：阻塞，需要协作解决。
 
-## M1 环境与 SuperMap 底座
+## 当前总目标
+
+项目重新定位为：基于 SuperMap GIS 三维底座的无人机视觉自主导航仿真系统。系统必须以“UAV 视觉帧 -> 视觉地理重定位 -> 后端融合导航状态 -> 三维无人机与遥测同步推进 -> 风险/重规划/报告”为主线。
+
+当前严格状态：
+
+- SuperMap scene/map/data 接口级闭环：`SuperMap Verified`。
+- 指挥舱 UI 初稿：`Mock Done`。
+- 视觉匹配预计算演示：`Mock Done`。
+- 后端权威视觉自主导航状态机：`Runtime Verified`。
+- 真实 UAV 图像、DOM/DEM、真实视觉模型：`Todo`。
+- PPT、视频、最终彩排：`Todo`。
+
+## R0 主线纠偏与范围冻结
 
 | ID | 任务 | 负责人 | 状态 | 依赖 | 验收标准 |
 |---|---|---|---|---|---|
-| M1-01 | 安装 iDesktopX 2025 | GIS | Runtime Verified | 无 | 已进入主界面，右下角显示本地试用许可剩余 90 天，`CBD` 样例工作空间和三维场景均已显示 |
-| M1-02 | 安装 iServer 2025 | GIS | Runtime Verified | 无 | 已确认安装结构完整；从 `bin` 目录执行 `iserver.bat -start` 后，`8090` 端口监听，`/iserver`、服务列表、管理页和帮助页均返回 HTTP 200 |
-| M1-03 | 选择任务区域 | GIS/统筹 | Todo | 无 | 输出任务边界和数据来源 |
-| M1-04 | 整理影像、DEM、矢量图层 | GIS | Todo | M1-03 | iDesktopX 中可叠加显示 |
-| M1-05 | 制作三维场景 | GIS | Todo | M1-04 | 场景视角和图层正确 |
-| M1-06 | 发布 iServer 三维服务 | GIS | SuperMap Verified | M1-05 | 已确认官方 `3D-CBD` 与项目自建 `3D-low_altitude_demo` 三维服务均可访问；`3D-low_altitude_demo/rest/realspace/scenes.json` 返回项目场景标记 |
-| M1-07 | 输出服务地址表 | GIS | Runtime Verified | M1-06 | 已记录项目自建 `3D-low_altitude_demo`、`map-low_altitude_demo`、`data-low_altitude_demo` 服务 URL、元数据 URL 和前端验收状态 |
-| M1-08 | 完成 SuperMap 接入预案 | 统筹/前端/GIS | Mock Done | 无 | 有 iDesktopX、iServer、iClient3D 流程、服务模板和验收清单 |
-| M1-09 | 预留 SuperMap 服务配置接口 | 后端 | Mock Done | M1-08 | `/api/supermap/config` 和 `/api/supermap/services` 可读取配置 |
-| M1-10 | 核验 iClient3D 2025U1 本地 SDK | 统筹/前端 | SuperMap Verified | iClient3D 安装包 | 核心 JS/CSS、API 文档、示例和常用接口样例已记录；`supermap-minimal.html` 浏览器截图确认 WebGL2、Viewer 和 `scene.open` 成功 |
-| M1-11 | 核验 iDesktopX 2025 本地安装 | 统筹/GIS | Runtime Verified | iDesktopX 安装包 | 主程序、启动脚本、自带 JRE、版本文件、帮助文档、样例数据、核心 GIS/三维组件均已核验 |
-| M1-12 | 生成 iDesktopX demo GeoJSON 导入包 | 统筹/GIS | Runtime Verified | M1-11、demo 数据 | `demo_data/gis_export/` 已生成任务区、风险区、障碍物、视觉瓦片、起终点、预览航线、视觉中心点和无人机位置 GeoJSON，并通过解析检查 |
-| M1-13 | 核验 iServer 2025U1A 本地安装与运行 | 统筹/GIS | Runtime Verified | iServer 安装包 | `scripts/check_supermap_iserver.ps1` 通过；内置 JRE、Objects Java、License Center、样例数据、iClient3D 资源存在；本机 HTTP 入口可访问；初始化向导已完成，文件管理根目录为 `E:\supermap_project\supermap_file_root` |
-| M1-14 | 制作项目自建 `low_altitude_demo` 工作空间 | GIS | Runtime Verified | M1-12 | iDesktopX 已导入 `demo_data\gis_export` 并保存 `supermap_file_root\demo_workspace\low_altitude_demo.smwu` 与 `low_altitude_demo.udbx` |
-| M1-15 | 发布项目自建 `low_altitude_demo` 服务 | GIS | SuperMap Verified | M1-14 | iServer 已发布 `map-low_altitude_demo`、`data-low_altitude_demo` 与 `3D-low_altitude_demo`；地图、8 个数据集和项目三维 scene REST 验收通过 |
-| M1-16 | 前端从 `3D-CBD` 切换到项目自建服务 | 前端/GIS | SuperMap Verified | M1-15 | `config/supermap_services.local.json` 已切换到项目自建 scene/map/data 服务；后端 `/api/supermap/services` 返回三项 `verified` |
-| M1-17 | 下发真实 / 半真实 demo 数据采集任务书 | 统筹/GIS | Runtime Verified | M1-03 | 已编写 `docs/project_management/14_real_data_collection_guide.md`，明确最低必交数据、字段、目录、来源说明和验收标准 |
+| R0-01 | 冻结项目主线为视觉自主导航 | 统筹 | Done | 无 | 文档明确主线不是航线动画，也不是单纯视觉辅助展示 |
+| R0-02 | 保留视觉辅助导航作为降级/扩展模式 | 统筹/视觉/前端 | Done | R0-01 | 低置信、人工复核、GNSS 对照、演示兜底均归入辅助模式 |
+| R0-03 | 建立严格答辩口径 | 统筹/材料 | Done | R0-01 | 不宣称真实飞控、真实自主控制、真实精细三维模型 |
+| R0-04 | 新增重规划总纲 | 统筹 | Done | R0-01 | `docs/project_management/16_visual_autonomous_navigation_replan.md` 已创建 |
 
-## M2 平台基础功能
+## R1 SuperMap/GIS 底座
 
 | ID | 任务 | 负责人 | 状态 | 依赖 | 验收标准 |
 |---|---|---|---|---|---|
-| M2-01 | 创建 Vue + Vite 项目 | 前端 | Runtime Verified | 无 | `npm run build` 已通过；浏览器演示截图仍待 M2-07 |
-| M2-02 | 创建 FastAPI 项目 | 后端 | Runtime Verified | 无 | `pytest backend/tests` 和增强 smoke 已通过 |
-| M2-03 | 实现三维场景加载 | 前端 | SuperMap Verified | M1-06 | iClient3D 承载层、SDK 加载、Viewer 初始化、项目自建 `3D-low_altitude_demo` 配置读取、业务图形叠加和错误回退均已完成；官方 `3D-CBD` 截图作为早期链路证据保留 |
-| M2-04 | 实现图层控制面板 | 前端 | Mock Done | M1-07 | 可开关风险区/道路/水系 |
-| M2-05 | 实现任务列表接口 | 后端 | Mock Done | M1-07 | 前端可读取任务 |
-| M2-06 | 实现航线 mock 数据 | 后端 | Mock Done | M2-02 | 前端可显示路线 |
-| M2-07 | 前后端联调任务和航线 | 前端/后端 | Runtime Verified | M2-03/M2-06 | 浏览器工作台已显示接口已连接、候选航线、风险校验、高程剖面和 SuperMap 三维场景；完整流程截图仍需归档 |
+| R1-01 | iDesktopX 2025 安装验收 | GIS/统筹 | Runtime Verified | 无 | 主程序、许可、样例工作空间和三维场景已验收 |
+| R1-02 | iServer 2025U1A 安装验收 | GIS/统筹 | Runtime Verified | 无 | `8090`、管理页、服务列表、帮助页 HTTP 验收通过 |
+| R1-03 | iClient3D SDK 验收 | 前端/统筹 | SuperMap Verified | 无 | WebGL2、Viewer、`scene.open` 和本地 SDK 资源验收通过 |
+| R1-04 | 生成 demo GeoJSON 数据包 | GIS/统筹 | Runtime Verified | demo 数据 | `demo_data/gis_export/` 已生成并可导入 |
+| R1-05 | 制作 `low_altitude_demo` 工作空间 | GIS | Runtime Verified | R1-04 | `low_altitude_demo.smwu` 和 `low_altitude_demo.udbx` 已保存 |
+| R1-06 | 发布项目自建 map/data/scene 服务 | GIS | SuperMap Verified | R1-05 | `map-low_altitude_demo`、`data-low_altitude_demo`、`3D-low_altitude_demo` REST 验收通过 |
+| R1-07 | 前端读取项目自建 SuperMap 服务 | 前端/后端 | SuperMap Verified | R1-06 | `/api/supermap/services` 返回 scene/map/data 三项 `verified` |
+| R1-08 | 维护 SuperMap 服务 URL 与截图证据 | 统筹/GIS | SuperMap Verified | R1-06 | `check_supermap_goal_evidence.ps1 -Strict` 通过 |
+| R1-09 | 替换真实/半真实 DOM、DEM、建筑与地物数据 | GIS | SuperMap Verified | 数据采集 | 珞珈山正射影像、DEM、地形点和建筑面已导入 `luojia_mountain_demo.smwu`，并发布 map/data/3D 服务 |
 
-## M3 航线规划与风险校验
-
-| ID | 任务 | 负责人 | 状态 | 依赖 | 验收标准 |
-|---|---|---|---|---|---|
-| M3-01 | 实现任务区域栅格化 | 规划 | Mock Done | M1-07 | 可生成规划栅格 |
-| M3-02 | 实现 A* 最短航线 | 规划 | Mock Done | M3-01 | 返回一条可显示航线 |
-| M3-03 | 实现风险代价地图 | 规划/GIS | Mock Done | M3-01 | 风险区影响路径代价 |
-| M3-04 | 实现三种规划模式 | 规划 | Mock Done | M3-02/M3-03 | 返回最短/安全/综合三条航线 |
-| M3-05 | 实现风险校验接口 | 后端/规划 | Mock Done | M3-04 | 返回评分和风险段 |
-| M3-06 | 实现高程剖面数据 | 规划/GIS | Mock Done | M3-04 | 返回剖面数组 |
-| M3-07 | 前端展示评分和剖面 | 前端 | Mock Done | M3-05/M3-06 | 右侧面板和图表可用 |
-
-## M4 动态重规划与仿真
+## R2 后端视觉自主导航状态机
 
 | ID | 任务 | 负责人 | 状态 | 依赖 | 验收标准 |
 |---|---|---|---|---|---|
-| M4-01 | 实现仿真时间轴 | 前端 | Mock Done | M2-07 | 支持播放/暂停/重置 |
-| M4-02 | 实现航迹动态推进 | 前端 | Mock Done | M4-01 | 航迹随时间移动 |
-| M4-03 | 实现事件日志接口 | 后端 | Mock Done | M4-01 | 返回事件列表 |
-| M4-04 | 实现临时风险区创建 | 前端/后端 | Mock Done | M3-05 | 地图显示临时风险区 |
-| M4-05 | 实现重规划算法 | 规划 | Mock Done | M4-04 | 新航线从当前位置接续 |
-| M4-06 | 展示旧航线风险段和新航线 | 前端 | Mock Done | M4-05 | 重规划前后对比清晰 |
+| R2-01 | 定义导航状态数据模型 | 后端/统筹 | Runtime Verified | R0 | 已新增 `NavigationStateFrame`，包含 `reference_position`、`visual_position`、`fused_position`、`telemetry`、`navigation_mode`、`active_event` |
+| R2-02 | 新增 `VisualNavigationService` | 后端 | Runtime Verified | R2-01 | 已可根据时间返回后端权威 UAV 状态 |
+| R2-03 | 新增导航会话接口 | 后端 | Runtime Verified | R2-02 | `POST /api/navigation/start` 可创建 session 并返回时间线 |
+| R2-04 | 新增单帧状态接口 | 后端 | Runtime Verified | R2-02 | `GET /api/navigation/state` 可按 `session_id` 和 `time_s` 返回状态 |
+| R2-05 | 新增完整时间线接口 | 后端 | Runtime Verified | R2-02 | `GET /api/navigation/timeline` 返回连续状态序列 |
+| R2-06 | 接入视觉定位结果 | 后端/视觉 | Runtime Verified | R2-02/R3 | 预计算视觉匹配 Top1 已转换为 `visual_position` 和视觉帧 |
+| R2-07 | 实现状态融合规则 | 后端/视觉 | Runtime Verified | R2-06 | 高置信进入自主融合，中置信进入辅助，低置信进入复核 |
+| R2-08 | 后端生成遥测与事件流 | 后端 | Runtime Verified | R2-02 | 速度、高度、航向、姿态、电量、定位源和事件均由后端时间线生成 |
+| R2-09 | 后端导航状态测试 | 后端 | Runtime Verified | R2-01 至 R2-08 | pytest 已覆盖高置信、偏差修正、低置信复核、风险事件和重规划触发 |
 
-## M5 视觉匹配
-
-| ID | 任务 | 负责人 | 状态 | 依赖 | 验收标准 |
-|---|---|---|---|---|---|
-| M5-01 | 准备示例无人机视角图 | 视觉/GIS | Mock Done | M1-03 | 已补 3 张可显示 jpg 演示占位图；真实航拍图后续替换 |
-| M5-02 | 准备候选瓦片索引 | 视觉/GIS | Mock Done | M1-04 | 每个瓦片有边界和中心点 |
-| M5-03 | 整理预计算匹配结果 | 视觉 | Mock Done | M5-01/M5-02 | 每张图有候选区和置信度 |
-| M5-04 | 实现视觉匹配接口 | 后端/视觉 | Mock Done | M5-03 | 前端可请求结果 |
-| M5-05 | 前端展示视觉候选区 | 前端 | Mock Done | M5-04 | 地图高亮候选区域 |
-
-## M6 比赛材料
+## R3 视觉定位与演示数据
 
 | ID | 任务 | 负责人 | 状态 | 依赖 | 验收标准 |
 |---|---|---|---|---|---|
-| M6-01 | 编写系统介绍文档 | 材料/统筹 | Delivery Draft | M4/M5 | 技术路线和功能完整 |
-| M6-02 | 编写部署说明 | 后端/前端/GIS | Delivery Draft | M4/M5 | 新电脑可按文档启动 |
-| M6-03 | 编写数据说明 | GIS | Delivery Draft | M1 | 图层和字段清楚 |
-| M6-04 | 制作 PPT | 材料/统筹 | Delivery Draft | M6-01 | 已有 `docs/delivery/ppt_outline.md`，待按截图制作 PPT 文件 |
-| M6-05 | 录制演示视频 | 材料/全体 | Delivery Draft | M4/M5 | 已有 `docs/delivery/demo_video_script.md`，待系统运行后录制视频 |
-| M6-06 | 最终彩排 | 全体 | Todo | M6-04/M6-05 | 连续 3 次演示成功 |
-| M6-07 | 准备答辩讲稿 | 材料/统筹 | Delivery Draft | M6-01 | 已有 `docs/delivery/defense_script.md` |
-| M6-08 | 准备截图清单 | 材料/全体 | Delivery Draft | M4/M5 | 已有 `docs/delivery/screenshot_shotlist.md` |
-| M6-09 | 准备最终提交包模板 | 材料/统筹 | Delivery Draft | M6-01 | 已有 `docs/delivery/submission_package_template.md` |
+| R3-01 | 整理 UAV 视觉帧元数据 | 视觉 | Mock Done | 无 | 已有占位图元数据，需升级为导航时间线输入 |
+| R3-02 | 补真实或半真实 UAV 图像文件 | 视觉/数据 | Todo | 数据采集 | 至少 4 帧：高置信、正常、偏差修正、低置信 |
+| R3-03 | 建立正射影像/瓦片索引 | 视觉/GIS | Mock Done | R1 | 每个瓦片有边界、中心、特征数量、来源说明 |
+| R3-04 | 输出预计算视觉定位结果 | 视觉 | Mock Done | R3-01/R3-03 | 结果包含位置、置信度、匹配点、内点率、偏差 |
+| R3-05 | 新增 `visual_localization_frames` 数据段 | 后端/视觉 | Runtime Verified | R3-01/R3-04 | 已由 `VisualLocalizationResult` + `NavigationVisualFrame` 承载，每帧可映射到导航时间、图像、视觉位置和解释 |
+| R3-06 | 保留真实模型 provider 接口 | 视觉/后端 | Mock Done | R3-04 | DINOv2、LoFTR、LightGlue、OpenCV/RANSAC 可后续替换 |
+| R3-07 | 视觉定位入链验收 | 视觉/后端 | Runtime Verified | R2/R3 | 合成视图视觉定位结果已写入 `visual_position`、`visual_frame` 和 `fused_position`，可驱动后端导航状态 |
 
-## 补充记录
+## R4 前端指挥舱状态消费端
 
-| 日期 | 记录 |
-|---|---|
-| 2026-06-08 | 已新增 `MockMissionMap.vue` 和 `SuperMapScene.vue`，将 mock 态势图与未来 SuperMap iClient3D 接入边界拆开。 |
-| 2026-06-08 | 已在前端增加演示闭环状态清单和控制按钮前置状态约束。 |
-| 2026-06-08 | 后端 smoke 通过；前端 `npm run build` 因 `frontend/node_modules` 不存在、`vite` 未安装失败，等待依赖安装后验收。 |
-| 2026-06-08 | 已继续拆分前端组件，新增独立报告视图和高程剖面组件；后端已补统一异常处理、Pydantic 响应模型、mock API 测试和增强 smoke 脚本。 |
-| 2026-06-08 | 严格状态门禁已建立；`supermap_nav` 环境、后端 pytest、增强 smoke、前端 npm build 均已通过；Git 基线提交 `fed8b4f` 已创建。 |
-| 2026-06-08 | 已核验 `E:\supermap_software\supermap-iclient3d-for-webgl_webgpu-2025u1`：iClient3D SDK 包、API 文档、WebGL/Vue/WebGPU 示例和核心接口样例存在；真实浏览器渲染、许可状态和 iServer 服务接入仍待验收。 |
-| 2026-06-08 | 已核验 `E:\supermap_software\SuperMap iDesktopX 2025`：安装结构、自带 JRE、版本文件、许可说明、帮助文档、样例数据和核心三维组件存在；启动后拉起 `javaw.exe` 与 License Center，仍需主界面和样例数据截图。 |
-| 2026-06-08 | 用户截图确认 iDesktopX 已进入主界面，`CBD` 样例工作空间已加载，右下角显示“本地试用许可 剩余时间：90天”；`M1-01` 升级为 `Runtime Verified`。 |
-| 2026-06-08 | 用户截图确认 iDesktopX 中 `CBD` 三维场景已成功渲染，建筑、道路、地形图层可见；iDesktopX 样例三维场景验收通过。 |
-| 2026-06-08 | 已实现 iClient3D 前端承载层：动态加载 SDK/CSS、创建 Viewer、可选 `scene.open(sceneUrl)`、空球绘制 mock 航线/风险区/视觉候选区/无人机点、失败回退 mock；新增 `supermap-minimal.html` 和团队排错文档。 |
-| 2026-06-08 | 已确认 `demo_data/task_demo.json` 可按 UTF-8 JSON 解析，并新增 `scripts/export_demo_geojson.ps1` 显式使用 UTF-8 读取；已生成 `demo_data/gis_export/`，供 iDesktopX 导入制作 demo 工作空间。 |
-| 2026-06-08 | 监督复核确认 iClient3D SDK 本机包、iDesktopX 本机包和前端静态 SDK 资源均已准备；`npm run build`、后端 pytest 和增强 smoke 均通过。下一门禁为 iServer 发布真实三维服务、记录 `sceneUrl` 并完成浏览器截图验收。 |
-| 2026-06-09 | 已补 `backend/tests/test_supermap_contracts.py` 和 `scripts/check_project_runtime.ps1`；综合 runtime 检查通过，覆盖 GeoJSON、SuperMap 静态资源、最小验证页标记、前端 build、后端 pytest 和增强 smoke。 |
-| 2026-06-09 | 已明确 `3D-CBD` 是官方样例链路验证，不是项目自建服务；新增 `low_altitude_demo` 配置模板、工作空间目录说明和发布前检查脚本。 |
-| 2026-06-09 | 已核验 `E:\supermap_software\supermap-iserver-2025u1a-windows-x64-all`：安装结构完整；正确启动方式为进入 `bin` 后执行 `iserver.bat -start`；`8090` 端口、`/iserver`、服务列表、管理页和帮助页均通过 HTTP 验收。 |
-| 2026-06-09 | 用户已完成 iServer 初始化向导，服务管理器入口为 `http://localhost:8090/iserver/admin-ui/home`，文件管理根目录已设为 `E:\supermap_project\supermap_file_root`。 |
-| 2026-06-09 | 已确认 iServer 内置 `3D-CBD` 三维服务根节点 `http://localhost:8090/iserver/services/3D-CBD/rest/realspace`；`scenes.json` 返回 `CBD`，`scenes/CBD.json` 返回场景和图层元数据；已写入 `config/supermap_services.local.json`。 |
-| 2026-06-09 | 已新增 `scripts/start_frontend_supermap_cbd.ps1`，用于以 `3D-CBD` 场景服务启动前端 SuperMap 模式；`pytest backend/tests` 和 `npm run build` 已通过；浏览器 WebGL 截图已确认。 |
-| 2026-06-09 | 用户截图确认 `supermap-minimal.html` 中 WebGL2、SDK、Viewer、实体点和 `scene.open(sceneUrl)` 均成功，且已渲染 `3D-CBD` 城市三维场景。 |
-| 2026-06-09 | 用户截图确认项目工作台 `SuperMap 场景已就绪`，并在真实 `3D-CBD` 场景上叠加候选航线、风险区、视觉候选区、起终点和当前业务面板；`M2-03` 升级为 `SuperMap Verified`。 |
-| 2026-06-09 | 已编写真实 / 半真实 demo 数据采集任务书 `14_real_data_collection_guide.md`，并新增 `data_sources/README.md` 作为组员提交目录说明。 |
+| ID | 任务 | 负责人 | 状态 | 依赖 | 验收标准 |
+|---|---|---|---|---|---|
+| R4-01 | 指挥舱布局初稿 | 前端 | Mock Done | R1 | 已转为视觉自主导航指挥舱风格，`npm run build` 通过 |
+| R4-02 | 播放逻辑改为读取后端时间线 | 前端/后端 | Runtime Verified | R2-05 | 前端播放光标消费 `/api/navigation/start` 返回的 timeline，不再自行推算 UAV 主状态 |
+| R4-03 | 三维无人机绑定 `fused_position` | 前端 | Runtime Verified | R2-04 | `SuperMapScene` 的 `currentPoint` 已来自后端 `fused_position` |
+| R4-04 | 遥测面板绑定后端状态 | 前端 | Runtime Verified | R2-08 | 高度、速度、航向、姿态、电量等来自后端 `telemetry` |
+| R4-05 | UAV 实时影像帧与时间同步 | 前端/视觉 | Runtime Verified | R3-05 | 播放到对应时间时按 `active_frame_id` 显示对应 UAV frame |
+| R4-06 | 展示参考/视觉/融合位置关系 | 前端 | Runtime Verified | R2-04 | 视觉定位面板展示参考、视觉、融合三组坐标和偏差 |
+| R4-07 | 事件流绑定后端事件 | 前端/后端 | Runtime Verified | R2-08 | 视觉定位、风险、复核、重规划待命事件来自后端时间线 |
+| R4-08 | 标准视角与三维交互体验 | 前端 | Runtime Verified | R1 | 已有标准视角、滚轮灵敏度优化和演示级建筑/UAV 效果 |
+| R4-09 | 连续飞行与轨迹对比 | 前端/后端 | Runtime Verified | R2-05/R4-03 | 前端播放已从最近帧跳变改为帧间插值；3D 和 fallback 地图均展示参考轨迹与融合实际轨迹 |
+| R4-10 | iServer 不可用时本地底座兜底 | 前端/GIS | Runtime Verified | R1/R6 | 前端先绘制本地 Luojia DEM/正射影像/建筑底座，再异步尝试打开 iServer scene；DOM/截图门禁通过 |
+
+## R5 航线规划、风险与重规划支撑服务
+
+| ID | 任务 | 负责人 | 状态 | 依赖 | 验收标准 |
+|---|---|---|---|---|---|
+| R5-01 | 参考航线生成 | 规划/后端 | Mock Done | R1 | 可生成最短、安全、综合三条候选航线 |
+| R5-02 | 风险评分与高程剖面 | 规划/后端 | Mock Done | R1 | 可输出评分、风险段、原因和剖面 |
+| R5-03 | 从 `fused_position` 判断风险 | 后端/规划 | Mock Done | R2 | 导航时间线已基于 `fused_position`/视觉位置生成风险事件，仍需扩展真实安全策略 |
+| R5-04 | 临时风险区触发重规划 | 后端/规划 | Mock Done | R5-01 | 需升级为从当前融合位置接续 |
+| R5-05 | 重规划结果写入导航事件 | 后端 | Mock Done | R2/R5-04 | 导航时间线已输出 `replan_ready`，`/api/navigation/replan` 可从当前融合位置生成接续航线 |
+| R5-06 | 新旧航线三维对比 | 前端 | Mock Done | R4/R5 | 三维场景能区分参考航线、受影响航段和新航线 |
+
+## R6 数据准备
+
+| ID | 任务 | 负责人 | 状态 | 依赖 | 验收标准 |
+|---|---|---|---|---|---|
+| R6-01 | 确定真实或半真实任务区域 | GIS/统筹 | Runtime Verified | 无 | 已采用珞珈山区域，坐标系为 EPSG:4547 |
+| R6-02 | 准备 DOM/遥感底图 | GIS/数据 | SuperMap Verified | R6-01 | `luojia_ortho` 已导入并发布 |
+| R6-03 | 准备 DEM/高程数据 | GIS/数据 | SuperMap Verified | R6-01 | `luojia_dem` 已导入、作为 terrain 写入三维场景并发布 |
+| R6-04 | 准备道路、水系、建筑、风险区矢量 | GIS/数据 | Runtime Verified | R6-01 | 已准备建筑面 `luojia_buildings_3d` 和地形点 `luojia_terrain_points`；道路/水系/风险区仍需按任务补充 |
+| R6-05 | 准备 UAV 视角图或视频帧 | 视觉/数据 | Todo | R6-01 | 文件入库，命名与 `visual_localization_frames` 对应 |
+| R6-06 | 准备数据来源说明 | 数据/材料 | Todo | R6-02 至 R6-05 | 每份数据有来源、时间、坐标系、用途和限制说明 |
+
+## R7 交付材料与最终彩排
+
+| ID | 任务 | 负责人 | 状态 | 依赖 | 验收标准 |
+|---|---|---|---|---|---|
+| R7-01 | 更新系统设计文档 | 材料/统筹 | Delivery Draft | R0 | 主线改为视觉自主导航，规划/风险为支撑服务 |
+| R7-02 | 更新接口和数据契约 | 后端/材料 | Runtime Verified | R2/R3 | `09_interfaces_and_data_contracts.md` 已补导航接口、状态字段和时间线字段 |
+| R7-03 | 更新部署说明 | 后端/前端/材料 | Delivery Draft | R1 | 一键启动脚本和依赖说明清楚 |
+| R7-04 | 制作完整演示截图 | 全体 | Todo | R2 至 R5 | 按截图清单命名并归档 |
+| R7-05 | 制作 PPT | 材料/统筹 | Todo | R7-01/R7-04 | 不夸大真实能力，突出视觉自主导航链路 |
+| R7-06 | 录制演示视频 | 材料/全体 | Todo | R2 至 R5 | 视频围绕视觉导航状态闭环，不以单纯动画为主 |
+| R7-07 | 最终提交包 | 统筹/材料 | Todo | R7-05/R7-06 | 代码、文档、截图、视频、PPT、复验脚本齐全 |
+| R7-08 | 三次完整彩排 | 全体 | Todo | R7-07 | 连续 3 次按脚本演示成功 |
+
+## 立即执行优先级
+
+1. `R2` 后端视觉自主导航状态机。
+2. `R3-05` 补导航时间线与视觉帧数据。
+3. `R4-02` 至 `R4-07` 前端改为消费后端状态。
+4. `R5-03` 和 `R5-05` 风险/重规划接入融合位置与事件流。
+5. `R6` 真实或半真实数据替换。
+6. `R7` 截图、PPT、视频、彩排。

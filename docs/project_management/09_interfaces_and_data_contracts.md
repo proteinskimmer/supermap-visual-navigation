@@ -196,6 +196,127 @@
 }
 ```
 
+### SyntheticViewResponse
+
+用于 v0.4 合成视图候选生成。当前合成图是正射瓦片代理图，真实相机渲染器留到 v0.5 替换。
+
+```json
+{
+  "task_id": "task_001",
+  "image_id": "demo_uav_001",
+  "query_image": "/demo/uav_view_001.jpg",
+  "initial_pose": {"lon": 114.3655, "lat": 30.5373, "altitude_m": 125, "yaw_deg": 32, "pitch_deg": -38, "roll_deg": 0},
+  "route_prior_pose": {"lon": 114.3651, "lat": 30.5373, "altitude_m": 125, "yaw_deg": 32, "pitch_deg": -38, "roll_deg": 0},
+  "candidate_count": 3,
+  "synthetic_views": [
+    {
+      "view_id": "syn_demo_uav_001_luojia_tile_r03_c05",
+      "tile_id": "luojia_tile_r03_c05",
+      "image_url": "/demo/vision_tiles/luojia_tile_r03_c05.png",
+      "pose": {"lon": 114.3651, "lat": 30.5373, "altitude_m": 125, "yaw_deg": 258.5, "pitch_deg": -38, "roll_deg": 0},
+      "terrain_height_m": 61.2,
+      "building_count": 7,
+      "render_source": {"mode": "v0.4_ortho_tile_proxy_with_dem_building_context"},
+      "score_prior": 0.92,
+      "rank": 1
+    }
+  ],
+  "pipeline": ["route_prior_pose", "candidate_tile_retrieval", "dem_ortho_building_synthetic_view", "image_to_synthetic_view_match", "pose_back_projection", "navigation_observation"]
+}
+```
+
+### VisualLocalizationResult
+
+用于把合成视图匹配结果转成导航观测。
+
+```json
+{
+  "localization_id": "loc_demo_uav_001_synthetic_v04",
+  "task_id": "task_001",
+  "image_id": "demo_uav_001",
+  "provider": "synthetic_view_v04_precomputed_proxy",
+  "status": "localized",
+  "best_estimated_pose": {"lon": 114.3651, "lat": 30.5373, "altitude_m": 125, "yaw_deg": 258.5, "pitch_deg": -38, "roll_deg": 0},
+  "confidence": 0.87,
+  "error_radius_m": 22.5,
+  "matched_points": 142,
+  "inlier_ratio": 0.71,
+  "correction_vector_m": [-42.4, -8.6, 0.0],
+  "matches": [
+    {
+      "view_id": "syn_demo_uav_001_luojia_tile_r03_c05",
+      "tile_id": "luojia_tile_r03_c05",
+      "confidence": 0.87,
+      "error_radius_m": 22.5,
+      "estimated_pose": {"lon": 114.3651, "lat": 30.5373, "altitude_m": 125, "yaw_deg": 258.5, "pitch_deg": -38, "roll_deg": 0},
+      "status": "best",
+      "rank": 1
+    }
+  ],
+  "navigation_effect": "visual observation can correct the simulated navigation state toward the estimated pose",
+  "failure_reason": ""
+}
+```
+
+### NavigationStateFrame
+
+后端视觉自主导航状态帧。前端播放时只根据该状态展示 UAV、遥测、视觉帧和事件，不在前端自行计算主导航状态。
+
+```json
+{
+  "session_id": "nav_task_001_route_balanced_001",
+  "time_s": 92,
+  "reference_position": {"lon": 116.17, "lat": 39.16, "altitude_m": 125},
+  "visual_position": {
+    "lon": 116.1755,
+    "lat": 39.1635,
+    "altitude_m": 125,
+    "confidence": 0.87,
+    "tile_id": "tile_034",
+    "match_id": "match_demo_001",
+    "image_id": "demo_uav_001",
+    "reason": "道路弯折、水体边界和植被纹理同时匹配"
+  },
+  "fused_position": {"lon": 116.1748, "lat": 39.1631, "altitude_m": 125},
+  "deviation_m": 420.5,
+  "navigation_mode": "autonomous",
+  "telemetry": {
+    "uav_id": "UAV-011",
+    "speed_mps": 8.5,
+    "heading_deg": 42,
+    "pitch_deg": -7,
+    "roll_deg": 3.1,
+    "yaw_deg": 42,
+    "battery_pct": 78,
+    "signal": "nominal",
+    "flight_time": "01:32",
+    "location_source": "visual_fusion"
+  },
+  "visual_frame": {
+    "image_id": "demo_uav_001",
+    "name": "河谷巡检视角 01",
+    "query_image": "/demo/uav_view_001.jpg",
+    "capture_time_s": 74,
+    "confidence": 0.87,
+    "matched_points": 142,
+    "inlier_ratio": 0.71,
+    "tile_id": "tile_034",
+    "status": "completed",
+    "reason": "道路弯折、水体边界和植被纹理同时匹配"
+  },
+  "active_frame_id": "demo_uav_001",
+  "active_route_id": "route_balanced_001",
+  "active_event": {
+    "time_s": 74,
+    "type": "vision_localized",
+    "title": "视觉定位更新",
+    "description": "后端按 autonomous 模式更新导航状态。",
+    "position": [116.1755, 39.1635, 125]
+  },
+  "events": []
+}
+```
+
 ## 4. API 草案
 
 ### GET /api/health
@@ -306,6 +427,78 @@
 
 返回：仿真 ID、初始事件、飞行轨迹。
 
+### POST /api/navigation/start
+
+用途：创建后端权威视觉自主导航会话，并返回完整时间线。
+
+请求：
+
+```json
+{
+  "task_id": "task_001",
+  "route": {},
+  "mode": "autonomous"
+}
+```
+
+返回：`NavigationSession`，包含 `session_id`、`duration_s`、`timeline` 和后端事件流。
+
+### GET /api/navigation/state
+
+用途：按 `session_id` 和 `time_s` 获取最近的后端导航状态帧。
+
+查询参数：
+
+```text
+session_id=nav_task_001_route_balanced_001
+time_s=92
+```
+
+返回：`NavigationStateFrame`。
+
+### GET /api/navigation/timeline
+
+用途：获取导航会话完整时间线，供前端播放控制回放。
+
+查询参数：
+
+```text
+session_id=nav_task_001_route_balanced_001
+```
+
+返回：`NavigationSession`。
+
+### POST /api/navigation/localize
+
+用途：将已有视觉匹配结果转换成导航可消费的视觉帧。
+
+请求：
+
+```json
+{
+  "task_id": "task_001",
+  "image_id": "demo_uav_001"
+}
+```
+
+返回：`NavigationVisualFrame`。
+
+### POST /api/navigation/replan
+
+用途：从指定时间的 `fused_position` 触发接续重规划。
+
+请求：
+
+```json
+{
+  "session_id": "nav_task_001_route_balanced_001",
+  "time_s": 92,
+  "temporary_risks": []
+}
+```
+
+返回：新 `Route` 和后端重规划事件。
+
 ### POST /api/simulations/{simulation_id}/temporary-risk
 
 用途：添加临时风险区。
@@ -360,6 +553,53 @@
 返回：`VisionMatchResult`。
 
 当前只支持 `algorithm_mode=precomputed`。`candidate_count` 表示本次返回的候选数量，`total_candidate_count` 表示该输入图原始预计算候选总数。
+
+### POST /api/vision/synthetic-views
+
+用途：根据 UAV 图像、先验位姿和候选瓦片生成 v0.4 合成视图候选。
+
+请求：
+
+```json
+{
+  "task_id": "task_001",
+  "image_id": "demo_uav_001",
+  "top_k_tiles": 3
+}
+```
+
+返回：`SyntheticViewResponse`。
+
+### POST /api/vision/localize
+
+用途：执行 v0.4 合成视图视觉定位，输出导航可消费的视觉观测。
+
+请求：
+
+```json
+{
+  "task_id": "task_001",
+  "image_id": "demo_uav_001",
+  "top_k_tiles": 3,
+  "matcher_mode": "synthetic_v04"
+}
+```
+
+返回：`VisualLocalizationResult`。
+
+当前 `matcher_mode` 支持 `synthetic_v04` 和 `precomputed`，真实 ORB/SIFT/LoFTR/LightGlue 接入后应保持返回结构不变。
+
+### GET /api/vision/localizations/{image_id}
+
+用途：按 UAV 图像编号查询单帧 v0.4 视觉定位结果。
+
+查询参数：
+
+```text
+task_id=task_001
+```
+
+返回：`VisualLocalizationResult`。
 
 ### GET /api/vision/images
 
@@ -420,7 +660,13 @@ task_id=task_001
 - `ApiResponse[list[VisionImage]]`
 - `ApiResponse[list[VisionTile]]`
 - `ApiResponse[VisionMatchResult]`
+- `ApiResponse[SyntheticViewResponse]`
+- `ApiResponse[VisualLocalizationResult]`
 - `ApiResponse[ReportData]`
+- `ApiResponse[NavigationSession]`
+- `ApiResponse[NavigationStateFrame]`
+- `ApiResponse[NavigationVisualFrame]`
+- `ApiResponse[ReplanData]` for `/api/navigation/replan`
 
 测试与 smoke：
 

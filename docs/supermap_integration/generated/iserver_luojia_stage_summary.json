@@ -1,0 +1,10 @@
+﻿{
+    "generated_at":  "2026-06-09T18:19:04",
+    "source_xml":  "E:\\supermap_software\\supermap-iserver-2025u1a-windows-x64-all\\webapps\\iserver\\WEB-INF\\iserver-services.xml",
+    "staged_xml":  "E:\\supermap_project\\docs\\supermap_integration\\generated\\iserver-services.with-luojia_mountain_demo.staged.xml",
+    "workspace_path_in_iserver":  "${fileManagerWorkDir}/luojia_workspace/luojia_mountain_demo.smwu",
+    "map_service":  "map-luojia_mountain_demo",
+    "data_service":  "data-luojia_mountain_demo",
+    "scene_service":  "3D-luojia_mountain_demo",
+    "strict_status":  "staged only; not applied to iServer until apply script runs"
+}

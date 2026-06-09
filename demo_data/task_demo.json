@@ -1,54 +1,77 @@
 {
   "task": {
     "id": "task_001",
-    "name": "low-altitude patrol demo",
-    "display_name": "低空巡检示范任务",
+    "name": "luojia-visual-navigation-demo",
+    "display_name": "珞珈山视觉自主导航验证任务",
     "area": {
       "type": "Polygon",
       "coordinates": [
         [
-          [116.1000, 39.1000],
-          [116.2350, 39.1000],
-          [116.2350, 39.2150],
-          [116.1000, 39.2150],
-          [116.1000, 39.1000]
+          [
+            114.35655,
+            30.53395
+          ],
+          [
+            114.37155,
+            30.53395
+          ],
+          [
+            114.37155,
+            30.54065
+          ],
+          [
+            114.35655,
+            30.54065
+          ],
+          [
+            114.35655,
+            30.53395
+          ]
         ]
       ]
     },
-    "start": [116.1120, 39.1120, 120.0],
-    "target": [116.2210, 39.2030, 130.0],
+    "start": [
+      114.357883,
+      30.534649,
+      120.0
+    ],
+    "target": [
+      114.369994,
+      30.539951,
+      130.0
+    ],
     "params": {
       "min_height_m": 80,
-      "max_height_m": 300,
+      "max_height_m": 220,
       "safe_distance_m": 50,
-      "max_distance_m": 18000
+      "max_distance_m": 2400
     }
   },
   "layers": [
     {
       "id": "terrain",
-      "name": "地形 DEM",
+      "name": "珞珈山 DEM 地形",
       "type": "terrain",
       "visible": true,
       "service_url": ""
     },
     {
       "id": "imagery",
-      "name": "遥感影像",
+      "name": "珞珈山正射影像",
       "type": "imagery",
       "visible": true,
       "service_url": ""
     },
     {
       "id": "risk_zone",
-      "name": "风险区",
+      "name": "导航风险区",
       "type": "polygon",
       "visible": true,
       "service_url": ""
     },
     {
       "id": "obstacle",
-      "name": "障碍物",
+      "name": "障碍物/建筑",
       "type": "point",
       "visible": true,
       "service_url": ""
@@ -63,11 +86,26 @@
       "buffer_m": 120,
       "active": true,
       "polygon": [
-        [116.1480, 39.1420],
-        [116.1770, 39.1440],
-        [116.1800, 39.1660],
-        [116.1530, 39.1700],
-        [116.1480, 39.1420]
+        [
+          114.361883,
+          30.536397
+        ],
+        [
+          114.365106,
+          30.536514
+        ],
+        [
+          114.365439,
+          30.537795
+        ],
+        [
+          114.362439,
+          30.538028
+        ],
+        [
+          114.361883,
+          30.536397
+        ]
       ]
     },
     {
@@ -78,11 +116,26 @@
       "buffer_m": 90,
       "active": true,
       "polygon": [
-        [116.1900, 39.1760],
-        [116.2110, 39.1760],
-        [116.2110, 39.1920],
-        [116.1900, 39.1930],
-        [116.1900, 39.1760]
+        [
+          114.36655,
+          30.538378
+        ],
+        [
+          114.368883,
+          30.538378
+        ],
+        [
+          114.368883,
+          30.53931
+        ],
+        [
+          114.36655,
+          30.539368
+        ],
+        [
+          114.36655,
+          30.538378
+        ]
       ]
     }
   ],
@@ -91,7 +144,11 @@
       "id": "obs_tower_001",
       "name": "通信塔",
       "type": "tower",
-      "position": [116.1320, 39.1600, 185.0],
+      "position": [
+        114.360106,
+        30.537446,
+        185.0
+      ],
       "height_m": 65,
       "buffer_m": 80
     },
@@ -99,7 +156,11 @@
       "id": "obs_building_001",
       "name": "高层建筑",
       "type": "building",
-      "position": [116.2040, 39.1310, 160.0],
+      "position": [
+        114.368106,
+        30.535756,
+        160.0
+      ],
       "height_m": 52,
       "buffer_m": 60
     }
@@ -108,134 +169,2192 @@
     {
       "id": "demo_uav_001",
       "task_id": "task_001",
-      "name": "河谷巡检视角 01",
+      "name": "珞珈山 UAV 视觉帧 01",
       "query_image": "/demo/uav_view_001.jpg",
       "capture_time_s": 74,
-      "resolution": [1280, 720],
+      "resolution": [
+        1280,
+        720
+      ],
       "camera": {
         "fov_deg": 74,
         "height_m": 125,
         "pitch_deg": -38
       },
-      "scene_tags": ["road", "vegetation", "river"],
-      "expected_center": [116.1755, 39.1635, 125.0]
+      "scene_tags": [
+        "luojia",
+        "ortho",
+        "terrain",
+        "building"
+      ],
+      "expected_center": [
+        114.364939,
+        30.53765,
+        125.0
+      ]
     },
     {
       "id": "demo_uav_002",
       "task_id": "task_001",
-      "name": "居民区边缘视角 02",
+      "name": "珞珈山 UAV 视觉帧 02",
       "query_image": "/demo/uav_view_002.jpg",
       "capture_time_s": 126,
-      "resolution": [1280, 720],
+      "resolution": [
+        1280,
+        720
+      ],
       "camera": {
         "fov_deg": 68,
         "height_m": 132,
         "pitch_deg": -42
       },
-      "scene_tags": ["building", "road", "open-space"],
-      "expected_center": [116.2055, 39.1850, 132.0]
+      "scene_tags": [
+        "luojia",
+        "ortho",
+        "terrain",
+        "building"
+      ],
+      "expected_center": [
+        114.368272,
+        30.538902,
+        132.0
+      ]
     },
     {
       "id": "demo_uav_003",
       "task_id": "task_001",
-      "name": "起飞区回看视角 03",
+      "name": "珞珈山 UAV 视觉帧 03",
       "query_image": "/demo/uav_view_003.jpg",
       "capture_time_s": 38,
-      "resolution": [1280, 720],
+      "resolution": [
+        1280,
+        720
+      ],
       "camera": {
         "fov_deg": 72,
         "height_m": 118,
         "pitch_deg": -35
       },
-      "scene_tags": ["launch-area", "field", "road"],
-      "expected_center": [116.1325, 39.1365, 118.0]
+      "scene_tags": [
+        "luojia",
+        "ortho",
+        "terrain",
+        "building"
+      ],
+      "expected_center": [
+        114.360161,
+        30.536077,
+        118.0
+      ]
     },
     {
       "id": "demo_uav_004",
       "task_id": "task_001",
-      "name": "烟雾遮挡低置信视角 04",
-      "query_image": "/demo/uav_view_004.jpg",
+      "name": "珞珈山 UAV 视觉帧 04",
+      "query_image": "/demo/uav_view_004.svg",
       "capture_time_s": 168,
-      "resolution": [1280, 720],
+      "resolution": [
+        1280,
+        720
+      ],
       "camera": {
         "fov_deg": 70,
         "height_m": 128,
         "pitch_deg": -40
       },
-      "scene_tags": ["smoke", "vegetation", "low-texture"],
-      "expected_center": [116.1885, 39.1740, 128.0]
+      "scene_tags": [
+        "luojia",
+        "ortho",
+        "terrain",
+        "building"
+      ],
+      "expected_center": [
+        114.366383,
+        30.538261,
+        128.0
+      ]
     }
   ],
   "vision_tile_index": [
     {
-      "tile_id": "tile_018",
+      "tile_id": "luojia_tile_r01_c01",
       "task_id": "task_001",
-      "name": "起飞区西南瓦片",
-      "center": [116.1125, 39.1185, 110.0],
-      "bbox": [
-        [116.1040, 39.1110],
-        [116.1210, 39.1110],
-        [116.1210, 39.1260],
-        [116.1040, 39.1260]
+      "name": "Luojia auto tile R01C01",
+      "center": [
+        114.357089313,
+        30.540320966,
+        120.0
       ],
-      "source": "demo_remote_sensing_mosaic",
-      "feature_count": 980
+      "bbox": [
+        [
+          114.356083018,
+          30.53956603
+        ],
+        [
+          114.358090064,
+          30.539560528
+        ],
+        [
+          114.358095624,
+          30.541075902
+        ],
+        [
+          114.356088547,
+          30.541081404
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1386,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r01_c01.png",
+      "pixel_bbox": [
+        0,
+        0,
+        963,
+        840
+      ],
+      "grid": {
+        "row": 1,
+        "col": 1,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 223,
+        "luminance_mean": 70.56,
+        "luminance_variance": 1086.35,
+        "edge_mean": 18.0
+      }
     },
     {
-      "tile_id": "tile_021",
+      "tile_id": "luojia_tile_r01_c02",
       "task_id": "task_001",
-      "name": "低密建筑瓦片",
-      "center": [116.1355, 39.1395, 118.0],
-      "bbox": [
-        [116.1270, 39.1320],
-        [116.1440, 39.1320],
-        [116.1440, 39.1470],
-        [116.1270, 39.1470]
+      "name": "Luojia auto tile R01C02",
+      "center": [
+        114.359095333,
+        30.540315451,
+        120.0
       ],
-      "source": "demo_remote_sensing_mosaic",
-      "feature_count": 1320
+      "bbox": [
+        [
+          114.358090064,
+          30.539560528
+        ],
+        [
+          114.360095026,
+          30.539555001
+        ],
+        [
+          114.360100617,
+          30.541070374
+        ],
+        [
+          114.358095624,
+          30.541075902
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1503,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r01_c02.png",
+      "pixel_bbox": [
+        963,
+        0,
+        1925,
+        840
+      ],
+      "grid": {
+        "row": 1,
+        "col": 2,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 224,
+        "luminance_mean": 74.09,
+        "luminance_variance": 1748.58,
+        "edge_mean": 18.81
+      }
     },
     {
-      "tile_id": "tile_034",
+      "tile_id": "luojia_tile_r01_c03",
       "task_id": "task_001",
-      "name": "河谷道路瓦片",
-      "center": [116.1755, 39.1635, 125.0],
-      "bbox": [
-        [116.1670, 39.1560],
-        [116.1840, 39.1560],
-        [116.1840, 39.1710],
-        [116.1670, 39.1710]
+      "name": "Luojia auto tile R01C03",
+      "center": [
+        114.361101352,
+        30.540309906,
+        120.0
       ],
-      "source": "demo_remote_sensing_mosaic",
-      "feature_count": 1540
+      "bbox": [
+        [
+          114.360095026,
+          30.539555001
+        ],
+        [
+          114.362102071,
+          30.539549438
+        ],
+        [
+          114.362107693,
+          30.541064811
+        ],
+        [
+          114.360100617,
+          30.541070374
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1404,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r01_c03.png",
+      "pixel_bbox": [
+        1925,
+        0,
+        2888,
+        840
+      ],
+      "grid": {
+        "row": 1,
+        "col": 3,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 223,
+        "luminance_mean": 95.38,
+        "luminance_variance": 1771.34,
+        "edge_mean": 15.21
+      }
     },
     {
-      "tile_id": "tile_041",
+      "tile_id": "luojia_tile_r01_c04",
       "task_id": "task_001",
-      "name": "北侧居民区瓦片",
-      "center": [116.2055, 39.1850, 132.0],
-      "bbox": [
-        [116.1970, 39.1775],
-        [116.2140, 39.1775],
-        [116.2140, 39.1925],
-        [116.1970, 39.1925]
+      "name": "Luojia auto tile R01C04",
+      "center": [
+        114.36310737,
+        30.54030433,
+        120.0
       ],
-      "source": "demo_remote_sensing_mosaic",
-      "feature_count": 1710
+      "bbox": [
+        [
+          114.362102071,
+          30.539549438
+        ],
+        [
+          114.364107031,
+          30.539543849
+        ],
+        [
+          114.364112684,
+          30.541059222
+        ],
+        [
+          114.362107693,
+          30.541064811
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1397,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r01_c04.png",
+      "pixel_bbox": [
+        2888,
+        0,
+        3850,
+        840
+      ],
+      "grid": {
+        "row": 1,
+        "col": 4,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 224,
+        "luminance_mean": 63.83,
+        "luminance_variance": 1103.81,
+        "edge_mean": 18.34
+      }
     },
     {
-      "tile_id": "tile_052",
+      "tile_id": "luojia_tile_r01_c05",
       "task_id": "task_001",
-      "name": "目标区东侧瓦片",
-      "center": [116.2205, 39.2020, 130.0],
-      "bbox": [
-        [116.2120, 39.1945],
-        [116.2290, 39.1945],
-        [116.2290, 39.2095],
-        [116.2120, 39.2095]
+      "name": "Luojia auto tile R01C05",
+      "center": [
+        114.365113387,
+        30.540298723,
+        120.0
       ],
-      "source": "demo_remote_sensing_mosaic",
-      "feature_count": 1190
+      "bbox": [
+        [
+          114.364107031,
+          30.539543849
+        ],
+        [
+          114.366114075,
+          30.539538224
+        ],
+        [
+          114.366119759,
+          30.541053596
+        ],
+        [
+          114.364112684,
+          30.541059222
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1579,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r01_c05.png",
+      "pixel_bbox": [
+        3850,
+        0,
+        4813,
+        840
+      ],
+      "grid": {
+        "row": 1,
+        "col": 5,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 223,
+        "luminance_mean": 77.2,
+        "luminance_variance": 2289.21,
+        "edge_mean": 18.71
+      }
+    },
+    {
+      "tile_id": "luojia_tile_r01_c06",
+      "task_id": "task_001",
+      "name": "Luojia auto tile R01C06",
+      "center": [
+        114.367120447,
+        30.540293082,
+        120.0
+      ],
+      "bbox": [
+        [
+          114.366114075,
+          30.539538224
+        ],
+        [
+          114.368121118,
+          30.539532568
+        ],
+        [
+          114.368126834,
+          30.541047939
+        ],
+        [
+          114.366119759,
+          30.541053596
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1698,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r01_c06.png",
+      "pixel_bbox": [
+        4813,
+        0,
+        5776,
+        840
+      ],
+      "grid": {
+        "row": 1,
+        "col": 6,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 223,
+        "luminance_mean": 97.78,
+        "luminance_variance": 2936.65,
+        "edge_mean": 19.59
+      }
+    },
+    {
+      "tile_id": "luojia_tile_r01_c07",
+      "task_id": "task_001",
+      "name": "Luojia auto tile R01C07",
+      "center": [
+        114.369126463,
+        30.540287413,
+        120.0
+      ],
+      "bbox": [
+        [
+          114.368121118,
+          30.539532568
+        ],
+        [
+          114.370126077,
+          30.539526886
+        ],
+        [
+          114.370131823,
+          30.541042258
+        ],
+        [
+          114.368126834,
+          30.541047939
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1773,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r01_c07.png",
+      "pixel_bbox": [
+        5776,
+        0,
+        6738,
+        840
+      ],
+      "grid": {
+        "row": 1,
+        "col": 7,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 224,
+        "luminance_mean": 99.29,
+        "luminance_variance": 3312.16,
+        "edge_mean": 20.39
+      }
+    },
+    {
+      "tile_id": "luojia_tile_r01_c08",
+      "task_id": "task_001",
+      "name": "Luojia auto tile R01C08",
+      "center": [
+        114.371132479,
+        30.540281713,
+        120.0
+      ],
+      "bbox": [
+        [
+          114.370126077,
+          30.539526886
+        ],
+        [
+          114.372133119,
+          30.539521168
+        ],
+        [
+          114.372138897,
+          30.541036539
+        ],
+        [
+          114.370131823,
+          30.541042258
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1095,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r01_c08.png",
+      "pixel_bbox": [
+        6738,
+        0,
+        7701,
+        840
+      ],
+      "grid": {
+        "row": 1,
+        "col": 8,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 223,
+        "luminance_mean": 48.56,
+        "luminance_variance": 1686.16,
+        "edge_mean": 4.88
+      }
+    },
+    {
+      "tile_id": "luojia_tile_r02_c01",
+      "task_id": "task_001",
+      "name": "Luojia auto tile R02C01",
+      "center": [
+        114.357083769,
+        30.538805592,
+        120.0
+      ],
+      "bbox": [
+        [
+          114.35607749,
+          30.538050656
+        ],
+        [
+          114.358084505,
+          30.538045155
+        ],
+        [
+          114.358090064,
+          30.539560528
+        ],
+        [
+          114.356083018,
+          30.53956603
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1598,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r02_c01.png",
+      "pixel_bbox": [
+        0,
+        840,
+        963,
+        1680
+      ],
+      "grid": {
+        "row": 2,
+        "col": 1,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 223,
+        "luminance_mean": 97.15,
+        "luminance_variance": 2889.29,
+        "edge_mean": 16.36
+      }
+    },
+    {
+      "tile_id": "luojia_tile_r02_c02",
+      "task_id": "task_001",
+      "name": "Luojia auto tile R02C02",
+      "center": [
+        114.359089758,
+        30.538800078,
+        120.0
+      ],
+      "bbox": [
+        [
+          114.358084505,
+          30.538045155
+        ],
+        [
+          114.360089435,
+          30.538039628
+        ],
+        [
+          114.360095026,
+          30.539555001
+        ],
+        [
+          114.358090064,
+          30.539560528
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1420,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r02_c02.png",
+      "pixel_bbox": [
+        963,
+        840,
+        1925,
+        1680
+      ],
+      "grid": {
+        "row": 2,
+        "col": 2,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 224,
+        "luminance_mean": 70.53,
+        "luminance_variance": 1118.76,
+        "edge_mean": 19.08
+      }
+    },
+    {
+      "tile_id": "luojia_tile_r02_c03",
+      "task_id": "task_001",
+      "name": "Luojia auto tile R02C03",
+      "center": [
+        114.361095745,
+        30.538794533,
+        120.0
+      ],
+      "bbox": [
+        [
+          114.360089435,
+          30.538039628
+        ],
+        [
+          114.362096449,
+          30.538034065
+        ],
+        [
+          114.362102071,
+          30.539549438
+        ],
+        [
+          114.360095026,
+          30.539555001
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1447,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r02_c03.png",
+      "pixel_bbox": [
+        1925,
+        840,
+        2888,
+        1680
+      ],
+      "grid": {
+        "row": 2,
+        "col": 3,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 223,
+        "luminance_mean": 71.63,
+        "luminance_variance": 1221.38,
+        "edge_mean": 19.47
+      }
+    },
+    {
+      "tile_id": "luojia_tile_r02_c04",
+      "task_id": "task_001",
+      "name": "Luojia auto tile R02C04",
+      "center": [
+        114.363101732,
+        30.538788957,
+        120.0
+      ],
+      "bbox": [
+        [
+          114.362096449,
+          30.538034065
+        ],
+        [
+          114.364101378,
+          30.538028477
+        ],
+        [
+          114.364107031,
+          30.539543849
+        ],
+        [
+          114.362102071,
+          30.539549438
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1639,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r02_c04.png",
+      "pixel_bbox": [
+        2888,
+        840,
+        3850,
+        1680
+      ],
+      "grid": {
+        "row": 2,
+        "col": 4,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 224,
+        "luminance_mean": 83.67,
+        "luminance_variance": 2397.51,
+        "edge_mean": 20.29
+      }
+    },
+    {
+      "tile_id": "luojia_tile_r02_c05",
+      "task_id": "task_001",
+      "name": "Luojia auto tile R02C05",
+      "center": [
+        114.365107719,
+        30.538783351,
+        120.0
+      ],
+      "bbox": [
+        [
+          114.364101378,
+          30.538028477
+        ],
+        [
+          114.366108391,
+          30.538022852
+        ],
+        [
+          114.366114075,
+          30.539538224
+        ],
+        [
+          114.364107031,
+          30.539543849
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1571,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r02_c05.png",
+      "pixel_bbox": [
+        3850,
+        840,
+        4813,
+        1680
+      ],
+      "grid": {
+        "row": 2,
+        "col": 5,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 223,
+        "luminance_mean": 76.2,
+        "luminance_variance": 1928.46,
+        "edge_mean": 20.23
+      }
+    },
+    {
+      "tile_id": "luojia_tile_r02_c06",
+      "task_id": "task_001",
+      "name": "Luojia auto tile R02C06",
+      "center": [
+        114.367114747,
+        30.53877771,
+        120.0
+      ],
+      "bbox": [
+        [
+          114.366108391,
+          30.538022852
+        ],
+        [
+          114.368115403,
+          30.538017196
+        ],
+        [
+          114.368121118,
+          30.539532568
+        ],
+        [
+          114.366114075,
+          30.539538224
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1396,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r02_c06.png",
+      "pixel_bbox": [
+        4813,
+        840,
+        5776,
+        1680
+      ],
+      "grid": {
+        "row": 2,
+        "col": 6,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 223,
+        "luminance_mean": 63.07,
+        "luminance_variance": 1276.81,
+        "edge_mean": 17.4
+      }
+    },
+    {
+      "tile_id": "luojia_tile_r02_c07",
+      "task_id": "task_001",
+      "name": "Luojia auto tile R02C07",
+      "center": [
+        114.369120732,
+        30.538772041,
+        120.0
+      ],
+      "bbox": [
+        [
+          114.368115403,
+          30.538017196
+        ],
+        [
+          114.37012033,
+          30.538011515
+        ],
+        [
+          114.370126077,
+          30.539526886
+        ],
+        [
+          114.368121118,
+          30.539532568
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1507,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r02_c07.png",
+      "pixel_bbox": [
+        5776,
+        840,
+        6738,
+        1680
+      ],
+      "grid": {
+        "row": 2,
+        "col": 7,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 224,
+        "luminance_mean": 74.39,
+        "luminance_variance": 1978.84,
+        "edge_mean": 17.82
+      }
+    },
+    {
+      "tile_id": "luojia_tile_r02_c08",
+      "task_id": "task_001",
+      "name": "Luojia auto tile R02C08",
+      "center": [
+        114.371126717,
+        30.538766342,
+        120.0
+      ],
+      "bbox": [
+        [
+          114.37012033,
+          30.538011515
+        ],
+        [
+          114.372127341,
+          30.538005797
+        ],
+        [
+          114.372133119,
+          30.539521168
+        ],
+        [
+          114.370126077,
+          30.539526886
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1294,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r02_c08.png",
+      "pixel_bbox": [
+        6738,
+        840,
+        7701,
+        1680
+      ],
+      "grid": {
+        "row": 2,
+        "col": 8,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 223,
+        "luminance_mean": 66.21,
+        "luminance_variance": 1008.65,
+        "edge_mean": 15.18
+      }
+    },
+    {
+      "tile_id": "luojia_tile_r03_c01",
+      "task_id": "task_001",
+      "name": "Luojia auto tile R03C01",
+      "center": [
+        114.357078222,
+        30.537289317,
+        120.0
+      ],
+      "bbox": [
+        [
+          114.356071955,
+          30.536533478
+        ],
+        [
+          114.358078939,
+          30.536527977
+        ],
+        [
+          114.358084505,
+          30.538045155
+        ],
+        [
+          114.35607749,
+          30.538050656
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1482,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r03_c01.png",
+      "pixel_bbox": [
+        0,
+        1680,
+        963,
+        2521
+      ],
+      "grid": {
+        "row": 3,
+        "col": 1,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 224,
+        "luminance_mean": 91.98,
+        "luminance_variance": 1933.87,
+        "edge_mean": 17.06
+      }
+    },
+    {
+      "tile_id": "luojia_tile_r03_c02",
+      "task_id": "task_001",
+      "name": "Luojia auto tile R03C02",
+      "center": [
+        114.359084179,
+        30.537283802,
+        120.0
+      ],
+      "bbox": [
+        [
+          114.358078939,
+          30.536527977
+        ],
+        [
+          114.360083838,
+          30.53652245
+        ],
+        [
+          114.360089435,
+          30.538039628
+        ],
+        [
+          114.358084505,
+          30.538045155
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1351,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r03_c02.png",
+      "pixel_bbox": [
+        963,
+        1680,
+        1925,
+        2521
+      ],
+      "grid": {
+        "row": 3,
+        "col": 2,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 224,
+        "luminance_mean": 63.31,
+        "luminance_variance": 697.7,
+        "edge_mean": 18.74
+      }
+    },
+    {
+      "tile_id": "luojia_tile_r03_c03",
+      "task_id": "task_001",
+      "name": "Luojia auto tile R03C03",
+      "center": [
+        114.361090136,
+        30.537278258,
+        120.0
+      ],
+      "bbox": [
+        [
+          114.360083838,
+          30.53652245
+        ],
+        [
+          114.362090821,
+          30.536516888
+        ],
+        [
+          114.362096449,
+          30.538034065
+        ],
+        [
+          114.360089435,
+          30.538039628
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1369,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r03_c03.png",
+      "pixel_bbox": [
+        1925,
+        1680,
+        2888,
+        2521
+      ],
+      "grid": {
+        "row": 3,
+        "col": 3,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 224,
+        "luminance_mean": 60.74,
+        "luminance_variance": 813.47,
+        "edge_mean": 18.71
+      }
+    },
+    {
+      "tile_id": "luojia_tile_r03_c04",
+      "task_id": "task_001",
+      "name": "Luojia auto tile R03C04",
+      "center": [
+        114.363096092,
+        30.537272683,
+        120.0
+      ],
+      "bbox": [
+        [
+          114.362090821,
+          30.536516888
+        ],
+        [
+          114.364095718,
+          30.5365113
+        ],
+        [
+          114.364101378,
+          30.538028477
+        ],
+        [
+          114.362096449,
+          30.538034065
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1262,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r03_c04.png",
+      "pixel_bbox": [
+        2888,
+        1680,
+        3850,
+        2521
+      ],
+      "grid": {
+        "row": 3,
+        "col": 4,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 224,
+        "luminance_mean": 55.03,
+        "luminance_variance": 365.6,
+        "edge_mean": 17.3
+      }
+    },
+    {
+      "tile_id": "luojia_tile_r03_c05",
+      "task_id": "task_001",
+      "name": "Luojia auto tile R03C05",
+      "center": [
+        114.365102047,
+        30.537267076,
+        120.0
+      ],
+      "bbox": [
+        [
+          114.364095718,
+          30.5365113
+        ],
+        [
+          114.3661027,
+          30.536505675
+        ],
+        [
+          114.366108391,
+          30.538022852
+        ],
+        [
+          114.364101378,
+          30.538028477
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1242,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r03_c05.png",
+      "pixel_bbox": [
+        3850,
+        1680,
+        4813,
+        2521
+      ],
+      "grid": {
+        "row": 3,
+        "col": 5,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 224,
+        "luminance_mean": 53.76,
+        "luminance_variance": 296.88,
+        "edge_mean": 16.91
+      }
+    },
+    {
+      "tile_id": "luojia_tile_r03_c06",
+      "task_id": "task_001",
+      "name": "Luojia auto tile R03C06",
+      "center": [
+        114.367109044,
+        30.537261435,
+        120.0
+      ],
+      "bbox": [
+        [
+          114.3661027,
+          30.536505675
+        ],
+        [
+          114.368109681,
+          30.536500019
+        ],
+        [
+          114.368115403,
+          30.538017196
+        ],
+        [
+          114.366108391,
+          30.538022852
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1250,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r03_c06.png",
+      "pixel_bbox": [
+        4813,
+        1680,
+        5776,
+        2521
+      ],
+      "grid": {
+        "row": 3,
+        "col": 6,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 224,
+        "luminance_mean": 55.31,
+        "luminance_variance": 358.59,
+        "edge_mean": 16.88
+      }
+    },
+    {
+      "tile_id": "luojia_tile_r03_c07",
+      "task_id": "task_001",
+      "name": "Luojia auto tile R03C07",
+      "center": [
+        114.369114998,
+        30.537255767,
+        120.0
+      ],
+      "bbox": [
+        [
+          114.368109681,
+          30.536500019
+        ],
+        [
+          114.370114577,
+          30.536494339
+        ],
+        [
+          114.37012033,
+          30.538011515
+        ],
+        [
+          114.368115403,
+          30.538017196
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1314,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r03_c07.png",
+      "pixel_bbox": [
+        5776,
+        1680,
+        6738,
+        2521
+      ],
+      "grid": {
+        "row": 3,
+        "col": 7,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 224,
+        "luminance_mean": 58.16,
+        "luminance_variance": 709.22,
+        "edge_mean": 17.37
+      }
+    },
+    {
+      "tile_id": "luojia_tile_r03_c08",
+      "task_id": "task_001",
+      "name": "Luojia auto tile R03C08",
+      "center": [
+        114.371120951,
+        30.537250068,
+        120.0
+      ],
+      "bbox": [
+        [
+          114.370114577,
+          30.536494339
+        ],
+        [
+          114.372121557,
+          30.536488621
+        ],
+        [
+          114.372127341,
+          30.538005797
+        ],
+        [
+          114.37012033,
+          30.538011515
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1546,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r03_c08.png",
+      "pixel_bbox": [
+        6738,
+        1680,
+        7701,
+        2521
+      ],
+      "grid": {
+        "row": 3,
+        "col": 8,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 224,
+        "luminance_mean": 76.91,
+        "luminance_variance": 2012.83,
+        "edge_mean": 18.86
+      }
+    },
+    {
+      "tile_id": "luojia_tile_r04_c01",
+      "task_id": "task_001",
+      "name": "Luojia auto tile R04C01",
+      "center": [
+        114.357072675,
+        30.53577304,
+        120.0
+      ],
+      "bbox": [
+        [
+          114.356066427,
+          30.535018103
+        ],
+        [
+          114.35807338,
+          30.535012602
+        ],
+        [
+          114.358078939,
+          30.536527977
+        ],
+        [
+          114.356071955,
+          30.536533478
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1463,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r04_c01.png",
+      "pixel_bbox": [
+        0,
+        2521,
+        963,
+        3361
+      ],
+      "grid": {
+        "row": 4,
+        "col": 1,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 223,
+        "luminance_mean": 77.15,
+        "luminance_variance": 1913.36,
+        "edge_mean": 16.56
+      }
+    },
+    {
+      "tile_id": "luojia_tile_r04_c02",
+      "task_id": "task_001",
+      "name": "Luojia auto tile R04C02",
+      "center": [
+        114.359078601,
+        30.535767526,
+        120.0
+      ],
+      "bbox": [
+        [
+          114.35807338,
+          30.535012602
+        ],
+        [
+          114.360078248,
+          30.535007076
+        ],
+        [
+          114.360083838,
+          30.53652245
+        ],
+        [
+          114.358078939,
+          30.536527977
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1415,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r04_c02.png",
+      "pixel_bbox": [
+        963,
+        2521,
+        1925,
+        3361
+      ],
+      "grid": {
+        "row": 4,
+        "col": 2,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 224,
+        "luminance_mean": 67.72,
+        "luminance_variance": 1291.83,
+        "edge_mean": 18.05
+      }
+    },
+    {
+      "tile_id": "luojia_tile_r04_c03",
+      "task_id": "task_001",
+      "name": "Luojia auto tile R04C03",
+      "center": [
+        114.361084526,
+        30.535761982,
+        120.0
+      ],
+      "bbox": [
+        [
+          114.360078248,
+          30.535007076
+        ],
+        [
+          114.362085199,
+          30.535001514
+        ],
+        [
+          114.362090821,
+          30.536516888
+        ],
+        [
+          114.360083838,
+          30.53652245
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1280,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r04_c03.png",
+      "pixel_bbox": [
+        1925,
+        2521,
+        2888,
+        3361
+      ],
+      "grid": {
+        "row": 4,
+        "col": 3,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 223,
+        "luminance_mean": 58.33,
+        "luminance_variance": 527.58,
+        "edge_mean": 17.12
+      }
+    },
+    {
+      "tile_id": "luojia_tile_r04_c04",
+      "task_id": "task_001",
+      "name": "Luojia auto tile R04C04",
+      "center": [
+        114.363090451,
+        30.535756407,
+        120.0
+      ],
+      "bbox": [
+        [
+          114.362085199,
+          30.535001514
+        ],
+        [
+          114.364090066,
+          30.534995926
+        ],
+        [
+          114.364095718,
+          30.5365113
+        ],
+        [
+          114.362090821,
+          30.536516888
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1315,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r04_c04.png",
+      "pixel_bbox": [
+        2888,
+        2521,
+        3850,
+        3361
+      ],
+      "grid": {
+        "row": 4,
+        "col": 4,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 224,
+        "luminance_mean": 60.64,
+        "luminance_variance": 480.08,
+        "edge_mean": 18.63
+      }
+    },
+    {
+      "tile_id": "luojia_tile_r04_c05",
+      "task_id": "task_001",
+      "name": "Luojia auto tile R04C05",
+      "center": [
+        114.365096375,
+        30.535750801,
+        120.0
+      ],
+      "bbox": [
+        [
+          114.364090066,
+          30.534995926
+        ],
+        [
+          114.366097017,
+          30.534990302
+        ],
+        [
+          114.3661027,
+          30.536505675
+        ],
+        [
+          114.364095718,
+          30.5365113
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1367,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r04_c05.png",
+      "pixel_bbox": [
+        3850,
+        2521,
+        4813,
+        3361
+      ],
+      "grid": {
+        "row": 4,
+        "col": 5,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 223,
+        "luminance_mean": 62.4,
+        "luminance_variance": 736.25,
+        "edge_mean": 19.11
+      }
+    },
+    {
+      "tile_id": "luojia_tile_r04_c06",
+      "task_id": "task_001",
+      "name": "Luojia auto tile R04C06",
+      "center": [
+        114.367103341,
+        30.535745161,
+        120.0
+      ],
+      "bbox": [
+        [
+          114.366097017,
+          30.534990302
+        ],
+        [
+          114.368103966,
+          30.534984647
+        ],
+        [
+          114.368109681,
+          30.536500019
+        ],
+        [
+          114.3661027,
+          30.536505675
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1515,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r04_c06.png",
+      "pixel_bbox": [
+        4813,
+        2521,
+        5776,
+        3361
+      ],
+      "grid": {
+        "row": 4,
+        "col": 6,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 223,
+        "luminance_mean": 69.92,
+        "luminance_variance": 1411.76,
+        "edge_mean": 20.87
+      }
+    },
+    {
+      "tile_id": "luojia_tile_r04_c07",
+      "task_id": "task_001",
+      "name": "Luojia auto tile R04C07",
+      "center": [
+        114.369109264,
+        30.535739493,
+        120.0
+      ],
+      "bbox": [
+        [
+          114.368103966,
+          30.534984647
+        ],
+        [
+          114.370108832,
+          30.534978966
+        ],
+        [
+          114.370114577,
+          30.536494339
+        ],
+        [
+          114.368109681,
+          30.536500019
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1664,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r04_c07.png",
+      "pixel_bbox": [
+        5776,
+        2521,
+        6738,
+        3361
+      ],
+      "grid": {
+        "row": 4,
+        "col": 7,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 224,
+        "luminance_mean": 87.07,
+        "luminance_variance": 2017.7,
+        "edge_mean": 23.06
+      }
+    },
+    {
+      "tile_id": "luojia_tile_r04_c08",
+      "task_id": "task_001",
+      "name": "Luojia auto tile R04C08",
+      "center": [
+        114.371115186,
+        30.535733794,
+        120.0
+      ],
+      "bbox": [
+        [
+          114.370108832,
+          30.534978966
+        ],
+        [
+          114.37211578,
+          30.534973249
+        ],
+        [
+          114.372121557,
+          30.536488621
+        ],
+        [
+          114.370114577,
+          30.536494339
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1878,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r04_c08.png",
+      "pixel_bbox": [
+        6738,
+        2521,
+        7701,
+        3361
+      ],
+      "grid": {
+        "row": 4,
+        "col": 8,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 223,
+        "luminance_mean": 112.76,
+        "luminance_variance": 2840.58,
+        "edge_mean": 26.34
+      }
+    },
+    {
+      "tile_id": "luojia_tile_r05_c01",
+      "task_id": "task_001",
+      "name": "Luojia auto tile R05C01",
+      "center": [
+        114.357067132,
+        30.534257665,
+        120.0
+      ],
+      "bbox": [
+        [
+          114.3560609,
+          30.533502728
+        ],
+        [
+          114.358067822,
+          30.533497228
+        ],
+        [
+          114.35807338,
+          30.535012602
+        ],
+        [
+          114.356066427,
+          30.535018103
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1470,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r05_c01.png",
+      "pixel_bbox": [
+        0,
+        3361,
+        963,
+        4201
+      ],
+      "grid": {
+        "row": 5,
+        "col": 1,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 223,
+        "luminance_mean": 84.67,
+        "luminance_variance": 1661.12,
+        "edge_mean": 18.07
+      }
+    },
+    {
+      "tile_id": "luojia_tile_r05_c02",
+      "task_id": "task_001",
+      "name": "Luojia auto tile R05C02",
+      "center": [
+        114.359073027,
+        30.534252152,
+        120.0
+      ],
+      "bbox": [
+        [
+          114.358067822,
+          30.533497228
+        ],
+        [
+          114.360072659,
+          30.533491702
+        ],
+        [
+          114.360078248,
+          30.535007076
+        ],
+        [
+          114.35807338,
+          30.535012602
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1404,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r05_c02.png",
+      "pixel_bbox": [
+        963,
+        3361,
+        1925,
+        4201
+      ],
+      "grid": {
+        "row": 5,
+        "col": 2,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 224,
+        "luminance_mean": 74.77,
+        "luminance_variance": 1194.03,
+        "edge_mean": 18.14
+      }
+    },
+    {
+      "tile_id": "luojia_tile_r05_c03",
+      "task_id": "task_001",
+      "name": "Luojia auto tile R05C03",
+      "center": [
+        114.361078921,
+        30.534246608,
+        120.0
+      ],
+      "bbox": [
+        [
+          114.360072659,
+          30.533491702
+        ],
+        [
+          114.362079579,
+          30.53348614
+        ],
+        [
+          114.362085199,
+          30.535001514
+        ],
+        [
+          114.360078248,
+          30.535007076
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1499,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r05_c03.png",
+      "pixel_bbox": [
+        1925,
+        3361,
+        2888,
+        4201
+      ],
+      "grid": {
+        "row": 5,
+        "col": 3,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 223,
+        "luminance_mean": 77.24,
+        "luminance_variance": 1398.59,
+        "edge_mean": 20.37
+      }
+    },
+    {
+      "tile_id": "luojia_tile_r05_c04",
+      "task_id": "task_001",
+      "name": "Luojia auto tile R05C04",
+      "center": [
+        114.363084815,
+        30.534241033,
+        120.0
+      ],
+      "bbox": [
+        [
+          114.362079579,
+          30.53348614
+        ],
+        [
+          114.364084415,
+          30.533480552
+        ],
+        [
+          114.364090066,
+          30.534995926
+        ],
+        [
+          114.362085199,
+          30.535001514
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1639,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r05_c04.png",
+      "pixel_bbox": [
+        2888,
+        3361,
+        3850,
+        4201
+      ],
+      "grid": {
+        "row": 5,
+        "col": 4,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 224,
+        "luminance_mean": 86.24,
+        "luminance_variance": 1952.81,
+        "edge_mean": 22.54
+      }
+    },
+    {
+      "tile_id": "luojia_tile_r05_c05",
+      "task_id": "task_001",
+      "name": "Luojia auto tile R05C05",
+      "center": [
+        114.365090708,
+        30.534235427,
+        120.0
+      ],
+      "bbox": [
+        [
+          114.364084415,
+          30.533480552
+        ],
+        [
+          114.366091334,
+          30.533474928
+        ],
+        [
+          114.366097017,
+          30.534990302
+        ],
+        [
+          114.364090066,
+          30.534995926
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1694,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r05_c05.png",
+      "pixel_bbox": [
+        3850,
+        3361,
+        4813,
+        4201
+      ],
+      "grid": {
+        "row": 5,
+        "col": 5,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 223,
+        "luminance_mean": 89.65,
+        "luminance_variance": 2119.1,
+        "edge_mean": 23.54
+      }
+    },
+    {
+      "tile_id": "luojia_tile_r05_c06",
+      "task_id": "task_001",
+      "name": "Luojia auto tile R05C06",
+      "center": [
+        114.367097642,
+        30.534229788,
+        120.0
+      ],
+      "bbox": [
+        [
+          114.366091334,
+          30.533474928
+        ],
+        [
+          114.368098252,
+          30.533469274
+        ],
+        [
+          114.368103966,
+          30.534984647
+        ],
+        [
+          114.366097017,
+          30.534990302
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1791,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r05_c06.png",
+      "pixel_bbox": [
+        4813,
+        3361,
+        5776,
+        4201
+      ],
+      "grid": {
+        "row": 5,
+        "col": 6,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 223,
+        "luminance_mean": 114.32,
+        "luminance_variance": 2712.24,
+        "edge_mean": 23.95
+      }
+    },
+    {
+      "tile_id": "luojia_tile_r05_c07",
+      "task_id": "task_001",
+      "name": "Luojia auto tile R05C07",
+      "center": [
+        114.369103534,
+        30.53422412,
+        120.0
+      ],
+      "bbox": [
+        [
+          114.368098252,
+          30.533469274
+        ],
+        [
+          114.370103086,
+          30.533463594
+        ],
+        [
+          114.370108832,
+          30.534978966
+        ],
+        [
+          114.368103966,
+          30.534984647
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1496,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r05_c07.png",
+      "pixel_bbox": [
+        5776,
+        3361,
+        6738,
+        4201
+      ],
+      "grid": {
+        "row": 5,
+        "col": 7,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 224,
+        "luminance_mean": 112.25,
+        "luminance_variance": 2000.74,
+        "edge_mean": 17.3
+      }
+    },
+    {
+      "tile_id": "luojia_tile_r05_c08",
+      "task_id": "task_001",
+      "name": "Luojia auto tile R05C08",
+      "center": [
+        114.371109426,
+        30.534218422,
+        120.0
+      ],
+      "bbox": [
+        [
+          114.370103086,
+          30.533463594
+        ],
+        [
+          114.372110004,
+          30.533457877
+        ],
+        [
+          114.37211578,
+          30.534973249
+        ],
+        [
+          114.370108832,
+          30.534978966
+        ]
+      ],
+      "source": "luojia_ortho_auto_grid",
+      "feature_count": 1720,
+      "tile_image": "/demo/vision_tiles/luojia_tile_r05_c08.png",
+      "pixel_bbox": [
+        6738,
+        3361,
+        7701,
+        4201
+      ],
+      "grid": {
+        "row": 5,
+        "col": 8,
+        "rows": 5,
+        "cols": 8
+      },
+      "source_image": "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+      "feature_count_method": "sampled_tiff_texture_proxy",
+      "preview_stats": {
+        "preview_width": 256,
+        "preview_height": 223,
+        "luminance_mean": 122.08,
+        "luminance_variance": 2544.26,
+        "edge_mean": 22.33
+      }
     }
   ],
   "vision_matches": [
@@ -254,50 +2373,107 @@
       ],
       "candidates": [
         {
-          "tile_id": "tile_034",
+          "tile_id": "luojia_tile_r03_c05",
           "confidence": 0.87,
           "matched_points": 142,
           "inlier_ratio": 0.71,
           "bbox": [
-            [116.1670, 39.1560],
-            [116.1840, 39.1560],
-            [116.1840, 39.1710],
-            [116.1670, 39.1710]
+            [
+              114.364095718,
+              30.5365113
+            ],
+            [
+              114.3661027,
+              30.536505675
+            ],
+            [
+              114.366108391,
+              30.538022852
+            ],
+            [
+              114.364101378,
+              30.538028477
+            ]
           ],
-          "center": [116.1755, 39.1635, 125.0],
-          "offset_m": [12.5, -8.2],
+          "center": [
+            114.365102047,
+            30.537267076,
+            125.0
+          ],
+          "offset_m": [
+            12.5,
+            -8.2
+          ],
           "status": "best",
           "reason": "道路弯折、水体边界和植被纹理同时匹配"
         },
         {
-          "tile_id": "tile_021",
+          "tile_id": "luojia_tile_r04_c03",
           "confidence": 0.62,
           "matched_points": 74,
           "inlier_ratio": 0.43,
           "bbox": [
-            [116.1270, 39.1320],
-            [116.1440, 39.1320],
-            [116.1440, 39.1470],
-            [116.1270, 39.1470]
+            [
+              114.360078248,
+              30.535007076
+            ],
+            [
+              114.362085199,
+              30.535001514
+            ],
+            [
+              114.362090821,
+              30.536516888
+            ],
+            [
+              114.360083838,
+              30.53652245
+            ]
           ],
-          "center": [116.1355, 39.1395, 118.0],
-          "offset_m": [-38.0, 19.4],
+          "center": [
+            114.361084526,
+            30.535761982,
+            118.0
+          ],
+          "offset_m": [
+            -38.0,
+            19.4
+          ],
           "status": "candidate",
           "reason": "道路方向相似，但建筑纹理一致性较低"
         },
         {
-          "tile_id": "tile_041",
+          "tile_id": "luojia_tile_r02_c07",
           "confidence": 0.48,
           "matched_points": 39,
           "inlier_ratio": 0.28,
           "bbox": [
-            [116.1970, 39.1775],
-            [116.2140, 39.1775],
-            [116.2140, 39.1925],
-            [116.1970, 39.1925]
+            [
+              114.368115403,
+              30.538017196
+            ],
+            [
+              114.37012033,
+              30.538011515
+            ],
+            [
+              114.370126077,
+              30.539526886
+            ],
+            [
+              114.368121118,
+              30.539532568
+            ]
           ],
-          "center": [116.2055, 39.1850, 132.0],
-          "offset_m": [96.4, 42.0],
+          "center": [
+            114.369120732,
+            30.538772041,
+            132.0
+          ],
+          "offset_m": [
+            96.4,
+            42.0
+          ],
           "status": "rejected",
           "reason": "粗检索相似，但 RANSAC 内点比例不足"
         }
@@ -318,50 +2494,107 @@
       ],
       "candidates": [
         {
-          "tile_id": "tile_041",
+          "tile_id": "luojia_tile_r02_c07",
           "confidence": 0.84,
           "matched_points": 128,
           "inlier_ratio": 0.68,
           "bbox": [
-            [116.1970, 39.1775],
-            [116.2140, 39.1775],
-            [116.2140, 39.1925],
-            [116.1970, 39.1925]
+            [
+              114.368115403,
+              30.538017196
+            ],
+            [
+              114.37012033,
+              30.538011515
+            ],
+            [
+              114.370126077,
+              30.539526886
+            ],
+            [
+              114.368121118,
+              30.539532568
+            ]
           ],
-          "center": [116.2055, 39.1850, 132.0],
-          "offset_m": [-9.8, 14.2],
+          "center": [
+            114.369120732,
+            30.538772041,
+            132.0
+          ],
+          "offset_m": [
+            -9.8,
+            14.2
+          ],
           "status": "best",
           "reason": "居民区道路网格和屋顶块面匹配稳定"
         },
         {
-          "tile_id": "tile_052",
+          "tile_id": "luojia_tile_r01_c07",
           "confidence": 0.59,
           "matched_points": 67,
           "inlier_ratio": 0.39,
           "bbox": [
-            [116.2120, 39.1945],
-            [116.2290, 39.1945],
-            [116.2290, 39.2095],
-            [116.2120, 39.2095]
+            [
+              114.368121118,
+              30.539532568
+            ],
+            [
+              114.370126077,
+              30.539526886
+            ],
+            [
+              114.370131823,
+              30.541042258
+            ],
+            [
+              114.368126834,
+              30.541047939
+            ]
           ],
-          "center": [116.2205, 39.2020, 130.0],
-          "offset_m": [44.6, 35.8],
+          "center": [
+            114.369126463,
+            30.540287413,
+            130.0
+          ],
+          "offset_m": [
+            44.6,
+            35.8
+          ],
           "status": "candidate",
           "reason": "目标区道路方向接近，但建筑密度差异较大"
         },
         {
-          "tile_id": "tile_034",
+          "tile_id": "luojia_tile_r03_c05",
           "confidence": 0.45,
           "matched_points": 35,
           "inlier_ratio": 0.24,
           "bbox": [
-            [116.1670, 39.1560],
-            [116.1840, 39.1560],
-            [116.1840, 39.1710],
-            [116.1670, 39.1710]
+            [
+              114.364095718,
+              30.5365113
+            ],
+            [
+              114.3661027,
+              30.536505675
+            ],
+            [
+              114.366108391,
+              30.538022852
+            ],
+            [
+              114.364101378,
+              30.538028477
+            ]
           ],
-          "center": [116.1755, 39.1635, 125.0],
-          "offset_m": [-112.0, -61.5],
+          "center": [
+            114.365102047,
+            30.537267076,
+            125.0
+          ],
+          "offset_m": [
+            -112.0,
+            -61.5
+          ],
           "status": "rejected",
           "reason": "水体边界特征与输入图不一致"
         }
@@ -382,50 +2615,107 @@
       ],
       "candidates": [
         {
-          "tile_id": "tile_021",
+          "tile_id": "luojia_tile_r04_c03",
           "confidence": 0.81,
           "matched_points": 116,
           "inlier_ratio": 0.66,
           "bbox": [
-            [116.1270, 39.1320],
-            [116.1440, 39.1320],
-            [116.1440, 39.1470],
-            [116.1270, 39.1470]
+            [
+              114.360078248,
+              30.535007076
+            ],
+            [
+              114.362085199,
+              30.535001514
+            ],
+            [
+              114.362090821,
+              30.536516888
+            ],
+            [
+              114.360083838,
+              30.53652245
+            ]
           ],
-          "center": [116.1355, 39.1395, 118.0],
-          "offset_m": [8.4, -11.3],
+          "center": [
+            114.361084526,
+            30.535761982,
+            118.0
+          ],
+          "offset_m": [
+            8.4,
+            -11.3
+          ],
           "status": "best",
           "reason": "起飞区道路交叉口和开阔地边界匹配"
         },
         {
-          "tile_id": "tile_018",
+          "tile_id": "luojia_tile_r04_c01",
           "confidence": 0.64,
           "matched_points": 82,
           "inlier_ratio": 0.45,
           "bbox": [
-            [116.1040, 39.1110],
-            [116.1210, 39.1110],
-            [116.1210, 39.1260],
-            [116.1040, 39.1260]
+            [
+              114.356066427,
+              30.535018103
+            ],
+            [
+              114.35807338,
+              30.535012602
+            ],
+            [
+              114.358078939,
+              30.536527977
+            ],
+            [
+              114.356071955,
+              30.536533478
+            ]
           ],
-          "center": [116.1125, 39.1185, 110.0],
-          "offset_m": [-51.0, -33.5],
+          "center": [
+            114.357072675,
+            30.53577304,
+            110.0
+          ],
+          "offset_m": [
+            -51.0,
+            -33.5
+          ],
           "status": "candidate",
           "reason": "开阔地纹理相似，缺少稳定建筑边缘"
         },
         {
-          "tile_id": "tile_034",
+          "tile_id": "luojia_tile_r03_c05",
           "confidence": 0.42,
           "matched_points": 31,
           "inlier_ratio": 0.21,
           "bbox": [
-            [116.1670, 39.1560],
-            [116.1840, 39.1560],
-            [116.1840, 39.1710],
-            [116.1670, 39.1710]
+            [
+              114.364095718,
+              30.5365113
+            ],
+            [
+              114.3661027,
+              30.536505675
+            ],
+            [
+              114.366108391,
+              30.538022852
+            ],
+            [
+              114.364101378,
+              30.538028477
+            ]
           ],
-          "center": [116.1755, 39.1635, 125.0],
-          "offset_m": [122.0, 88.0],
+          "center": [
+            114.365102047,
+            30.537267076,
+            125.0
+          ],
+          "offset_m": [
+            122.0,
+            88.0
+          ],
           "status": "rejected",
           "reason": "纹理召回但几何一致性未通过"
         }
@@ -435,7 +2725,7 @@
       "match_id": "match_demo_004",
       "task_id": "task_001",
       "image_id": "demo_uav_004",
-      "query_image": "/demo/uav_view_004.jpg",
+      "query_image": "/demo/uav_view_004.svg",
       "provider": "precomputed_demo",
       "status": "needs_review",
       "algorithm_trace": [
@@ -447,50 +2737,107 @@
       ],
       "candidates": [
         {
-          "tile_id": "tile_034",
+          "tile_id": "luojia_tile_r03_c05",
           "confidence": 0.46,
           "matched_points": 42,
           "inlier_ratio": 0.29,
           "bbox": [
-            [116.1670, 39.1560],
-            [116.1840, 39.1560],
-            [116.1840, 39.1710],
-            [116.1670, 39.1710]
+            [
+              114.364095718,
+              30.5365113
+            ],
+            [
+              114.3661027,
+              30.536505675
+            ],
+            [
+              114.366108391,
+              30.538022852
+            ],
+            [
+              114.364101378,
+              30.538028477
+            ]
           ],
-          "center": [116.1755, 39.1635, 125.0],
-          "offset_m": [-31.8, -24.1],
+          "center": [
+            114.365102047,
+            30.537267076,
+            125.0
+          ],
+          "offset_m": [
+            -31.8,
+            -24.1
+          ],
           "status": "needs_review",
           "reason": "烟雾遮挡导致道路边缘不完整，最高置信度低于复核阈值"
         },
         {
-          "tile_id": "tile_041",
+          "tile_id": "luojia_tile_r02_c07",
           "confidence": 0.39,
           "matched_points": 34,
           "inlier_ratio": 0.22,
           "bbox": [
-            [116.1970, 39.1775],
-            [116.2140, 39.1775],
-            [116.2140, 39.1925],
-            [116.1970, 39.1925]
+            [
+              114.368115403,
+              30.538017196
+            ],
+            [
+              114.37012033,
+              30.538011515
+            ],
+            [
+              114.370126077,
+              30.539526886
+            ],
+            [
+              114.368121118,
+              30.539532568
+            ]
           ],
-          "center": [116.2055, 39.1850, 132.0],
-          "offset_m": [51.5, 30.2],
+          "center": [
+            114.369120732,
+            30.538772041,
+            132.0
+          ],
+          "offset_m": [
+            51.5,
+            30.2
+          ],
           "status": "rejected",
           "reason": "建筑纹理被遮挡后几何一致性不足"
         },
         {
-          "tile_id": "tile_052",
+          "tile_id": "luojia_tile_r01_c07",
           "confidence": 0.33,
           "matched_points": 27,
           "inlier_ratio": 0.18,
           "bbox": [
-            [116.2120, 39.1945],
-            [116.2290, 39.1945],
-            [116.2290, 39.2095],
-            [116.2120, 39.2095]
+            [
+              114.368121118,
+              30.539532568
+            ],
+            [
+              114.370126077,
+              30.539526886
+            ],
+            [
+              114.370131823,
+              30.541042258
+            ],
+            [
+              114.368126834,
+              30.541047939
+            ]
           ],
-          "center": [116.2205, 39.2020, 130.0],
-          "offset_m": [79.0, 62.4],
+          "center": [
+            114.369126463,
+            30.540287413,
+            130.0
+          ],
+          "offset_m": [
+            79.0,
+            62.4
+          ],
           "status": "rejected",
           "reason": "粗检索召回但局部特征匹配点过少"
         }

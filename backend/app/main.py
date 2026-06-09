@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import health, reports, risks, routes, simulations, supermap, tasks, vision
+from app.api import health, navigation, reports, risks, routes, simulations, supermap, tasks, vision
 from app.api.errors import http_exception_handler, unhandled_exception_handler, validation_exception_handler
 
 app = FastAPI(title="SuperMap Low-Altitude Planning API", version="0.1.0")
@@ -24,6 +24,7 @@ for router in [
     tasks.router,
     routes.router,
     risks.router,
+    navigation.router,
     simulations.router,
     supermap.router,
     vision.router,

@@ -14,15 +14,17 @@
 
 | 项目项 | 状态 | 说明 |
 |---|---|---|
-| 项目规划 | Done | 已形成原始规划和项目管理文档体系 |
-| 分工与看板 | Review | 已拆分角色、任务、接口和验收标准，等待团队真实负责人填入 |
-| 后端 mock 原型 | Runtime Verified | FastAPI 路由、统一异常处理、Pydantic 请求/响应模型、规划/风险/仿真/视觉/报告接口已完成；`pytest backend/tests` 通过 |
-| 前端 mock 原型 | Runtime Verified | Vue 工作台已拆分为侧栏、地图、检查器、高程剖面、时间轴、报告页等组件；`npm run build` 通过；浏览器工作台已运行并显示任务、候选航线、风险校验、高程剖面和 SuperMap 场景状态 |
+| 项目规划 | Done | 已从低空航线规划/视觉辅助展示纠偏为“视觉自主导航仿真系统”，新增重规划总纲 `16_visual_autonomous_navigation_replan.md` |
+| 分工与看板 | Done | 已按 R0-R7 重新拆分目标、任务、依赖和验收标准；下一步需要团队按真实负责人认领 |
+| 后端 mock 原型 | Runtime Verified | FastAPI 路由、统一异常处理、Pydantic 请求/响应模型、规划/风险/仿真/视觉/报告接口已完成；R2 已新增视觉自主导航权威状态机 |
+| 前端指挥舱原型 | Runtime Verified | 指挥舱已改为消费后端导航时间线，UAV、遥测、视觉帧和事件流由后端状态驱动 |
 | demo 数据 | Runtime Verified | `task_demo.json` 已通过 UTF-8 JSON 解析验证；已生成 `demo_data/gis_export/`，包含任务区、风险区、障碍物、视觉瓦片、起终点、预览航线、视觉中心点和无人机位置 GeoJSON |
 | 环境配置 | Runtime Verified | 已创建 `supermap_nav` Conda 环境，后端依赖、pytest、前端依赖已安装；后端测试和前端构建通过 |
-| SuperMap 软件 | Runtime Verified | iClient3D、iDesktopX、iServer 安装与官方 `3D-CBD` 样例链路已验证；项目自建 `low_altitude_demo` 工作空间和服务发布仍待完成 |
+| SuperMap 软件 | SuperMap Verified | iClient3D、iDesktopX、iServer、项目自建 `low_altitude_demo` 工作空间、map/data/scene 服务均已通过阶段验收 |
 | SuperMap 三维接入 | SuperMap Verified | 官方 `3D-CBD` 样例链路和项目自建 `3D-low_altitude_demo` 三维服务均已完成 REST 门禁；当前配置已指向项目自建 scene/map/data 服务 |
 | SuperMap 接入预案 | Review | 已完成 iDesktopX、iServer、iClient3D 操作流程、服务地址记录模板、验收清单和服务配置读取接口 |
+| 视觉自主导航后端闭环 | Runtime Verified | 已新增 `VisualNavigationService`、导航会话、后端权威 `fused_position`、遥测时间线和事件流 |
+| 视觉定位数据 | Mock Done | 已有预计算视觉匹配结果和占位样例；仍需补真实或半真实 UAV 图像，并把视觉结果接入导航状态 |
 | 官方文档本地化 | Review | 已在 `docs/vendor/supermap_official/README.md` 建立本机官方文档索引；全量 HTML 文档仍保留在 iClient3D 安装包内，尚未复制进仓库 |
 | 比赛材料 | Review | 已有系统设计、部署说明、数据说明、源码结构说明、PPT 初稿、答辩讲稿、演示视频脚本、截图清单、真实数据清单和提交包模板；SuperMap/iDesktopX/项目工作台截图已部分归档，PPT 文件和视频未实际生成 |
 | 版本管理 | Runtime Verified | 已初始化 Git 仓库并创建基线提交 `fed8b4f Establish mock prototype baseline` |
@@ -31,12 +33,14 @@
 
 | 里程碑 | 状态 | 当前说明 |
 |---|---|---|
-| M1 环境与 SuperMap 底座 | SuperMap Verified | iClient3D SDK、iDesktopX、iServer 初始化、文件管理根目录、项目自建工作空间、map/data 服务和 `3D-low_altitude_demo` 三维服务均已通过脚本门禁；仍需补齐完整演示截图和最终交付材料 |
-| M2 平台基础功能 | Runtime Verified | 前后端代码初稿、后端测试、增强 smoke、前端构建和浏览器工作台运行截图已完成；后续仍需完整彩排截图归档 |
-| M3 航线规划与风险校验 | Review | mock 算法和风险评分已完成，待真实运行和 GIS 数据接入 |
-| M4 动态重规划与仿真 | Review | mock 仿真、事件、临时风险区、重规划已完成，待前端运行验收 |
-| M5 视觉匹配 | Runtime Verified | 预计算演示框架已扩展完成：输入图占位小窗、Top-K 候选切换、低置信复核样例、视觉事件日志、报告视觉摘要、瓦片调试和 provider 抽象均已通过测试/构建；真实模型待后置 |
-| M6 比赛材料 | Todo | 基础文档已有，PPT、视频、最终提交包未完成 |
+| R0 主线纠偏与范围冻结 | Done | 已冻结为“视觉自主导航仿真系统”，视觉辅助导航保留为降级/扩展能力 |
+| R1 SuperMap/GIS 底座 | SuperMap Verified | iClient3D SDK、iDesktopX、iServer、`3D-low_altitude_demo` 与珞珈山 `3D-luojia_mountain_demo` 三维服务均已通过脚本门禁 |
+| R2 后端视觉自主导航状态机 | Runtime Verified | 已由 `VisualNavigationService` 输出权威 UAV 状态、遥测、事件和导航模式 |
+| R3 视觉定位与演示数据 | Mock Done | 预计算演示框架可用；需补真实/半真实 UAV 图像，并将视觉结果接入导航状态 |
+| R4 前端指挥舱状态消费端 | Runtime Verified | 播放控制、三维 UAV、遥测、视觉帧和事件流已消费后端导航时间线 |
+| R5 航线规划、风险与重规划支撑服务 | Mock Done | 候选航线、风险评分、重规划演示框架已有；已补基于 `fused_position` 的导航重规划接口，仍需真实安全策略扩展 |
+| R6 数据准备 | Doing | 珞珈山正射影像、DEM、地形点和建筑面已导入 SuperMap 工作空间并发布 map/data/3D 服务；UAV 视角图像与导航时间线仍需补齐 |
+| R7 交付材料与最终彩排 | Todo | PPT、视频、最终提交包和 3 次完整彩排未完成 |
 
 ## 当前阻塞
 
@@ -47,6 +51,7 @@
 | B-005 | 视觉样例真实航拍图片尚未入库 | M5、演示视频、PPT 截图 | 已补 3 张可显示 jpg 演示占位图；若需真实航拍效果，后续替换同名文件或公开图片 URL |
 | B-006 | 完整演示闭环截图尚未全部归档且截图命名不规范 | M2、M4、M6 | `docs/delivery/screenshots/` 已有 7 张截图；仍需按截图清单补齐规划、仿真、重规划、视觉匹配、报告等完整流程截图，并把 QQ 时间戳文件名改为可读验收名称 |
 | B-008 | 截图已归档但文件名仍不适合最终提交 | M1、比赛截图 | 已补 `docs/delivery/screenshots/README.md` 说明每张截图对应验收项；后续提交包中需复制并重命名为可读文件名 |
+| B-011 | 珞珈山数据缺少 UAV 视角帧和相机/时间信息 | R3、R6、R7 | 该数据可作为三维/GIS 底座；视觉组仍需补 UAV 图像或视频帧、时间戳、近似拍摄位置和视觉定位结果 |
 
 ## 关键决策
 
@@ -62,8 +67,121 @@
 | D-008 | 2026-06-08 | iClient3D 接入默认先用 WebGL2，WebGPU 作为后置增强 | 本机示例支持 WebGL2/WebGPU 切换；比赛演示稳定性优先，WebGPU 需浏览器和显卡环境进一步确认 |
 | D-009 | 2026-06-08 | iDesktopX 后续验收优先使用 `sampleData/3D/CBDDataset/CBD.smwu` | 安装包自带三维 CBD 工作空间、UDB 数据源和飞行路线文件，适合作为三维场景制作前的最小验证样例 |
 | D-010 | 2026-06-09 | 真实数据采集先按最低必交包推进，不等待完美影像/DEM/三维模型 | 先打通项目自建数据发布链路，真实高质量数据后续替换 |
+| D-011 | 2026-06-09 | 项目主线从视觉辅助导航纠偏为视觉自主导航 | 老师演示主线是 UAV 实时影像与三维/遥感参考影像匹配后更新导航状态，当前系统必须围绕这一闭环建设 |
+| D-012 | 2026-06-09 | 后端成为 UAV 导航状态权威源，前端只消费状态 | 避免前端动画和状态面板各自推演，保证无人机轨迹、遥测、视觉帧、事件流可解释且可验收 |
+| D-013 | 2026-06-09 | 航线规划、风险校验、重规划降级为视觉自主导航支撑服务 | 保留已有低空规划能力，但演示叙事必须围绕视觉定位与导航状态更新 |
+| D-014 | 2026-06-09 | 珞珈山数据处理优先使用 SuperMap，ArcGIS Pro 只作备用诊断工具 | 项目交付底座是 SuperMap GIS，应优先保持 iDesktopX/iServer/iClient3D 主链路一致 |
 
 ## 推进记录
+
+### 2026-06-09 珞珈山 SuperMap 服务发布完成
+
+- 已完成 SuperMap 工作空间自动构建：
+  - 新增 `scripts/build_luojia_workspace.py`。
+  - 新增 `scripts/build_luojia_workspace.ps1`。
+  - 生成 `supermap_file_root/luojia_workspace/luojia_mountain_demo.smwu`。
+  - 生成 `supermap_file_root/luojia_workspace/luojia_mountain_demo.udbx`。
+  - 导入数据集：`luojia_ortho`、`luojia_dem`、`luojia_terrain_points`、`luojia_buildings_3d`。
+  - 创建地图：`luojia_mountain_map`，共 4 个图层。
+- 已完成三维场景自动构建：
+  - 新增 `scripts/CreateLuojiaScene.java`。
+  - 新增 `scripts/build_luojia_3d_workspace.ps1`。
+  - 写入 scene：`luojia_mountain_demo`。
+  - 已添加影像层 `luojia_ortho`。
+  - 已将 `luojia_dem` 添加为 terrain。
+  - 已添加地形点和建筑面图层。
+  - `luojia_dem` 作为独立 grid 可视层添加时报非致命空指针，但 terrain 添加成功，不影响当前三维服务发布。
+- 已完成 iServer 服务发布：
+  - 新增 `scripts/stage_iserver_luojia_config.ps1`。
+  - 新增 `scripts/apply_iserver_luojia_config.ps1`。
+  - 新增 `scripts/check_luojia_supermap_gate.ps1`。
+  - iServer 配置已自动备份到 `docs/supermap_integration/generated/iserver_config_backups/`。
+  - 已发布 `map-luojia_mountain_demo`、`data-luojia_mountain_demo`、`3D-luojia_mountain_demo`。
+- 已完成配置切换：
+  - `config/supermap_services.local.json` 已切换为珞珈山服务。
+  - 旧配置已备份为 `config/supermap_services.local.before_luojia.json`。
+  - `config/supermap_services.luojia.example.json` 状态已更新为 `verified`。
+- 验证结果：
+  - `scripts/check_luojia_supermap_gate.ps1` 通过。
+  - 后端 `/api/supermap/services` 返回 scene/map/data 三项 `verified`。
+  - `npm run build` 通过。
+  - `E:\anaconda\envs\supermap_nav\python.exe -m pytest backend\tests --basetemp E:\supermap_project\.tmp\pytest` 通过：9 passed。
+- 当前严格口径：
+  - 可以说“项目已完成珞珈山真实/半真实 GIS 数据的 SuperMap map/data/3D 服务发布，并已切换为当前前端/后端 SuperMap 服务源”。
+  - 不能说“已完成 UAV 真实视觉输入闭环”，因为珞珈山数据仍缺 UAV 视角帧、时间戳、相机姿态和视觉定位真值。
+
+### 2026-06-09 珞珈山三维场景数据整理
+
+- 用户提供两份 GIS 数据目录：
+  - `D:\prote\desktop\GIS_intern\GIS_intern\2026302131026xzh\题目4_三维场景`
+  - `D:\prote\desktop\GIS_intern\GIS_intern\2026GISTestData\4三维场景`
+- 已按“不优先使用 ArcGIS Pro，尽量走 SuperMap 主链路”的原则整理。
+- 已复制项目内副本：
+  - `data_sources/luojia_mountain/raw_student_output`
+  - `data_sources/luojia_mountain/raw_test_data`
+  - 共 46 个文件，约 69.7 MB。
+- 已完成数据盘点：
+  - 正射影像：`珞珈山影像.tif`，0.2 m 像元，EPSG:4547，范围约 `534169.851,3379309.826,535710.051,3380150.026`。
+  - DEM：`珞珈山DEM.tif`，约 6.12 m 像元，高程约 `5.766 m - 104.810 m`。
+  - 地形点：`区域地形点.shp`，PointZ，139193 个点，Z 值约 `5.75 m - 104.96 m`。
+  - 建筑面：`珞珈山周边建筑3D.shp`，Polygon，169 个要素，含 `HEIGHT_M` 字段，可用于建筑拉伸。
+- 已新增说明和方案：
+  - `data_sources/luojia_mountain/README.md`
+  - `docs/supermap_integration/06_luojia_mountain_data_import_plan.md`
+  - `config/supermap_services.luojia.example.json`
+- 当前判断：
+  - 珞珈山数据适合替换当前演示级三维建筑和占位地理底座。
+  - 该数据仍不包含 UAV 实时影像帧、相机姿态、时间戳和视觉定位真值，不能单独完成视觉自主导航闭环。
+  - 下一步应在 iDesktopX 中导入影像、DEM、建筑和地形点，制作 `luojia_mountain_demo.smwu`，再通过 iServer 发布 `map/data/3D-luojia_mountain_demo` 服务。
+
+### 2026-06-09 R2 后端视觉自主导航状态机完成
+
+- 已完成后端 R2 核心实现：
+  - 新增 `backend/app/services/visual_navigation_service.py`。
+  - 新增 `/api/navigation/start`、`/api/navigation/state`、`/api/navigation/timeline`、`/api/navigation/localize`、`/api/navigation/replan`。
+  - 新增 `NavigationSession`、`NavigationStateFrame`、`NavigationPose`、`NavigationTelemetry`、`NavigationVisualFrame`、`NavigationEvent` 等响应模型。
+- 状态机规则：
+  - `reference_position` 来自候选航线时间插值。
+  - `visual_position` 来自预计算视觉匹配 Top1。
+  - `fused_position` 由后端按置信度融合生成，是前端三维 UAV 的权威位置。
+  - 高置信进入 `autonomous`，中置信进入 `assisted`，低置信进入 `review`。
+  - 遥测、定位源、视觉帧、风险事件和重规划待命事件均由同一条后端时间线生成。
+- 已完成前端 R4 关键改造：
+  - `App.vue` 播放按钮改为启动导航会话并消费后端 timeline。
+  - 三维 UAV `currentPoint` 绑定后端 `fused_position`。
+  - 遥测面板绑定后端 `telemetry`。
+  - UAV 图像窗口按后端 `active_frame_id` 同步。
+  - 事件流绑定后端导航事件。
+  - 视觉定位面板新增参考/视觉/融合坐标关系展示。
+- 已完成接口文档同步：
+  - `docs/project_management/09_interfaces_and_data_contracts.md` 已补导航状态结构和导航 API。
+- 验证结果：
+  - `E:\anaconda\Scripts\conda.exe run -n supermap_nav python -m pytest backend\tests` 通过：9 passed。
+  - `npm run build --prefix frontend` 通过。
+- 严格口径：
+  - 可以说 R2 后端权威导航状态机和 R4 前端状态消费已完成 mock/runtime 版本。
+  - 仍不能说已接入真实飞控、真实在线视觉模型或最终比赛提交材料已经完成。
+
+### 2026-06-09 视觉自主导航主线重规划
+
+- 本次重规划原因：
+  - 当前前端指挥舱和 SuperMap 底座已有阶段成果，但后端尚未形成视觉自主导航权威状态机。
+  - 现有 UAV 播放、遥测和视觉匹配展示仍有 mock/前端推演成分，不能作为完整可交付系统主线。
+  - 项目必须从“低空航线规划原型 + 视觉辅助展示”纠偏为“UAV 视觉帧驱动导航状态更新”的仿真系统。
+- 已完成的管理动作：
+  - 新增 `docs/project_management/16_visual_autonomous_navigation_replan.md`，明确最终目标、演示主线、架构、接口、分工、里程碑和下一步顺序。
+  - 重写 `docs/project_management/08_task_board.md`，改为 R0-R7 任务体系。
+  - 重写 `docs/project_management/10_acceptance_checklist.md`，改为以后端导航状态闭环为核心的验收门禁。
+  - 更新本日志的当前状态快照、里程碑、阻塞和关键决策。
+- 新的最高优先级：
+  - R2 后端视觉自主导航状态机。
+  - R3 视觉定位结果入链。
+  - R4 前端消费后端导航时间线。
+  - R5 风险/重规划基于 `fused_position` 接续。
+- 严格监督结论：
+  - SuperMap 底座已可作为已验证基础。
+  - 指挥舱 UI 只能算 `Mock Done`，不能称为完整闭环。
+  - 后续停止继续堆 UI 表象，优先把 UAV 状态、遥测、视觉帧、事件和重规划统一到后端导航时间线上。
 
 ### 2026-06-09 当前内容全量验收
 
@@ -1136,3 +1254,785 @@
   - `E:\anaconda\envs\supermap_nav\python.exe -m pytest backend/tests` 通过：6 passed。
   - `scripts/check_backend_smoke_full.ps1 -PythonExe E:\anaconda\envs\supermap_nav\python.exe` 通过。
   - `npm run build` 通过。
+
+### 2026-06-09 一键启动与停止脚本完成
+
+- 已新增/完善双击入口：
+  - `START_DEMO.bat`：双击后一键检查 iServer、启动后端、启动前端并打开工作台。
+  - `STOP_DEMO.bat`：双击后一键停止后端和前端。
+- 已完善脚本：
+  - `scripts/start_demo_one_click.ps1`
+  - `scripts/stop_demo_one_click.ps1`
+  - `release/low_altitude_demo_submission/run_demo.ps1`
+- 启动脚本能力：
+  - 自动检测 `http://localhost:8090/iserver`。
+  - 自动启动/复用 `http://localhost:8000/api/health`。
+  - 自动启动/复用 `http://localhost:5173`。
+  - 默认打开浏览器；自动验收时可使用 `-NoBrowser`。
+  - 后端/前端启动后增加稳定性复查，避免瞬时启动成功被误判。
+  - 运行日志写入 `.tmp/demo_runtime/`，包含 PID、runner 和启动 transcript。
+- 停止脚本能力：
+  - 优先按 `.tmp/demo_runtime/*.pid` 停止。
+  - 增加 `netstat -ano` 兜底，清理实际监听 `5173` 和 `8000` 的 Node/Python 子进程。
+- 已修复的问题：
+  - PowerShell `[bool]` 参数命令行传参不友好，改为 `-NoBrowser` / `-VerifyEvidence` 开关参数。
+  - release 包 `run_demo.ps1` 分行调用缺少续行符的问题。
+  - `stop_demo_one_click.ps1` 中 `Join-Path` 数组写法错误。
+  - `Start-Process -RedirectStandardOutput` 在本机 `Path/PATH` 环境变量重复时撞键的问题。
+  - Vite 启动短暂空窗导致稳定性复查误报的问题。
+- 验证情况：
+  - PowerShell 语法解析通过：启动脚本、停止脚本、release 启动脚本、提交包生成脚本。
+  - 一键启动无浏览器模式通过。
+  - 普通系统权限下启动后，命令结束 5 秒后后端 `/api/health` 与 `/api/supermap/services` 仍可访问。
+  - 停止脚本通过，已能清理 `5173` 的 Node 与 `8000` 的 Python 监听进程。
+  - 当前复查：iServer、后端、前端均返回 HTTP 200。
+- 当前严格口径：
+  - 可以说项目已有可双击启动/停止的本机演示入口。
+  - 仍不建议说成生产部署服务；当前是比赛演示环境的一键运行脚本。
+
+### 2026-06-09 三维场景视角交互优化
+
+- 已优化 SuperMap 三维场景操作体验：
+  - `frontend/src/components/SuperMapScene.vue` 新增“标准视角”按钮，可一键飞回任务区全局视角。
+  - `frontend/src/services/supermap3d.js` 降低相机惯性和最大移动比例，减少拖拽/缩放过冲。
+  - 新增自定义轻量滚轮缩放，接管默认滚轮行为，降低缩放灵敏度。
+  - `frontend/src/styles.css` 新增右上角场景控制按钮样式。
+- 顺手修复：
+  - `SuperMapScene.vue` 中原有中文乱码导致的状态文字和按钮属性异常，已整理为正常 UTF-8 文案。
+- 验证情况：
+  - `npm run build` 通过。
+
+### 2026-06-09 三维展示与仿真连续播放优化
+
+- 已增强三维展示入口：
+  - `SuperMapScene.vue` 将默认展示策略从固定 mock 改为 `auto`。
+  - 当后端 SuperMap 配置中存在 sceneUrl 时，前端会自动进入 SuperMap 三维展示。
+  - 仍保留 `VITE_SCENE_PROVIDER=mock` 作为二维 mock 兜底。
+- 已优化仿真播放连续性：
+  - `App.vue` 将自动播放从 `setInterval` 离散跳进度改为 `requestAnimationFrame` 逐帧推进。
+  - 无人机当前位置从航点取整改为相邻航点线性插值，避免点到点跳动。
+  - 默认完整播放时长为 18 秒，演示节奏更连贯。
+- 已优化三维叠加绘制性能：
+  - `SuperMapScene.vue` 将航线、风险区、视觉候选区等静态叠加层与无人机动态层拆开。
+  - `supermap3d.js` 新增 `updateCurrentPoint`，播放时只更新无人机点、光环和高度线，不再每帧清空重画全部图层。
+- 验证情况：
+  - `npm run build` 通过。
+
+### 2026-06-09 演示级 3D 建筑与空中无人机效果增强
+
+- 已增强三维视觉表达：
+  - `frontend/src/services/supermap3d.js` 新增演示级 3D 建筑体块生成。
+  - 根据任务区范围生成多组建筑群，并将 demo 障碍物中的 building/tower 显示为楼体或通信塔。
+  - 标准视角改为倾斜俯视，便于看到建筑高度、航线高度和无人机空中位置。
+- 已增强无人机显示：
+  - 无人机当前位置不再只是一个点，改为四旋翼演示实体。
+  - 包含机身、十字机臂、四个旋翼、空中位置光环、地面投影和垂直高度线。
+  - 播放时仍只更新无人机动态层，避免整场景重绘造成卡顿。
+- 验证情况：
+  - `npm run build` 通过。
+- 当前严格口径：
+  - 可以说当前前端已支持演示级 3D 建筑体块与空中无人机仿真效果。
+  - 不能说已接入真实城市精细三维建筑、倾斜摄影或 BIM 数据。
+
+### 2026-06-09 v0.4 指挥舱界面重构初版
+
+- 重构目标：
+  - 将演示主线从“低空航线规划原型页面”调整为“无人机视觉导航任务态势指挥舱”。
+  - 保留低空航线规划、风险校验、动态重规划和报告能力，但将其定位为视觉导航任务的辅助服务。
+- 已完成前端主界面调整：
+  - `frontend/src/App.vue` 重写为指挥舱布局。
+  - 顶部：系统标题、实时态势/航线规划/影像匹配/任务报告入口和运行状态。
+  - 左侧：任务控制、图层管理、全局航迹小地图和候选航线。
+  - 中央：SuperMap 三维态势场景作为第一视觉中心，保留航线、风险区、视觉候选区和 UAV 动态位置叠加。
+  - 右侧：UAV 实时影像窗口、飞行遥测、影像匹配结果、航线与风险摘要。
+  - 底部：实时事件流，随任务推演时间显示视觉匹配、风险告警和重规划事件。
+- 已完成交互主线调整：
+  - 仿真播放作为任务执行推演，不再只是航线动画。
+  - 播放状态驱动 UAV 坐标、高度、速度、航向、姿态、电量和飞行时长等遥测指标。
+  - 视觉样例图作为 UAV 实时影像帧入口，可与当前 Top-K 匹配结果联动展示。
+- 已完成样式调整：
+  - `frontend/src/styles.css` 新增 cockpit 布局、暗色态势风格、玻璃面板、视频窗口、遥测网格、事件控制台和响应式布局。
+- 验证情况：
+  - `npm run build` 通过。
+  - `scripts/start_demo_one_click.ps1 -NoBrowser` 通过，iServer、后端和前端均已启动。
+- 当前严格口径：
+  - 可以说系统界面已转向“无人机视觉导航任务态势指挥舱”的演示形态。
+  - 当前 UAV 影像、遥测和视觉匹配仍为 demo 数据联动，不是真实无人机实时流。
+
+### 2026-06-09 视觉自主导航主线纠偏
+
+- 关键决策：
+  - 项目主线从“视觉辅助导航”纠偏为“视觉自主导航”。
+  - 低空航线规划、风险校验和动态重规划保留，但定位为视觉自主导航的支撑服务。
+  - 视觉辅助导航作为降级/扩展能力保留，用于低置信匹配、GNSS 对照、人工复核和现场演示兜底。
+- 前端已完成：
+  - `frontend/src/App.vue` 新增 `navigationMode`，默认 `autonomous`。
+  - 指挥舱顶部标题改为“无人机视觉自主导航系统”。
+  - 任务控制区新增“视觉自主 / 辅助导航”模式切换。
+  - 视觉自主模式下，高置信视觉匹配结果会修正 UAV 导航状态。
+  - 辅助导航模式下，视觉匹配结果只作为定位参考，不修正主导航点。
+  - 遥测面板新增定位源、视觉偏差和导航模式。
+  - 影像匹配面板改为“视觉定位状态”，显示置信度、匹配点、内点比例和视觉偏差。
+- 文档已同步：
+  - `docs/system_design.md` 将系统定位改为基于 SuperMap GIS 的无人机视觉自主导航仿真平台。
+  - `docs/vision_matching_framework.md` 将视觉模块目标改为视觉地理重定位和导航状态更新，并保留辅助导航降级模式。
+  - `docs/delivery/defense_script.md` 更新答辩口径，避免继续把视觉模块描述为单纯辅助展示。
+- 验证情况：
+  - `npm run build` 通过。
+- 当前严格口径：
+  - 可以说当前比赛版本实现了软件仿真层面的视觉自主导航状态更新链路。
+  - 不能说系统已经接入真实飞控或实现真实无人机自主控制。
+
+### 2026-06-09 珞珈山前端视图与图层开关联动修复
+
+- 问题现象：
+  - 用户在前端打开三维态势时，画面仍像旧示例基座，不是珞珈山图层。
+  - 左侧图层管理复选框切换后，SuperMap 三维场景和业务覆盖物没有明显变化。
+- 根因确认：
+  - `config/supermap_services.local.json` 已经指向 `3D-luojia_mountain_demo`，SuperMap 服务本身不是根因。
+  - `demo_data/task_demo.json` 仍使用旧北京示例坐标，任务区、航线、风险区、视觉瓦片会把相机和覆盖物带回旧范围。
+  - `scripts/start_frontend_supermap_project.ps1` 默认强制注入旧 `3D-low_altitude_demo` sceneUrl，覆盖了后端 Luojia 配置。
+  - `SuperMapScene.vue` 未把 `layers` 纳入三维覆盖物重绘数据，`supermap3d.js` 也未同步真实场景图层可见性。
+- 已完成修复：
+  - 备份旧任务数据为 `demo_data/task_demo.before_luojia_coordinates.json`。
+  - 将 `demo_data/task_demo.json` 的任务区、起终点、风险区、障碍物、视觉帧、视觉瓦片和候选匹配区整体映射到珞珈山 WGS84 范围。
+  - `SuperMapScene.vue` 将 `layers` 纳入 `overlayData`，图层变化时重新绘制业务覆盖物并同步场景图层。
+  - `supermap3d.js` 新增 `syncSceneLayerVisibility`，尝试控制 `luojia_ortho`、`luojia_dem`、`luojia_buildings_3d`、`luojia_terrain_points` 等真实场景层可见性。
+  - `supermap3d.js` 调整标准视角逻辑，小范围珞珈山任务区不再使用旧大范围固定偏移。
+  - `scripts/start_frontend_supermap_project.ps1` 默认不再注入旧 sceneUrl，改为让前端读取后端当前 SuperMap 配置；只有显式传入 `-SceneUrl` 时才覆盖。
+- 验证结果：
+  - `npm run build` 通过。
+  - `E:\anaconda\envs\supermap_nav\python.exe -m pytest backend\tests --basetemp E:\supermap_project\.tmp\pytest` 通过，9 passed。
+  - `scripts/check_luojia_supermap_gate.ps1` 通过。
+- 使用注意：
+  - 修改 `task_demo.json` 后必须重启后端，否则 FastAPI 进程可能继续使用内存缓存的旧任务数据。
+  - 正确启动顺序：先运行 `STOP_DEMO.bat`，再运行 `START_DEMO.bat`。
+
+### 2026-06-09 珞珈山真实底座显示修正
+
+- 问题现象：
+  - 前端状态显示已打开 `3D-luojia_mountain_demo`，但画面主体仍像演示方块建筑，用户判断“数据没有正常加载”。
+- 根因确认：
+  - `3D-luojia_mountain_demo` REST 元数据中已经存在 `luojia_ortho`、`luojia_dem@luojia_mountain_demo_Terrain`、`luojia_terrain_points`、`luojia_buildings_3d`。
+  - 前端 `drawDemoBuildings()` 在真实 SuperMap 场景中仍会生成灰色演示建筑体块，容易覆盖和误导真实底座判断。
+  - realspace 内置 `ImageFileLayer` 在浏览器端可能出现发黑/拉伸/层序不理想，因此需要用已发布的 map 服务作为影像兜底。
+- 已完成修复：
+  - `frontend/src/services/supermap3d.js` 在检测到真实 SuperMap scene 时，不再绘制前端 mock 灰盒建筑。
+  - 新增 `installMapImageryFallback()`，将 `map-luojia_mountain_demo/rest/maps/luojia_mountain_map` 作为 `SuperMapImageryProvider` 叠加到底图上。
+  - `frontend/src/components/SuperMapScene.vue` 初始化场景后自动安装 map 影像兜底，再绘制航线、风险区、视觉候选区和 UAV 状态。
+- 验证结果：
+  - `npm run build` 通过。
+  - `E:\anaconda\envs\supermap_nav\python.exe -m pytest backend\tests --basetemp E:\supermap_project\.tmp\pytest` 通过，9 passed。
+  - `scripts/check_luojia_supermap_gate.ps1` 通过。
+- 当前严格口径：
+  - 可以说“前端已改为真实 SuperMap 珞珈山底座优先，业务叠加仅保留航线、风险、视觉候选和 UAV 状态”。
+  - 仍需人工浏览器截图复核底图观感；如果正射影像仍发黑，下一步要回到 iDesktopX 重新生成/调整影像三维瓦片或图层渲染参数。
+
+### 2026-06-09 珞珈山正射影像静态兜底
+
+- 问题现象：
+  - 浏览器三维视图仍显示黑色底面，说明 `3D-luojia_mountain_demo` 和 `map-luojia_mountain_demo` 虽然 REST 可达，但前端未能稳定渲染出正射影像底图。
+- 已完成修复：
+  - 使用本地原始 `data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif` 生成浏览器可加载影像：
+    - `frontend/public/demo/luojia_ortho_preview.jpg`
+    - 输出尺寸：2048 x 1117
+  - `frontend/src/services/supermap3d.js` 新增 `LUOJIA_STATIC_ORTHO` 和 `installStaticOrthoFallback()`。
+  - 静态正射影像按 WGS84 范围 `114.3561221666,30.5337461520,114.3720252663,30.5408000926` 通过 `SingleTileImageryProvider` 贴到三维场景。
+  - 静态正射影像放在 map 服务 fallback 之后叠加，避免被发黑的 map provider 覆盖。
+- 验证结果：
+  - 静态 jpg 文件已生成，大小约 0.94 MB。
+  - `npm run build` 单独重跑通过。
+  - `E:\anaconda\envs\supermap_nav\python.exe -m pytest backend\tests --basetemp E:\supermap_project\.tmp\pytest` 通过，9 passed。
+  - `scripts/check_luojia_supermap_gate.ps1` 通过。
+- 当前严格口径：
+  - 这是比赛演示可见性兜底，不等同于规范的 SuperMap 三维影像瓦片生产。
+  - 后续仍应在 iDesktopX 中重新生成影像/DEM 三维瓦片，解决 iClient3D 对 realspace 内置影像层发黑的问题。
+
+### 2026-06-09 珞珈山底图加载顺序修复
+
+- 问题现象：
+  - 重启服务前曾出现珞珈山底图但偏移明显，重启后又变黑，说明前端底图兜底受加载顺序和图层叠压影响。
+- 根因补充：
+  - `SuperMapScene` 初始化时若 `supermapConfig` 尚未到达，静态正射影像兜底不会安装。
+  - 后续 `overlayData` 变化只会重绘业务叠加，没有再次尝试安装底图兜底。
+  - realspace 中的 `luojia_ortho` 黑色影像层可能覆盖后加的 imagery provider。
+- 已完成修复：
+  - 将静态正射影像改为三维 `rectangle` 实体贴片，名称为 `luojia-static-ortho`，高度设为 18m，避免被黑色底层覆盖。
+  - 在静态贴片存在时，自动隐藏 realspace 里的 `luojia_ortho` 图层，图层管理中的“珞珈山正射影像”改为控制静态贴片显隐。
+  - 在 `overlayData` 监听中也调用 `installMapImageryFallback()`，确保 `supermapConfig` 晚到时能补装底图。
+- 验证结果：
+  - `npm run build` 通过。
+  - `E:\anaconda\envs\supermap_nav\python.exe -m pytest backend\tests --basetemp E:\supermap_project\.tmp\pytest` 通过，9 passed。
+### 2026-06-09 Luojia iClient3D black-screen follow-up and visibility fallback hardening
+
+- User verification result:
+  - Luojia SuperMap REST services are reachable, but the browser scene still did not reliably show Luojia data.
+  - Before a service restart, a Luojia-like base image appeared with obvious offset; after restart, the view became black again.
+  - Strict conclusion: service publication is verified, but real iClient3D visual rendering is not yet accepted.
+- Findings:
+  - `3D-luojia_mountain_demo` scene metadata contains `luojia_ortho`, `luojia_dem@luojia_mountain_demo_Terrain`, `luojia_terrain_points`, and `luojia_buildings_3d`.
+  - `luojia_ortho` image layer bounds are in projected EPSG:4547 coordinates, while the terrain layer metadata uses WGS84 bounds.
+  - `supermap_file_root/luojia_workspace/build_3d_scene_summary.txt` records a DEM add failure with a Java `NullPointerException`; therefore the current 3D scene must not be described as a clean, fully validated image+DEM 3D tile pipeline.
+- Frontend fixes completed:
+  - Updated `frontend/src/services/supermap3d.js` static orthophoto bounds using the ortho TIFF world-file EPSG:4547 extent transformed to WGS84.
+  - For Luojia scenes, stopped adding the SuperMap map imagery fallback first, because a black/offset provider can cover the intended visible base.
+  - Strengthened the local static orthophoto fallback with:
+    - `SingleTileImageryProvider`
+    - relative-to-ground rectangle drape
+    - higher semi-transparent safety plane
+    - delayed scene-layer visibility retries
+  - Added viewer debug state for fallback installation, scene layer count, and imagery layer count.
+  - Added a `Reload base` scene control button to re-install fallback imagery and re-sync layer visibility without restarting services.
+- Verification completed:
+  - `npm run build` passed.
+  - `scripts/check_luojia_supermap_gate.ps1` passed.
+  - `E:\anaconda\envs\supermap_nav\python.exe -m pytest backend\tests --basetemp E:\supermap_project\.tmp\pytest` passed: 9 tests.
+- Remaining acceptance gate:
+  - User must hard refresh the running browser page and confirm the scene panel shows `Luojia fallback: installed`.
+  - A browser screenshot is still required before marking the Luojia browser visual layer as accepted.
+  - If the view remains black even with fallback installed, next step is to rebuild/publish the Luojia 3D scene from iDesktopX/iObjects with a corrected image+DEM pipeline rather than treating the current scene as solved.
+
+### 2026-06-09 Luojia frontend runtime DOM gate completed
+
+- Additional frontend hardening completed:
+  - `frontend/src/components/SuperMapScene.vue` was rewritten into a clean UTF-8 component, preserving the original props and interaction contract.
+  - SuperMap status text and control buttons now use readable labels: `SuperMap scene ready`, `Reload base`, `Standard view`.
+  - Luojia mode now adds a DOM orthophoto base class to the SuperMap mount container: `luojia-base-mount`.
+  - `frontend/src/services/supermap3d.js` now creates the WebGL context with `alpha: true` and sets the scene background transparent where supported, so the DOM orthophoto base can remain visible behind SuperMap overlays.
+  - `frontend/src/styles.css` now pins the cockpit and scene frame heights to avoid a zero-height SuperMap canvas during initialization.
+- New automated frontend gate:
+  - Added `scripts/check_luojia_frontend_dom_gate.ps1`.
+  - The script launches Chrome headless, dumps the rendered DOM, writes evidence to `docs/delivery/screenshots/frontend_luojia_scene_dom_evidence.html`, and verifies:
+    - `luojia-base-mount` exists.
+    - `Luojia fallback: installed` is visible in the scene status panel.
+    - `DOM ortho base: /demo/luojia_ortho_preview.jpg` is visible.
+    - `SuperMap scene ready` is visible.
+    - SuperMap canvas has non-zero size.
+- Verification completed:
+  - `npm run build` passed.
+  - `scripts/check_luojia_supermap_gate.ps1` passed.
+  - `scripts/check_luojia_frontend_dom_gate.ps1` passed with canvas size `888x634`.
+  - `backend/tests` passed: 9 tests.
+- Current strict status:
+  - The frontend Luojia loading chain is now runtime-verified at DOM/state/canvas-size level.
+  - Pixel-level browser screenshot acceptance is still pending because Chrome/Edge headless did not write a screenshot file on this machine.
+  - User desktop hard refresh plus screenshot remains the final visual acceptance step.
+
+### 2026-06-09 Luojia frontend visual gate completed
+
+- Final visual evidence completed:
+  - Added `scripts/check_luojia_frontend_visual_gate.ps1`.
+  - The script launches Chrome headless through `cmd.exe`, captures the running frontend, saves the screenshot, and performs pixel-level non-black checks over both the full page and the central scene region.
+  - Screenshot evidence:
+    - `docs/delivery/screenshots/frontend_luojia_scene_headless.png`
+  - DOM evidence:
+    - `docs/delivery/screenshots/frontend_luojia_scene_dom_evidence.html`
+- Visual gate result:
+  - Screenshot saved successfully: about 0.99 MB.
+  - Full-page pixel check: mean RGB approximately `(25.01, 38.12, 43.37)`, non-dark pixels about `40.71%`.
+  - Scene-region pixel check: mean RGB approximately `(30.67, 33.51, 31.72)`, non-dark pixels about `34.45%`.
+  - Result: central SuperMap/Luojia scene is not black.
+- Current rendered-state evidence:
+  - The scene status panel shows `SuperMap scene ready`.
+  - It shows `Luojia fallback: installed / sceneLayers: 3 / imageryLayers: 3`.
+  - It shows `DOM ortho base: /demo/luojia_ortho_preview.jpg`.
+  - The SuperMap canvas has non-zero size in DOM gate: `888x634`.
+- Verification completed:
+  - `scripts/check_luojia_frontend_visual_gate.ps1` passed.
+  - `scripts/check_luojia_frontend_dom_gate.ps1` passed.
+  - `scripts/check_luojia_supermap_gate.ps1` passed.
+  - `npm run build` passed.
+  - `E:\anaconda\envs\supermap_nav\python.exe -m pytest backend\tests --basetemp E:\supermap_project\.tmp\pytest` passed: 9 tests.
+- Strict conclusion:
+  - The Luojia scene frontend loading issue is resolved for the current demo route by combining real iServer scene loading, static orthophoto fallback, DOM orthophoto base, readable runtime state, non-zero SuperMap canvas, and pixel-level screenshot evidence.
+  - Remaining long-term improvement is still to rebuild the formal SuperMap image+DEM 3D tile/cache pipeline, but that is no longer blocking the frontend demo page from visibly loading Luojia.
+
+### 2026-06-09 Luojia duplicate-image overlay cleanup
+
+- Issue:
+  - The previous visibility fallback used both a DOM orthophoto background and a WebGL orthophoto fallback.
+  - This made the scene robust against black screens, but could visually look like two Luojia images were stacked.
+- Fix:
+  - Removed the DOM orthophoto image background from `.luojia-base-mount`.
+  - Kept the georeferenced WebGL orthophoto fallback as the single visible Luojia base image.
+  - Updated the scene status text from `DOM ortho base` to `WebGL ortho fallback`.
+  - Updated `scripts/check_luojia_frontend_dom_gate.ps1` to verify `WebGL ortho fallback` instead of the removed DOM image label.
+- Verification:
+  - `npm run build` passed.
+  - `scripts/check_luojia_frontend_dom_gate.ps1` passed.
+  - `scripts/check_luojia_frontend_visual_gate.ps1` passed.
+  - Updated screenshot: `docs/delivery/screenshots/frontend_luojia_scene_headless.png`.
+- Current strict status:
+  - The frontend still visibly loads Luojia.
+  - The central scene now uses one visible Luojia orthophoto base instead of two overlapping image fallbacks.
+
+### 2026-06-09 Luojia WebGL fallback single-layer correction
+
+- Follow-up issue:
+  - User observed that the previous screenshot still visibly looked like two Luojia images.
+  - Root cause: although the DOM background image had been removed, the WebGL fallback still contained multiple possible image paths: `SingleTileImageryProvider`, `luojia-static-ortho`, and `luojia-static-ortho-safety-plane`.
+- Fix:
+  - Removed the `SingleTileImageryProvider` fallback creation.
+  - Removed the `luojia-static-ortho-safety-plane` fallback creation.
+  - Added cleanup for stale fallback image layers/entities left by hot reload or older page state.
+  - Kept only one visible georeferenced fallback image: `luojia-static-ortho`.
+- Verification:
+  - `npm run build` passed.
+  - `scripts/check_luojia_frontend_dom_gate.ps1` passed.
+  - `scripts/check_luojia_frontend_visual_gate.ps1` passed.
+  - `scripts/check_luojia_supermap_gate.ps1` passed.
+  - Updated screenshot: `docs/delivery/screenshots/frontend_luojia_scene_headless.png`.
+- Current strict status:
+  - The central scene now has one Luojia orthophoto base image.
+  - Other visible objects are business overlays: route, risk zones, vision candidate areas, start/target/UAV markers, and SuperMap UI, not duplicate base imagery.
+
+### 2026-06-09 Luojia building extrusion preview added
+
+- User feedback:
+  - The Luojia data package contains building information, but the frontend scene still looked like a single flat image.
+  - Blue/yellow blocks in the scene were unclear.
+- Clarification:
+  - Building data exists in `raw_student_output/珞珈山周边建筑3D.shp`, with 169 polygon features and `HEIGHT_M`.
+  - The previous frontend disabled demo buildings when a real SuperMap scene was present, assuming the iServer vector layer would render clearly.
+  - The published `luojia_buildings_3d` layer exists in iServer metadata, but did not produce visually prominent extruded buildings in the current iClient3D view.
+  - Cyan/blue blocks are vision tile/candidate match areas.
+  - Orange/red blocks are risk zones.
+- Fix:
+  - Added `scripts/export_luojia_buildings_preview.py`.
+  - Generated `frontend/public/demo/luojia_buildings_preview.json` from the real Luojia building SHP.
+  - Transformed EPSG:4547 projected coordinates to WGS84 for frontend rendering.
+  - Updated `SuperMapScene.vue` to load the building preview JSON.
+  - Updated `supermap3d.js` to draw real Luojia building footprints as extruded gray building volumes using `HEIGHT_M`.
+  - Added an on-scene legend: `gray=buildings / orange-red=risk / cyan=vision match area`.
+- DEM status:
+  - DEM data exists and is published as `luojia_dem@luojia_mountain_demo_Terrain`.
+  - The current reliable frontend fallback orthophoto remains a single visible image layer, so true orthophoto-on-DEM terrain relief is still not fully solved.
+  - Correct long-term fix is to rebuild the formal SuperMap image+DEM 3D terrain/cache pipeline rather than pretending the fallback plane is real terrain.
+- Verification:
+  - Building preview export produced 169 buildings.
+  - `npm run build` passed.
+  - `scripts/check_luojia_frontend_dom_gate.ps1` passed.
+  - `scripts/check_luojia_frontend_visual_gate.ps1` passed.
+  - `scripts/check_luojia_supermap_gate.ps1` passed.
+  - `backend/tests` passed: 9 tests.
+  - Updated screenshot shows gray extruded buildings over the Luojia orthophoto base.
+
+### 2026-06-09 Luojia DEM terrain mesh and draped orthophoto completed
+
+- User request:
+  - Use DEM to set surface elevation.
+  - Make the orthophoto and buildings display close to the ground surface instead of as a flat plane.
+- Implementation:
+  - Added `scripts/export_luojia_terrain_preview.py`.
+  - Generated `frontend/public/demo/luojia_terrain_preview.json`.
+  - Input source is `data_sources/luojia_mountain/raw_test_data/区域地形点.csv`, using X/Y/Z elevation points from the Luojia data package.
+  - The exporter creates a lightweight DEM mesh:
+    - 2880 vertices.
+    - 5538 triangles.
+    - elevation range about `5.96m - 103.06m`.
+    - EPSG:4547 coordinates transformed to WGS84.
+    - texture coordinates aligned to `/demo/luojia_ortho_preview.jpg`.
+  - Updated `SuperMapScene.vue` to load the terrain preview JSON.
+  - Updated `supermap3d.js` to draw a textured WebGL DEM surface primitive before business overlays.
+  - When DEM terrain mesh is available, the previous flat orthophoto rectangle is hidden.
+  - Building extrusion now samples nearest DEM mesh height and uses that as building base height.
+- Visual/status changes:
+  - Scene status panel now shows `DEM terrain mesh: 2880 vertices / 5538 triangles`.
+  - Orthophoto is now draped on the lightweight DEM mesh rather than displayed as a single flat rectangle.
+  - Gray building volumes are placed against sampled terrain height.
+- Verification:
+  - `npm run build` passed.
+  - `scripts/check_luojia_frontend_dom_gate.ps1` now checks `DEM terrain mesh` and passed.
+  - `scripts/check_luojia_frontend_visual_gate.ps1` passed.
+  - `scripts/check_luojia_supermap_gate.ps1` passed.
+  - `backend/tests` passed: 9 tests.
+- Strict status:
+  - The frontend demo now has a real DEM-derived terrain mesh fallback and orthophoto draping.
+  - This is still a lightweight frontend mesh for demo reliability, not the final SuperMap terrain cache pipeline.
+  - Long-term production route remains: rebuild/verify formal SuperMap image+DEM terrain/cache output in iDesktopX/iServer.
+
+### 2026-06-09 Reusable scene data pipeline extracted
+
+- User request:
+  - Extract the Luojia import workflow into reusable scripts so future regions can quickly match DEM, orthophoto, building data, and optional layers.
+- Implementation:
+  - Added `config/scene_data_profiles/luojia_mountain.example.json` as a config-driven scene data profile.
+  - Added `scripts/build_scene_preview_data.py`.
+    - Exports lightweight terrain mesh JSON from `points_csv` X/Y/Z data.
+    - Exports building extrusion JSON from Polygon Shapefile + DBF height fields.
+    - Writes a scene manifest for frontend/data handoff.
+    - Supports WGS84 pass-through and configurable transverse mercator inverse transformation.
+  - Added `scripts/build_scene_supermap_workspace.py`.
+    - Reads the same scene profile.
+    - Imports configured raster/SHP inputs into a SuperMap UDBX/SMWU workspace through iObjectsPy.
+    - Writes a build summary for later iServer publishing.
+  - Added `docs/supermap_integration/13_reusable_scene_data_pipeline.md`.
+- Verification:
+  - Ran the generic preview pipeline against the Luojia profile.
+  - Output terrain: 2880 vertices / 5538 triangles, z range 5.96m - 103.06m.
+  - Output buildings: 169 features.
+  - Python syntax check passed for both new scripts.
+  - Frontend `npm run build` passed.
+  - Backend `pytest backend/tests` passed: 9 tests.
+  - Luojia frontend DOM gate passed.
+  - Luojia frontend visual gate passed and refreshed `docs/delivery/screenshots/frontend_luojia_scene_headless.png`.
+  - Python raw UTF-8 read confirmed Chinese file paths in the scene profile are valid; PowerShell display mojibake is terminal encoding only.
+- Strict status:
+  - Reusable frontend preview data generation is now available for the data shape already proven in Luojia.
+  - Direct compressed DEM GeoTIFF sampling is not yet implemented in the lightweight script.
+  - Production-grade SuperMap terrain/cache publishing still remains a separate acceptance gate.
+
+### 2026-06-09 Luojia visual tile auto-generation completed
+
+- User request:
+  - The project has switched to a real imagery case; complete automatic generation of visual matching tiles.
+  - Clarified project main line: visual autonomous navigation, not visual-assisted navigation.
+- Implementation:
+  - Added `scripts/generate_luojia_vision_tiles.py`.
+  - Added `scripts/generate_luojia_vision_tiles.ps1`.
+  - The generator reads the real Luojia orthophoto TIFF and TFW directly:
+    - Source image: `data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif`.
+    - World file: `data_sources/luojia_mountain/raw_test_data/珞珈山影像.tfw`.
+    - Image size: `7701 x 4201`.
+    - CRS conversion: EPSG:4547 projected coordinates to WGS84.
+  - Generated a 5x8 grid with 40 visual reference tiles.
+  - Generated tile preview PNGs under `frontend/public/demo/vision_tiles/`.
+  - Wrote the generated index to `demo_data/generated/luojia_vision_tiles.json`.
+  - Replaced `demo_data/task_demo.json` `vision_tile_index` with generated tiles.
+  - Rebound existing precomputed visual match candidates to generated tile ids.
+  - Extended the backend `VisionTile` schema with tile traceability fields:
+    - `tile_image`
+    - `pixel_bbox`
+    - `grid`
+    - `source_image`
+    - `feature_count_method`
+    - `preview_stats`
+  - Updated `scripts/export_demo_geojson.ps1` so exported `vision_tile.geojson` carries grid and source metadata.
+  - Added `docs/vision_tile_generation.md`.
+- Verification:
+  - Tile generator produced 40 tiles and 40 PNG previews.
+  - Data consistency check passed: every visual match candidate references an existing generated tile.
+  - `scripts/export_demo_geojson.ps1` passed and regenerated `demo_data/gis_export/vision_tile.geojson`.
+  - `backend/tests` passed: 9 tests.
+  - `scripts/check_backend_smoke_full.ps1` passed.
+  - `/api/vision/tiles?task_id=task_001` returns 40 tiles with `tile_image` and `grid`.
+  - `npm run build` passed.
+- Strict status:
+  - Visual reference tiles are now generated from the real Luojia orthophoto rather than manually written as five fixed blocks.
+  - Online visual model inference is still not connected; current match results remain precomputed demo results bound to the generated tile library.
+
+### 2026-06-09 Synthetic-view visual autonomous navigation v0.4 prototype
+
+- User request:
+  - Continue under the main line of visual autonomous navigation, not visual-assisted navigation.
+  - Reframe the project as a synthetic-view matching visual autonomous navigation simulation system based on DEM, orthophoto imagery, and 3D geographic scene context.
+  - Keep tiles only as coarse retrieval/debug indexes.
+- Implementation:
+  - Added `backend/app/services/synthetic_view_service.py`.
+  - Added v0.4 schemas in `backend/app/models/schemas.py`:
+    - `CameraPose`
+    - `SyntheticViewCandidate`
+    - `SyntheticViewRequest`
+    - `SyntheticViewResponse`
+    - `SyntheticViewMatch`
+    - `VisualLocalizationRequest`
+    - `VisualLocalizationResult`
+  - Added API endpoints:
+    - `POST /api/vision/synthetic-views`
+    - `POST /api/vision/localize`
+    - `GET /api/vision/localizations/{image_id}`
+  - v0.4 synthetic view generation now combines:
+    - automatically generated Luojia visual tiles as coarse candidate regions;
+    - orthophoto tile preview as the synthetic image proxy;
+    - DEM preview mesh for terrain-height sampling;
+    - building preview footprints for candidate-view building context;
+    - camera pose derived from initial pose, route prior, and candidate tile center.
+  - Visual localization now outputs:
+    - `best_estimated_pose`
+    - `correction_vector_m`
+    - `confidence`
+    - `error_radius_m`
+    - `matched_points`
+    - `inlier_ratio`
+    - `failure_reason`
+    - synthetic view match details.
+  - Updated `backend/app/services/visual_navigation_service.py` so navigation timeline consumes synthetic-view visual localization observations instead of raw tile candidates.
+  - Navigation `visual_position` now carries:
+    - `synthetic_view_id`
+    - `error_radius_m`
+    - `correction_vector_m`
+    - `localization_mode`.
+  - `visual_frame` now carries:
+    - `synthetic_view_id`
+    - `synthetic_image`
+    - `error_radius_m`
+    - `correction_vector_m`.
+  - Updated frontend API wrapper and cockpit visual panel to show:
+    - UAV image;
+    - best synthetic view;
+    - error radius;
+    - correction vector;
+    - localization status.
+  - Added `docs/synthetic_view_navigation_v04.md`.
+- Verification:
+  - `/api/vision/localize` for `demo_uav_001` returns `localized`, confidence `0.87`, error radius `22.5m`, correction vector `[-42.4, -8.6, 0.0]`, and synthetic view id `syn_demo_uav_001_luojia_tile_r03_c05`.
+  - Navigation timeline carries the same synthetic view id and synthetic image path.
+  - `backend/tests` passed: 10 tests.
+  - `scripts/check_backend_smoke_full.ps1` passed.
+  - `npm run build` passed.
+- Strict status:
+  - v0.4 establishes the end-to-end software simulation chain from candidate tiles to synthetic-view localization to navigation-state correction.
+  - Synthetic image rendering is still a deterministic orthophoto-tile proxy with DEM/building context metadata, not a final photorealistic renderer.
+  - Real ORB/SIFT/LoFTR/LightGlue matching remains v0.5 work.
+  - No real flight-control integration or command output is claimed.
+
+### 2026-06-09 Automatic UAV synthetic frame sampling
+
+- User request:
+  - Frame count should be automatically determined instead of manually fixed.
+  - Use both route distance and key changes.
+  - UAV image frames are simulation/synthetic outputs derived from DEM and orthophoto context and must be visible in the page.
+- Implementation:
+  - Added `backend/app/services/auto_vision_frame_service.py`.
+  - `/api/vision/images` now returns automatically generated `auto_uav_xxx` frames.
+  - Frame selection rules:
+    - distance interval: about every `280m`;
+    - key heading changes: about `24°` or more;
+    - route-arrival frame for low-confidence/review demonstration;
+    - no visual frame at time `0s`, so navigation starts from reference-route state.
+  - Each generated frame includes:
+    - `frame_trigger`;
+    - `route_distance_m`;
+    - `source_tile_id`;
+    - `source=auto_dem_ortho_route_sampler`;
+    - `query_image` bound to the selected orthophoto-derived tile image.
+  - Navigation timeline now generates frames from the selected route instead of relying on manually listed demo frames.
+  - Frontend image panel now shows the generated frame image, has an image-load fallback, and displays frame source/trigger/tile metadata.
+  - Frame selector layout now supports variable frame counts.
+- Verification:
+  - `/api/vision/images?task_id=task_001` returns 6 auto frames for the current balanced route:
+    - `distance_interval`;
+    - `heading_change`;
+    - `route_arrival`.
+  - Last frame returns low confidence and `needs_review`.
+  - `backend/tests` passed: 10 tests.
+  - `scripts/check_backend_smoke_full.ps1` passed.
+  - `npm run build` passed.
+
+### 2026-06-09 Project mainline upgraded to synthetic-view visual navigation
+
+- User decision:
+  - The project should not treat tile matching as the core result.
+  - The main line should be visual autonomous navigation through map-aided geo-localization.
+- Architecture decision:
+  - Low-altitude route planning, SuperMap 3D display, and simulation playback are validation environment capabilities.
+  - The core project output is visual localization and navigation correction guidance.
+  - Tile matching is retained as candidate-area coarse retrieval.
+  - The target technical line is DEM/orthophoto/building-data synthetic UAV view generation, followed by real or simulated UAV image matching and navigation-state correction.
+- Documentation updates:
+  - Added section 11 to `supermap_project_plan.md`.
+  - Added section 11 to `docs/vision_matching_framework.md`.
+- Strict status:
+  - Current implementation still remains at v0.3/v0.4 transition.
+  - Synthetic-view generation and real matching algorithms are not yet fully implemented.
+  - The project narrative is now corrected: simulation is used to validate visual navigation, not to merely play an animation.
+
+### 2026-06-09 Cockpit top actions and visual tile implementation checked
+
+- User feedback:
+  - The cockpit top buttons `航线规划` and `影像匹配` appeared to have no response.
+  - Need to confirm whether the visual team's automatic tile segmentation code is actually implemented.
+- Findings:
+  - `航线规划` previously called `planRoutes()` directly and refreshed route data, but did not change the active top tab or move the user to the route panel.
+  - `影像匹配` previously called `runVisionMatch()` directly and refreshed matching data, but did not change the active top tab or move the user to the visual localization panel.
+  - `实时态势` was hard-coded as the active top tab.
+  - Automatic Luojia visual tile segmentation is implemented:
+    - Script exists: `scripts/generate_luojia_vision_tiles.py`.
+    - Wrapper exists: `scripts/generate_luojia_vision_tiles.ps1`.
+    - Generated index exists: `demo_data/generated/luojia_vision_tiles.json`.
+    - `demo_data/task_demo.json` contains 40 generated visual tiles.
+    - `frontend/public/demo/vision_tiles/` contains 40 PNG tile previews.
+    - Backend schema includes generated-tile fields: `tile_image`, `pixel_bbox`, `grid`, `source_image`, `feature_count_method`, `preview_stats`.
+    - Frontend passes `visionTiles` into `SuperMapScene`, and `supermap3d.js` draws them.
+- Fix:
+  - Added cockpit top-tab state in `frontend/src/App.vue`.
+  - Added section refs and scroll targets for real-time situation, route planning, and visual matching panels.
+  - Changed top `航线规划` to switch active tab, execute route planning, and scroll to the route panel.
+  - Changed top `影像匹配` to switch active tab, execute visual matching, and scroll to the visual localization panel.
+  - Changed top `实时态势` to switch active tab and scroll back to the central SuperMap scene.
+- Verification:
+  - `npm run build` passed.
+  - `pytest backend/tests` passed: 9 tests.
+  - Tile consistency check passed:
+    - demo tiles: 40.
+    - generated tile count: 40.
+    - preview PNGs: 40.
+    - visual match candidate references: 12.
+    - missing candidate tile references: 0.
+- Strict status:
+  - The top buttons are now visible work-area actions, not silent refresh buttons.
+  - Tile segmentation is implemented and connected to demo data, backend contracts, and frontend map drawing.
+  - Current matching results are still precomputed demo matches; synthetic-view generation and real matching inference remain follow-up work.
+
+### 2026-06-09 Cockpit layout regression fixed
+
+- User feedback:
+  - The web frontend layout became disordered after the top action update.
+- Root cause:
+  - The previous fix used `scrollIntoView()` on panels inside a one-screen cockpit layout.
+  - This scrolled the whole page instead of only guiding attention, pushing the top bar out of view and letting long side panels collide visually with the bottom event console.
+  - The newer visual localization call can also fail with HTTP 404 when the running backend has not been restarted to include the latest `/vision/localize` endpoint, causing a confusing top alert.
+- Fix:
+  - Removed page-level `scrollIntoView()` from cockpit top actions.
+  - Kept top-tab active state and replaced scrolling with section highlight styling.
+  - Set the cockpit shell and grid to fixed one-screen overflow behavior.
+  - Made left and right side panels independently scrollable.
+  - Reduced cockpit center and scene minimum heights so the grid no longer overflows the viewport.
+  - Constrained bottom event-console overflow.
+  - Made `/vision/localize` an optional enhancement in the frontend: `/vision/match` remains the required action, and synthetic localization failure no longer makes the whole visual matching button fail.
+- Verification:
+  - `npm run build` passed.
+  - Luojia frontend DOM gate passed; SuperMap canvas size returned to `888x634`.
+  - Luojia frontend visual gate passed and refreshed `docs/delivery/screenshots/frontend_luojia_scene_headless.png`.
+  - Backend tests passed: 10 tests.
+- Strict status:
+  - The cockpit layout is back to a stable one-screen dashboard with internal side-panel scrolling.
+  - If the running backend was started before the latest vision endpoints/data were added, restart the demo services to clear stale runtime state.
+
+### 2026-06-09 Synthetic-view visual navigation v0.4 acceptance and handoff
+
+- User request:
+  - The visual workstream reported that the visual方案 is complete; validate and connect it with the main project.
+- Acceptance scope:
+  - Backend vision API.
+  - Synthetic-view service.
+  - Visual navigation state machine.
+  - Demo data and generated Luojia tile library.
+  - Interface contract documentation.
+- Implementation verified:
+  - `backend/app/services/synthetic_view_service.py` exists and implements v0.4 synthetic-view localization.
+  - `backend/app/api/vision.py` exposes:
+    - `POST /api/vision/synthetic-views`
+    - `POST /api/vision/localize`
+    - `GET /api/vision/localizations/{image_id}`
+  - `backend/app/models/schemas.py` contains:
+    - `SyntheticViewRequest`
+    - `SyntheticViewResponse`
+    - `SyntheticViewCandidate`
+    - `VisualLocalizationRequest`
+    - `VisualLocalizationResult`
+    - `SyntheticViewMatch`
+  - `backend/app/services/visual_navigation_service.py` consumes synthetic-view localization output and writes it into:
+    - `visual_position`
+    - `visual_frame`
+    - `fused_position`
+    - `telemetry.location_source`
+    - navigation events.
+  - Frontend API client already exposes `visionSyntheticViews`, `visionLocalize`, and `visionLocalizationDetail`.
+  - Frontend state includes `visualLocalization` and can display UAV image, best synthetic view, error radius, and correction vector.
+- Data verified:
+  - `demo_data/task_demo.json` contains 4 UAV visual images.
+  - `demo_data/task_demo.json` contains 40 generated Luojia visual tiles.
+  - `demo_data/task_demo.json` contains 4 visual match result groups.
+  - Tile previews are connected through `/demo/vision_tiles/*.png`.
+- Interface sampling:
+  - `POST /api/vision/synthetic-views` returned HTTP 200, 3 synthetic candidates.
+  - First synthetic candidate: `syn_demo_uav_001_luojia_tile_r03_c05`.
+  - Render mode: `v0.4_ortho_tile_proxy_with_dem_building_context`.
+  - `POST /api/vision/localize` returned HTTP 200.
+  - Localization status: `localized`.
+  - Confidence: `0.87`.
+  - Error radius: `22.5m`.
+  - Correction vector: `[-42.4, -8.6, 0.0]`.
+  - `POST /api/navigation/localize` returned synthetic image `/demo/vision_tiles/luojia_tile_r03_c05.png`.
+  - `GET /api/navigation/state` at 92s returned `navigation_mode=autonomous`, `location_source=visual_fusion`, and a non-empty `synthetic_view_id`.
+- Verification:
+  - `backend/tests` passed: 10 tests.
+  - `scripts/check_backend_smoke_full.ps1` passed.
+  - `npm run build` passed.
+  - Updated `docs/project_management/09_interfaces_and_data_contracts.md` with v0.4 visual API contracts and response models.
+- Acceptance conclusion:
+  - v0.4 synthetic-view visual navigation方案 is accepted as `Runtime Verified` for the mock/proxy stage.
+  - It is connected to backend APIs, demo data, frontend API client, and navigation state machine.
+- Strict status:
+  - v0.4 synthetic images are still orthophoto tile proxy images with DEM/building context, not final real camera-rendered synthetic views.
+  - Matching still uses precomputed proxy results; ORB/SIFT/LoFTR/LightGlue real matching remains v0.5 work.
+  - If frontend visual redesign is in progress, keep the response fields stable and avoid changing the API names above.
+
+### 2026-06-09 Visual observation smoothing for navigation continuity
+
+- User concern:
+  - The project main line is visual autonomous navigation.
+  - Fixed precomputed correction vectors could make navigation look scripted or discontinuous.
+- Clarification:
+  - Precomputed proxy results are acceptable as fixed visual observations for demo stability.
+  - They should not be applied as direct position jumps.
+  - Navigation display must show continuous confidence-weighted fusion from reference state toward the visual observation.
+- Fix:
+  - Updated `backend/app/services/visual_navigation_service.py`.
+  - Added temporal smoothing for `fused_position`.
+  - Added confidence-dependent fusion inertia:
+    - autonomous observations converge faster.
+    - assisted observations converge more gently.
+    - review observations do not directly pull the main navigation state.
+  - Added maximum correction speed limits:
+    - autonomous: `10m/s`.
+    - assisted: `7m/s`.
+    - review: `5m/s` transition back toward reference/review-safe state.
+  - Kept `visual_position`, `error_radius_m`, and `correction_vector_m` as the visual observation, while `fused_position` becomes the smoothed navigation state.
+- Verification:
+  - Sampled full navigation timeline:
+    - frames: 34.
+    - events: 8.
+    - max adjacent fused-position step after smoothing: `60.0m / 6s`.
+    - equivalent max correction speed: `10m/s`.
+  - Added pytest regression check to ensure timeline fusion speed stays within the smoothing limit.
+  - `backend/tests` passed: 10 tests.
+  - `scripts/check_backend_smoke_full.ps1` passed.
+- Strict status:
+  - The demo still uses precomputed visual observations.
+  - Navigation is no longer a direct fixed-value jump; it is now a continuous backend fusion timeline.
+
+### 2026-06-09 Smooth playback, trajectory comparison, and Luojia fallback hardening
+
+- User concern:
+  - The demo must be smooth enough for defense playback.
+  - It must show continuous UAV flight rather than a simple route animation.
+  - It must compare the planned/reference trajectory with the visual-fused actual trajectory.
+- Fixes:
+  - Updated `backend/app/services/visual_navigation_service.py` to remove the final-frame hard snap to the target point.
+  - The final low-confidence/review frame now keeps the smoothed `fused_position` instead of teleporting to `reference_position`.
+  - Updated `frontend/src/App.vue` playback from nearest-frame selection to frame-to-frame interpolation.
+  - `reference_position` and `fused_position` are interpolated every animation frame, while telemetry values are interpolated for smoother display.
+  - Updated `frontend/src/App.vue`, `frontend/src/components/SuperMapScene.vue`, `frontend/src/components/MockMissionMap.vue`, and `frontend/src/services/supermap3d.js` so both 3D scene and fallback map can display:
+    - reference/planned trajectory;
+    - actual visual-fused trajectory;
+    - current UAV position.
+  - Updated `frontend/src/components/SuperMapScene.vue` so the local Luojia DEM/orthophoto/building base is drawn before opening the remote iServer scene.
+  - If iServer is unavailable after a reboot, the frontend keeps the local Luojia simulation base instead of blocking on `scene.open`.
+  - Updated `scripts/check_luojia_frontend_dom_gate.ps1` to use stable DOM evidence attributes instead of fragile status text.
+- Verification:
+  - Full timeline sample after removing final snap:
+    - duration: `177s`;
+    - frames: `36`;
+    - max adjacent fused-position speed: `10.02m/s`;
+    - worst segment: `130s -> 132s`.
+  - `backend/tests` passed: `10 passed`.
+  - `scripts/check_backend_smoke_full.ps1` passed.
+  - `frontend npm run build` passed.
+  - `scripts/check_luojia_frontend_dom_gate.ps1` passed with temporary backend/frontend jobs:
+    - Luojia scene mode verified;
+    - local fallback installed;
+    - DEM terrain mesh installed;
+    - WebGL orthophoto fallback path verified;
+    - SuperMap canvas size `864x615`.
+  - `scripts/check_luojia_frontend_visual_gate.ps1` passed:
+    - screenshot saved to `docs/delivery/screenshots/frontend_luojia_scene_headless.png`;
+    - screenshot size around `659KB`;
+    - scene region non-dark percentage around `99.28%`.
+- Acceptance conclusion:
+  - The visual autonomous navigation runtime can now present a continuous fused UAV trajectory and compare it with the reference route.
+  - The Luojia scene no longer depends on iServer being already started for the local demonstration base to appear.
+- Strict status:
+  - This is still a v0.4 synthetic-view/proxy visual localization demo.
+  - Real ORB/SIFT/LoFTR/LightGlue matching and true camera-rendered synthetic views remain v0.5 work.

@@ -1,6 +1,9 @@
 from typing import Protocol
 
+from app.services.auto_vision_frame_service import build_auto_vision_images
 from app.services.data_store import get_demo_data
+from app.services.geometry import distance_m
+from app.services.planning_service import plan_routes
 
 
 class VisionProvider(Protocol):
@@ -24,7 +27,12 @@ class PrecomputedVisionProvider:
 
     def list_query_images(self, task_id: str) -> list[dict]:
         data = get_demo_data()
-        return [
+        task = data.get("task", {})
+        if task.get("id") != task_id:
+            return []
+        route = plan_routes(task, data.get("risk_zones", []), ["balanced"])[0]
+        auto_images = build_auto_vision_images(task, route, self.list_tile_index(task_id))
+        return auto_images or [
             image
             for image in data.get("vision_images", [])
             if image.get("task_id") == task_id
@@ -49,7 +57,7 @@ class PrecomputedVisionProvider:
                     result["candidate_count"] = len(result["candidates"])
                 result["total_candidate_count"] = total_candidate_count
                 return result
-        return None
+        return _synthetic_match_from_auto_frame(task_id, image_id, top_k)
 
     def get_match_by_id(self, match_id: str) -> dict | None:
         data = get_demo_data()
@@ -186,6 +194,73 @@ def _with_ranked_candidates(match_result: dict) -> dict:
     result["candidate_count"] = len(candidates)
     result["total_candidate_count"] = len(candidates)
     return result
+
+
+def _synthetic_match_from_auto_frame(task_id: str, image_id: str, top_k: int | None = None) -> dict | None:
+    data = get_demo_data()
+    task = data.get("task", {})
+    if task.get("id") != task_id:
+        return None
+    route = plan_routes(task, data.get("risk_zones", []), ["balanced"])[0]
+    tiles = [tile for tile in data.get("vision_tile_index", []) if tile.get("task_id") == task_id]
+    images = build_auto_vision_images(task, route, tiles)
+    image = next((item for item in images if item["id"] == image_id), None)
+    if not image:
+        return None
+
+    origin = task["area"]["coordinates"][0][0]
+    candidates = []
+    sorted_tiles = sorted(
+        tiles,
+        key=lambda tile: distance_m(image["expected_center"], tile["center"], origin),
+    )
+    limit = max(1, top_k or 3)
+    for index, tile in enumerate(sorted_tiles[:limit], start=1):
+        distance = distance_m(image["expected_center"], tile["center"], origin)
+        confidence = max(0.36, min(0.91, 0.9 - distance / 1200 - (index - 1) * 0.08))
+        center = [
+            tile["center"][0],
+            tile["center"][1],
+            image["expected_center"][2],
+        ]
+        reason = f"{image.get('frame_trigger', 'auto')} frame nearest synthetic-view candidate from DEM/orthophoto route sampling"
+        if image.get("frame_trigger") == "route_arrival":
+            confidence = max(0.5, 0.88 - (index - 1) * 0.08)
+            center = image["expected_center"]
+            reason = "terminal landing correction from DEM/orthophoto synthetic-view alignment"
+        inlier_ratio = max(0.22, min(0.74, confidence - 0.14))
+        candidates.append(
+            {
+                "tile_id": tile["tile_id"],
+                "confidence": round(confidence, 2),
+                "matched_points": max(24, round(tile.get("feature_count", 600) * confidence / 9)),
+                "inlier_ratio": round(inlier_ratio, 2),
+                "bbox": tile["bbox"],
+                "center": center,
+                "offset_m": [
+                    round((index - 1) * 18.0 - distance * 0.03, 1),
+                    round(distance * 0.02 - (index - 1) * 11.0, 1),
+                ],
+                "status": "best" if index == 1 and confidence >= 0.5 else "candidate" if confidence >= 0.5 else "needs_review",
+                "reason": reason,
+            }
+        )
+    result = {
+        "match_id": f"match_{image_id}_auto",
+        "task_id": task_id,
+        "image_id": image_id,
+        "query_image": image["query_image"],
+        "provider": "auto_route_synthetic_proxy",
+        "status": "completed" if candidates and candidates[0]["confidence"] >= 0.5 else "needs_review",
+        "algorithm_trace": [
+            "route_distance_keyframe",
+            "tile_retrieve_topk",
+            "dem_ortho_synthetic_view_proxy",
+            "pose_back_projection",
+        ],
+        "candidates": candidates,
+    }
+    return _with_ranked_candidates(result)
 
 
 def _best_candidate(match_result: dict) -> dict | None:

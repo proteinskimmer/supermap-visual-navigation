@@ -1,0 +1,48 @@
+{
+  "workspace": "E:\\supermap_project\\supermap_file_root\\luojia_workspace\\luojia_mountain_demo.smwu",
+  "datasource": "E:\\supermap_project\\supermap_file_root\\luojia_workspace\\luojia_mountain_demo.udbx",
+  "datasource_alias": "luojia_mountain_demo",
+  "map_name": "luojia_mountain_map",
+  "inputs": [
+    {
+      "source": "raw_test_data/珞珈山影像.tif",
+      "requested_name": "luojia_ortho",
+      "kind": "raster",
+      "imported_names": [
+        "luojia_ortho"
+      ]
+    },
+    {
+      "source": "raw_student_output/珞珈山DEM.tif",
+      "requested_name": "luojia_dem",
+      "kind": "raster",
+      "imported_names": [
+        "luojia_dem"
+      ]
+    },
+    {
+      "source": "raw_student_output/区域地形点.shp",
+      "requested_name": "luojia_terrain_points",
+      "kind": "shape",
+      "imported_names": [
+        "luojia_terrain_points"
+      ]
+    },
+    {
+      "source": "raw_student_output/珞珈山周边建筑3D.shp",
+      "requested_name": "luojia_buildings_3d",
+      "kind": "shape",
+      "imported_names": [
+        "luojia_buildings_3d"
+      ]
+    }
+  ],
+  "map_layer_count": 4,
+  "map_layers": [
+    "luojia_ortho",
+    "luojia_dem",
+    "luojia_terrain_points",
+    "luojia_buildings_3d"
+  ],
+  "map_bounds": "(534169.8512101675, 3379309.826421168, 535710.0512101675, 3380150.0264211684)"
+}

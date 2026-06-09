@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, shallowRef, watch } from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, shallowRef, watch } from "vue";
 import MockMissionMap from "./MockMissionMap.vue";
 import {
   createViewer,
@@ -7,8 +7,14 @@ import {
   detectWebGL2,
   drawDemoOverlay,
   fitToTask,
+  getSuperMapDebugState,
+  installGentleWheelZoom,
+  installMapImageryFallback,
+  isLuojiaSuperMapConfig,
   loadSuperMap3D,
   openScene,
+  syncSceneLayerVisibility,
+  updateCurrentPoint,
 } from "../services/supermap3d";
 
 const props = defineProps({
@@ -23,10 +29,12 @@ const props = defineProps({
   visionResult: { type: Object, default: null },
   visionTiles: { type: Array, default: () => [] },
   currentPoint: { type: Array, default: null },
+  actualFlightTrail: { type: Array, default: () => [] },
+  referenceFlightTrail: { type: Array, default: () => [] },
   supermapConfig: { type: Object, default: null },
 });
 
-const sceneProvider = import.meta.env.VITE_SCENE_PROVIDER || "mock";
+const sceneProvider = import.meta.env.VITE_SCENE_PROVIDER || "auto";
 const sdkBase = import.meta.env.VITE_SUPERMAP_SDK_BASE || "/vendor/supermap3d/Build/SuperMap3D";
 const contextType = Number(import.meta.env.VITE_SUPERMAP_CONTEXT_TYPE || 2);
 const mountEl = shallowRef(null);
@@ -34,10 +42,13 @@ const viewerRef = shallowRef(null);
 const sdkRef = shallowRef(null);
 const status = shallowRef("mock");
 const error = shallowRef("");
+const sceneWarning = shallowRef("");
 const hasWebGL2 = shallowRef(false);
+const debugState = shallowRef(null);
+const luojiaBuildings = shallowRef([]);
+const luojiaTerrain = shallowRef(null);
 let cameraFitted = false;
-
-const isSuperMapMode = computed(() => sceneProvider === "supermap");
+let wheelZoomCleanup = null;
 
 const sceneServices = computed(() =>
   props.layers
@@ -59,17 +70,17 @@ const sceneUrl = computed(() => {
   );
 });
 
-const mapService = computed(() => props.supermapConfig?.services?.map || null);
-const dataService = computed(() => props.supermapConfig?.services?.data || null);
-const mapResourceUrl = computed(() => mapService.value?.resource_url || mapService.value?.url || "");
+const isSuperMapMode = computed(() => sceneProvider === "supermap" || (sceneProvider === "auto" && Boolean(sceneUrl.value)));
+const isLuojiaMode = computed(() => isLuojiaSuperMapConfig(props.supermapConfig));
 
 const statusText = computed(() => {
-  if (!isSuperMapMode.value) return "mock SVG 态势图";
-  if (error.value) return `SuperMap 回退：${error.value}`;
-  if (status.value === "loading-sdk") return "加载 SuperMap3D SDK";
-  if (status.value === "creating-viewer") return "创建 SuperMap3D Viewer";
-  if (status.value === "opening-scene") return "打开 iServer 三维场景";
-  if (status.value === "ready") return sceneUrl.value ? "SuperMap 场景已就绪" : "SuperMap 空球已就绪";
+  if (!isSuperMapMode.value) return "二维态势备用图";
+  if (error.value) return `SuperMap 已回退：${error.value}`;
+  if (status.value === "loading-sdk") return "正在加载 SuperMap3D SDK";
+  if (status.value === "creating-viewer") return "正在创建 SuperMap3D 视图";
+  if (status.value === "opening-scene") return "正在打开 iServer 三维场景";
+  if (status.value === "ready" && sceneWarning.value) return `SuperMap 本地仿真底座已就绪：${sceneWarning.value}`;
+  if (status.value === "ready") return sceneUrl.value ? "SuperMap 场景已就绪" : "SuperMap 空三维球已就绪";
   return "等待 SuperMap 初始化";
 });
 
@@ -82,34 +93,65 @@ const overlayData = computed(() => ({
   replannedRoute: props.replannedRoute,
   visionResult: props.visionResult,
   visionTiles: props.visionTiles,
-  currentPoint: props.currentPoint,
+  luojiaBuildings: luojiaBuildings.value,
+  luojiaTerrain: luojiaTerrain.value,
+  layers: props.layers,
+  supermapConfig: props.supermapConfig,
+  sceneUrl: sceneUrl.value,
 }));
 
 onMounted(() => {
+  loadLuojiaBuildings();
+  loadLuojiaTerrain();
   if (isSuperMapMode.value) {
     initializeSuperMap();
   }
 });
 
-onBeforeUnmount(() => {
-  destroyViewer(viewerRef.value);
-  viewerRef.value = null;
-  sdkRef.value = null;
+watch(isSuperMapMode, async (enabled) => {
+  if (enabled && !viewerRef.value && !["loading-sdk", "creating-viewer", "opening-scene"].includes(status.value)) {
+    await nextTick();
+    initializeSuperMap();
+  }
 });
 
 watch(
   overlayData,
   () => {
     if (viewerRef.value && sdkRef.value && status.value === "ready") {
-      drawDemoOverlay(viewerRef.value, sdkRef.value, overlayData.value);
+      refreshSceneBase();
     }
   },
   { deep: true }
 );
 
+watch(
+  () => [props.currentPoint, props.actualFlightTrail, props.referenceFlightTrail],
+  ([point, actualTrail, referenceTrail]) => {
+    if (viewerRef.value && sdkRef.value && status.value === "ready") {
+      updateCurrentPoint(viewerRef.value, sdkRef.value, point, {
+        actualTrail,
+        referenceTrail,
+      });
+      refreshDebugState();
+    }
+  },
+  { deep: true }
+);
+
+onBeforeUnmount(() => {
+  cleanupWheelZoom();
+  destroyViewer(viewerRef.value);
+  viewerRef.value = null;
+  sdkRef.value = null;
+});
+
 async function initializeSuperMap() {
   try {
+    await nextTick();
+    if (!mountEl.value) return;
     error.value = "";
+    sceneWarning.value = "";
     hasWebGL2.value = detectWebGL2();
     if (!hasWebGL2.value && contextType === 2) {
       throw new Error("当前浏览器不支持 WebGL2");
@@ -123,39 +165,153 @@ async function initializeSuperMap() {
     const viewer = createViewer(mountEl.value, SuperMap3D, { contextType });
     viewerRef.value = viewer;
     window.__supermapViewer = viewer;
-
-    if (sceneUrl.value) {
-      status.value = "opening-scene";
-      await openScene(viewer, sceneUrl.value);
-    }
+    wheelZoomCleanup = installGentleWheelZoom(mountEl.value, viewer);
 
     status.value = "ready";
-    drawDemoOverlay(viewer, SuperMap3D, overlayData.value);
+    refreshSceneBase();
     if (!cameraFitted) {
-      fitToTask(viewer, SuperMap3D, props.selectedTask);
+      fitToTask(viewer, SuperMap3D, props.selectedTask, props.supermapConfig);
       cameraFitted = true;
+    }
+    if (sceneUrl.value) {
+      await tryOpenRemoteScene(viewer, SuperMap3D);
     }
   } catch (err) {
     error.value = err?.message || "SuperMap 初始化失败";
     status.value = "fallback";
+    cleanupWheelZoom();
     destroyViewer(viewerRef.value);
     viewerRef.value = null;
+    sdkRef.value = null;
+    refreshDebugState();
   }
+}
+
+async function tryOpenRemoteScene(viewer, SuperMap3D) {
+  sceneWarning.value = "正在连接 iServer，备用底座保持可用";
+  try {
+    await withTimeout(openScene(viewer, sceneUrl.value), 7000, "iServer scene open timeout");
+    sceneWarning.value = "";
+  } catch (err) {
+    sceneWarning.value = "iServer 未就绪，使用本地 DEM/正射影像/建筑底座";
+    console.warn("SuperMap remote scene unavailable; local Luojia base remains active", err);
+  } finally {
+    refreshSceneBase();
+    fitToTask(viewer, SuperMap3D, props.selectedTask, props.supermapConfig);
+  }
+}
+
+function withTimeout(promise, timeoutMs, message) {
+  let timer = null;
+  const timeout = new Promise((_, reject) => {
+    timer = window.setTimeout(() => reject(new Error(message)), timeoutMs);
+  });
+  return Promise.race([promise, timeout]).finally(() => {
+    window.clearTimeout(timer);
+  });
+}
+
+async function loadLuojiaBuildings() {
+  try {
+    const response = await fetch("/demo/luojia_buildings_preview.json");
+    if (!response.ok) return;
+    const payload = await response.json();
+    luojiaBuildings.value = payload.buildings || [];
+  } catch (err) {
+    console.warn("Failed to load Luojia buildings", err);
+  }
+}
+
+async function loadLuojiaTerrain() {
+  try {
+    const response = await fetch("/demo/luojia_terrain_preview.json");
+    if (!response.ok) return;
+    luojiaTerrain.value = await response.json();
+  } catch (err) {
+    console.warn("Failed to load Luojia terrain", err);
+  }
+}
+
+function refreshSceneBase() {
+  if (!viewerRef.value || !sdkRef.value || status.value !== "ready") return;
+  installMapImageryFallback(viewerRef.value, sdkRef.value, props.supermapConfig);
+  syncSceneLayerVisibility(viewerRef.value, props.layers, props.supermapConfig);
+  drawDemoOverlay(viewerRef.value, sdkRef.value, overlayData.value);
+  updateCurrentPoint(viewerRef.value, sdkRef.value, props.currentPoint, {
+    actualTrail: props.actualFlightTrail,
+    referenceTrail: props.referenceFlightTrail,
+  });
+  refreshDebugState();
+}
+
+function cleanupWheelZoom() {
+  wheelZoomCleanup?.();
+  wheelZoomCleanup = null;
+}
+
+function resetStandardView() {
+  if (!viewerRef.value || !sdkRef.value || status.value !== "ready") return;
+  fitToTask(viewerRef.value, sdkRef.value, props.selectedTask, props.supermapConfig);
+  refreshDebugState();
+}
+
+function reloadSceneBase() {
+  refreshSceneBase();
+  resetStandardView();
+}
+
+function refreshDebugState() {
+  if (!viewerRef.value) {
+    debugState.value = null;
+    return;
+  }
+  debugState.value = getSuperMapDebugState(viewerRef.value, props.supermapConfig);
 }
 </script>
 
 <template>
   <div class="scene-shell">
     <div v-if="isSuperMapMode" class="supermap-scene">
-      <div ref="mountEl" class="supermap-mount" data-supermap-mount></div>
-      <div class="supermap-empty-state">
-        <strong>SuperMap iClient3D</strong>
-        <span>{{ statusText }}</span>
-        <small>SDK: {{ sdkBase }}</small>
-        <small>WebGL2: {{ hasWebGL2 ? "可用" : "未确认/不可用" }} · contextType: {{ contextType }}</small>
-        <small v-if="sceneUrl">scene.open(sceneUrl): {{ sceneUrl }}</small>
-        <small v-else>未配置 sceneUrl，当前只在空三维球上绘制 mock 航线和业务图形。</small>
+      <div
+        ref="mountEl"
+        :class="['supermap-mount', isLuojiaMode ? 'luojia-base-mount' : '']"
+        data-supermap-mount
+        :data-scene-status="status"
+        :data-luojia-mode="isLuojiaMode ? 'true' : 'false'"
+        :data-luojia-fallback-installed="debugState?.fallbackInstalled ? 'true' : 'false'"
+        :data-luojia-terrain-installed="debugState?.terrainInstalled ? 'true' : 'false'"
+      ></div>
+      <div class="scene-control-bar">
+        <button type="button" title="重新加载珞珈底图" :disabled="status !== 'ready'" @click="reloadSceneBase">
+          重载底图
+        </button>
+        <button type="button" title="飞回任务标准视角" :disabled="status !== 'ready'" @click="resetStandardView">
+          标准视角
+        </button>
       </div>
+      <details class="supermap-empty-state supermap-status-panel">
+        <summary>
+          <strong>场景状态</strong>
+          <span>{{ statusText }}</span>
+        </summary>
+        <div class="supermap-status-detail">
+        <small>SDK 路径：{{ sdkBase }}</small>
+        <small>WebGL2：{{ hasWebGL2 ? "可用" : "未确认" }} / 上下文类型：{{ contextType }}</small>
+        <small v-if="sceneUrl">场景地址：{{ sceneUrl }}</small>
+        <small v-if="debugState">
+          珞珈备用底图：{{ debugState.fallbackInstalled ? "已安装" : "未安装" }} /
+          场景图层：{{ debugState.sceneLayerCount }} /
+          影像图层：{{ debugState.imageryLayerCount }}
+        </small>
+        <small v-if="debugState?.terrainInstalled">
+          高程地形网格：{{ debugState.terrainVertices }} 个顶点 / {{ debugState.terrainTriangles }} 个三角面
+        </small>
+        <small v-if="sceneWarning">{{ sceneWarning }}</small>
+        <small v-if="isLuojiaMode">正射影像备用图：/demo/luojia_ortho_preview.jpg</small>
+        <small v-if="isLuojiaMode">图例：灰色=建筑 / 橙红=风险 / 青色=视觉匹配区</small>
+        <small v-if="!sceneUrl">未配置场景地址，当前在 SuperMap 空三维球上绘制任务叠加层。</small>
+        </div>
+      </details>
 
       <MockMissionMap
         v-if="error"
@@ -171,6 +327,8 @@ async function initializeSuperMap() {
         :vision-result="visionResult"
         :vision-tiles="visionTiles"
         :current-point="currentPoint"
+        :actual-flight-trail="actualFlightTrail"
+        :reference-flight-trail="referenceFlightTrail"
       />
     </div>
 
@@ -187,6 +345,8 @@ async function initializeSuperMap() {
       :vision-result="visionResult"
       :vision-tiles="visionTiles"
       :current-point="currentPoint"
+      :actual-flight-trail="actualFlightTrail"
+      :reference-flight-trail="referenceFlightTrail"
     />
   </div>
 </template>

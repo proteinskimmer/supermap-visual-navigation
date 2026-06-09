@@ -15,6 +15,15 @@ def get_demo_data() -> dict:
     return copy.deepcopy(load_demo_data())
 
 
+def save_demo_data(data: dict) -> dict:
+    DEMO_DATA_PATH.write_text(
+        json.dumps(data, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    load_demo_data.cache_clear()
+    return get_demo_data()
+
+
 def get_task(task_id: str) -> dict:
     data = get_demo_data()
     task = data["task"]
@@ -22,3 +31,19 @@ def get_task(task_id: str) -> dict:
         raise KeyError(f"task not found: {task_id}")
     return task
 
+
+def get_risk_zones(task_id: str) -> list[dict]:
+    data = get_demo_data()
+    task = data["task"]
+    if task["id"] != task_id:
+        raise KeyError(f"task not found: {task_id}")
+    return data["risk_zones"]
+
+
+def replace_risk_zones(task_id: str, risk_zones: list[dict]) -> list[dict]:
+    data = get_demo_data()
+    task = data["task"]
+    if task["id"] != task_id:
+        raise KeyError(f"task not found: {task_id}")
+    data["risk_zones"] = risk_zones
+    return save_demo_data(data)["risk_zones"]

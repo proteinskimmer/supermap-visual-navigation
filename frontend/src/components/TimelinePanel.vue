@@ -14,7 +14,7 @@ defineProps({
     </div>
     <div v-if="events.length" class="event-log">
       <article v-for="event in events" :key="`${event.type}-${event.time_s}`">
-        <strong>{{ event.time_s }}s</strong>
+        <strong>{{ event.time_s }}秒</strong>
         <span>{{ event.title }}</span>
         <small>{{ event.description }}</small>
       </article>

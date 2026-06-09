@@ -19,7 +19,7 @@
 | `03_frontend_3d_workstream.md` | 前端三维平台负责人执行细则 |
 | `04_backend_api_workstream.md` | 后端与平台接口负责人执行细则 |
 | `05_planning_risk_workstream.md` | 航线规划、风险校验、动态重规划负责人执行细则 |
-| `06_vision_matching_workstream.md` | 视觉匹配模块负责人执行细则 |
+| `06_vision_matching_workstream.md` | 视觉定位/匹配模块负责人执行细则，后续需服务于视觉自主导航状态链路 |
 | `07_delivery_materials_workstream.md` | 比赛材料、演示视频、答辩文档执行细则 |
 | `08_task_board.md` | 可跟进任务看板 |
 | `09_interfaces_and_data_contracts.md` | 模块接口、数据结构、联调约定 |
@@ -28,6 +28,8 @@
 | `12_project_status_log.md` | 项目推进状态日志，跨对话同步当前进度 |
 | `13_status_gates.md` | 严格状态门禁，区分 mock、运行验证、SuperMap 验证和交付就绪 |
 | `14_real_data_collection_guide.md` | 真实 / 半真实 demo 数据采集任务书，可直接下发给组员 |
+| `15_versioning_artifact_policy.md` | 版本、证据包和生成产物归属策略 |
+| `16_visual_autonomous_navigation_replan.md` | 视觉自主导航主线重规划总纲，当前最高优先阅读文档 |
 
 ## 外部专题文档
 
@@ -74,8 +76,9 @@
 每次开始新的开发或管理对话时，先读取：
 
 1. `12_project_status_log.md`
-2. `08_task_board.md`
-3. `13_status_gates.md`
-4. 当前任务对应的分工文档
+2. `16_visual_autonomous_navigation_replan.md`
+3. `08_task_board.md`
+4. `10_acceptance_checklist.md`
+5. 当前任务对应的分工文档
 
 这样可以避免重复解释项目背景，也能保证任务状态连续。

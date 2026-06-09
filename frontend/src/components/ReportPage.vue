@@ -11,13 +11,20 @@ defineProps({
 });
 
 defineEmits(["close", "reload"]);
+
+function routeModeLabel(mode) {
+  if (mode === "shortest") return "最短航线";
+  if (mode === "safest") return "安全优先";
+  if (mode === "balanced") return "综合平衡";
+  return mode || "-";
+}
 </script>
 
 <template>
   <main class="app-shell report-page">
     <header class="topbar">
       <div>
-        <p class="eyebrow">Mission Report</p>
+        <p class="eyebrow">任务摘要</p>
         <h1>任务报告</h1>
       </div>
       <div class="report-actions">
@@ -61,11 +68,11 @@ defineEmits(["close", "reload"]);
           <h2>航线</h2>
           <div class="report-grid report-grid-wide">
             <span>模式</span>
-            <strong>{{ report.recommended_route.mode }}</strong>
+            <strong>{{ routeModeLabel(report.recommended_route.mode) }}</strong>
             <span>距离</span>
-            <strong>{{ report.recommended_route.distance_m }} m</strong>
+            <strong>{{ report.recommended_route.distance_m }} 米</strong>
             <span>预计时间</span>
-            <strong>{{ report.recommended_route.estimated_time_s }} s</strong>
+            <strong>{{ report.recommended_route.estimated_time_s }} 秒</strong>
             <span>转弯数</span>
             <strong>{{ report.recommended_route.turn_count }}</strong>
           </div>
@@ -87,7 +94,7 @@ defineEmits(["close", "reload"]);
           <h2>事件日志</h2>
           <div class="event-log report-event-log">
             <article v-for="event in events.length ? events : report.events" :key="`${event.type}-${event.time_s}`">
-              <strong>{{ event.time_s }}s</strong>
+              <strong>{{ event.time_s }}秒</strong>
               <span>{{ event.title }}</span>
               <small>{{ event.description }}</small>
             </article>
@@ -112,7 +119,7 @@ defineEmits(["close", "reload"]);
           <div class="candidate-row" v-for="candidate in report.vision.candidates" :key="candidate.tile_id">
             <span>{{ candidate.tile_id }}</span>
             <strong>{{ Math.round(candidate.confidence * 100) }}%</strong>
-            <small>{{ candidate.matched_points }} pts</small>
+            <small>{{ candidate.matched_points }} 个匹配点</small>
             <em>{{ candidate.reason }}</em>
           </div>
         </section>

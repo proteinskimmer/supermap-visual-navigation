@@ -1,0 +1,81 @@
+{
+  "iserver": {
+    "base_url": "http://localhost:8090/iserver",
+    "manager_url": "http://localhost:8090/iserver/admin-ui/home",
+    "version": "2025U1A",
+    "workspace_path": "E:\\supermap_project\\supermap_file_root\\demo_workspace\\low_altitude_demo.smwu",
+    "coordinate_system": "WGS84"
+  },
+  "services": {
+    "scene": {
+      "name": "3D-low_altitude_demo",
+      "url": "http://localhost:8090/iserver/services/3D-low_altitude_demo/rest/realspace",
+      "resource_url": "http://localhost:8090/iserver/services/3D-low_altitude_demo/rest/realspace/scenes/low_altitude_demo",
+      "metadata_url": "http://localhost:8090/iserver/services/3D-low_altitude_demo/rest/realspace/scenes/low_altitude_demo.json",
+      "type": "3d",
+      "status": "verified"
+    },
+    "map": {
+      "name": "map-low_altitude_demo",
+      "url": "http://localhost:8090/iserver/services/map-low_altitude_demo/rest/maps",
+      "resource_url": "http://localhost:8090/iserver/services/map-low_altitude_demo/rest/maps/low_altitude_demo_map",
+      "metadata_url": "http://localhost:8090/iserver/services/map-low_altitude_demo/rest/maps/low_altitude_demo_map.json",
+      "type": "map",
+      "status": "verified"
+    },
+    "data": {
+      "name": "data-low_altitude_demo",
+      "url": "http://localhost:8090/iserver/services/data-low_altitude_demo/rest/data",
+      "type": "data",
+      "status": "verified"
+    },
+    "spatial_analysis": {
+      "name": "",
+      "url": "",
+      "type": "spatial_analysis",
+      "status": "optional"
+    }
+  },
+  "layers": {
+    "task_area": {
+      "dataset": "task_area_R",
+      "service": "data",
+      "geometry": "Polygon"
+    },
+    "risk_zone": {
+      "dataset": "risk_zone_R",
+      "service": "data",
+      "geometry": "Polygon"
+    },
+    "obstacle": {
+      "dataset": "obstacle_ZP",
+      "service": "data",
+      "geometry": "Point"
+    },
+    "routes_preview": {
+      "dataset": "routes_preview_ZL",
+      "service": "data",
+      "geometry": "LineString"
+    },
+    "vision_tile": {
+      "dataset": "vision_tile_R",
+      "service": "data",
+      "geometry": "Polygon"
+    },
+    "start_target": {
+      "dataset": "start_target_ZP",
+      "service": "data",
+      "geometry": "Point"
+    },
+    "vision_image_center": {
+      "dataset": "vision_image_center_ZP",
+      "service": "data",
+      "geometry": "Point"
+    },
+    "uav_position": {
+      "dataset": "uav_position_ZP",
+      "service": "data",
+      "geometry": "Point"
+    }
+  }
+}

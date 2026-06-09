@@ -42,7 +42,14 @@ function statusLabel(status) {
   if (status === "candidate") return "候选";
   if (status === "needs_review") return "复核";
   if (status === "rejected") return "剔除";
+  if (status === "matched") return "已匹配";
+  if (status === "precomputed") return "预计算";
   return status;
+}
+
+function providerLabel(provider) {
+  if (provider === "precomputed") return "预计算结果";
+  return provider || "未知算法";
 }
 </script>
 
@@ -59,7 +66,7 @@ function statusLabel(status) {
         @click="$emit('select-route', route)"
       >
         <strong>{{ route.name }}</strong>
-        <span>{{ route.distance_m }} m · {{ route.score }} 分 · {{ route.risk_level }}</span>
+        <span>{{ route.distance_m }} 米 · {{ route.score }} 分 · {{ route.risk_level }}</span>
         <small>{{ route.strategy }}</small>
       </button>
     </section>
@@ -91,16 +98,16 @@ function statusLabel(status) {
         </div>
         <div class="vision-preview-meta">
           <span>{{ selectedVisionImage?.resolution?.join(" x ") || "1280 x 720" }}</span>
-          <span>{{ selectedVisionImage?.camera?.height_m || "-" }} m</span>
+          <span>{{ selectedVisionImage?.camera?.height_m || "-" }} 米</span>
           <span>{{ selectedVisionImage?.scene_tags?.join(" / ") }}</span>
         </div>
       </div>
       <div class="vision-query">
         <strong>{{ selectedVisionImage?.name || visionResult.image_id }}</strong>
-        <span>{{ visionResult.provider }} · {{ visionResult.status }} · {{ visionResult.candidate_count }}/{{ visionResult.total_candidate_count }}</span>
+        <span>{{ providerLabel(visionResult.provider) }} · {{ statusLabel(visionResult.status) }} · {{ visionResult.candidate_count }}/{{ visionResult.total_candidate_count }}</span>
         <small v-if="bestVisionCandidate">
           最优候选 {{ bestVisionCandidate.tile_id }}，偏移
-          {{ bestVisionCandidate.offset_m[0] }}m / {{ bestVisionCandidate.offset_m[1] }}m
+          {{ bestVisionCandidate.offset_m[0] }}米 / {{ bestVisionCandidate.offset_m[1] }}米
         </small>
       </div>
       <div class="segmented-control">
@@ -110,7 +117,7 @@ function statusLabel(status) {
           :class="{ active: visionTopK === topK }"
           @click="$emit('update-vision-top-k', topK)"
         >
-          Top {{ topK }}
+          前 {{ topK }} 个
         </button>
         <button @click="$emit('run-vision-match')">刷新</button>
       </div>
@@ -118,13 +125,13 @@ function statusLabel(status) {
         <div v-for="candidate in visionResult.candidates" :key="candidate.tile_id" class="candidate-row">
           <span>#{{ candidate.rank }} {{ candidate.tile_id }} · {{ statusLabel(candidate.status) }}</span>
           <strong>{{ Math.round(candidate.confidence * 100) }}%</strong>
-          <small>{{ candidate.matched_points }} pts</small>
+          <small>{{ candidate.matched_points }} 点</small>
           <div class="confidence-bar">
             <span :style="{ width: percent(candidate.confidence) }"></span>
           </div>
           <div class="candidate-metrics">
             <span>内点 {{ percent(candidate.inlier_ratio) }}</span>
-            <span>偏移 {{ candidate.offset_m[0] }} / {{ candidate.offset_m[1] }} m</span>
+            <span>偏移 {{ candidate.offset_m[0] }} / {{ candidate.offset_m[1] }} 米</span>
           </div>
           <em>{{ candidate.reason }}</em>
         </div>

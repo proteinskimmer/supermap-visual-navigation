@@ -14,38 +14,46 @@
                                           "coordinates":  [
                                                               [
                                                                   [
-                                                                      116.1040,
-                                                                      39.1110
+                                                                      114.356083018,
+                                                                      30.53956603
                                                                   ],
                                                                   [
-                                                                      116.1210,
-                                                                      39.1110
+                                                                      114.358090064,
+                                                                      30.539560528
                                                                   ],
                                                                   [
-                                                                      116.1210,
-                                                                      39.1260
+                                                                      114.358095624,
+                                                                      30.541075902
                                                                   ],
                                                                   [
-                                                                      116.1040,
-                                                                      39.1260
+                                                                      114.356088547,
+                                                                      30.541081404
                                                                   ],
                                                                   [
-                                                                      116.1040,
-                                                                      39.1110
+                                                                      114.356083018,
+                                                                      30.53956603
                                                                   ]
                                                               ]
                                                           ],
                                           "type":  "Polygon"
                                       },
                          "properties":  {
-                                            "center_lat":  39.1185,
-                                            "feature_count":  980,
-                                            "name":  "起飞区西南瓦片",
+                                            "center_lat":  30.540320966,
+                                            "grid_row":  1,
+                                            "grid_cols":  8,
+                                            "feature_count":  1386,
+                                            "pixel_bbox":  "0,0,963,840",
+                                            "name":  "Luojia auto tile R01C01",
                                             "task_id":  "task_001",
-                                            "source":  "demo_remote_sensing_mosaic",
-                                            "center_alt_m":  110.0,
-                                            "center_lon":  116.1125,
-                                            "tile_id":  "tile_018"
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  1,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r01_c01.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.357089313,
+                                            "tile_id":  "luojia_tile_r01_c01"
                                         }
                      },
                      {
@@ -54,38 +62,46 @@
                                           "coordinates":  [
                                                               [
                                                                   [
-                                                                      116.1270,
-                                                                      39.1320
+                                                                      114.358090064,
+                                                                      30.539560528
                                                                   ],
                                                                   [
-                                                                      116.1440,
-                                                                      39.1320
+                                                                      114.360095026,
+                                                                      30.539555001
                                                                   ],
                                                                   [
-                                                                      116.1440,
-                                                                      39.1470
+                                                                      114.360100617,
+                                                                      30.541070374
                                                                   ],
                                                                   [
-                                                                      116.1270,
-                                                                      39.1470
+                                                                      114.358095624,
+                                                                      30.541075902
                                                                   ],
                                                                   [
-                                                                      116.1270,
-                                                                      39.1320
+                                                                      114.358090064,
+                                                                      30.539560528
                                                                   ]
                                                               ]
                                                           ],
                                           "type":  "Polygon"
                                       },
                          "properties":  {
-                                            "center_lat":  39.1395,
-                                            "feature_count":  1320,
-                                            "name":  "低密建筑瓦片",
+                                            "center_lat":  30.540315451,
+                                            "grid_row":  1,
+                                            "grid_cols":  8,
+                                            "feature_count":  1503,
+                                            "pixel_bbox":  "963,0,1925,840",
+                                            "name":  "Luojia auto tile R01C02",
                                             "task_id":  "task_001",
-                                            "source":  "demo_remote_sensing_mosaic",
-                                            "center_alt_m":  118.0,
-                                            "center_lon":  116.1355,
-                                            "tile_id":  "tile_021"
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  2,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r01_c02.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.359095333,
+                                            "tile_id":  "luojia_tile_r01_c02"
                                         }
                      },
                      {
@@ -94,38 +110,46 @@
                                           "coordinates":  [
                                                               [
                                                                   [
-                                                                      116.1670,
-                                                                      39.1560
+                                                                      114.360095026,
+                                                                      30.539555001
                                                                   ],
                                                                   [
-                                                                      116.1840,
-                                                                      39.1560
+                                                                      114.362102071,
+                                                                      30.539549438
                                                                   ],
                                                                   [
-                                                                      116.1840,
-                                                                      39.1710
+                                                                      114.362107693,
+                                                                      30.541064811
                                                                   ],
                                                                   [
-                                                                      116.1670,
-                                                                      39.1710
+                                                                      114.360100617,
+                                                                      30.541070374
                                                                   ],
                                                                   [
-                                                                      116.1670,
-                                                                      39.1560
+                                                                      114.360095026,
+                                                                      30.539555001
                                                                   ]
                                                               ]
                                                           ],
                                           "type":  "Polygon"
                                       },
                          "properties":  {
-                                            "center_lat":  39.1635,
-                                            "feature_count":  1540,
-                                            "name":  "河谷道路瓦片",
+                                            "center_lat":  30.540309906,
+                                            "grid_row":  1,
+                                            "grid_cols":  8,
+                                            "feature_count":  1404,
+                                            "pixel_bbox":  "1925,0,2888,840",
+                                            "name":  "Luojia auto tile R01C03",
                                             "task_id":  "task_001",
-                                            "source":  "demo_remote_sensing_mosaic",
-                                            "center_alt_m":  125.0,
-                                            "center_lon":  116.1755,
-                                            "tile_id":  "tile_034"
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  3,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r01_c03.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.361101352,
+                                            "tile_id":  "luojia_tile_r01_c03"
                                         }
                      },
                      {
@@ -134,38 +158,46 @@
                                           "coordinates":  [
                                                               [
                                                                   [
-                                                                      116.1970,
-                                                                      39.1775
+                                                                      114.362102071,
+                                                                      30.539549438
                                                                   ],
                                                                   [
-                                                                      116.2140,
-                                                                      39.1775
+                                                                      114.364107031,
+                                                                      30.539543849
                                                                   ],
                                                                   [
-                                                                      116.2140,
-                                                                      39.1925
+                                                                      114.364112684,
+                                                                      30.541059222
                                                                   ],
                                                                   [
-                                                                      116.1970,
-                                                                      39.1925
+                                                                      114.362107693,
+                                                                      30.541064811
                                                                   ],
                                                                   [
-                                                                      116.1970,
-                                                                      39.1775
+                                                                      114.362102071,
+                                                                      30.539549438
                                                                   ]
                                                               ]
                                                           ],
                                           "type":  "Polygon"
                                       },
                          "properties":  {
-                                            "center_lat":  39.1850,
-                                            "feature_count":  1710,
-                                            "name":  "北侧居民区瓦片",
+                                            "center_lat":  30.54030433,
+                                            "grid_row":  1,
+                                            "grid_cols":  8,
+                                            "feature_count":  1397,
+                                            "pixel_bbox":  "2888,0,3850,840",
+                                            "name":  "Luojia auto tile R01C04",
                                             "task_id":  "task_001",
-                                            "source":  "demo_remote_sensing_mosaic",
-                                            "center_alt_m":  132.0,
-                                            "center_lon":  116.2055,
-                                            "tile_id":  "tile_041"
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  4,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r01_c04.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.36310737,
+                                            "tile_id":  "luojia_tile_r01_c04"
                                         }
                      },
                      {
@@ -174,38 +206,1726 @@
                                           "coordinates":  [
                                                               [
                                                                   [
-                                                                      116.2120,
-                                                                      39.1945
+                                                                      114.364107031,
+                                                                      30.539543849
                                                                   ],
                                                                   [
-                                                                      116.2290,
-                                                                      39.1945
+                                                                      114.366114075,
+                                                                      30.539538224
                                                                   ],
                                                                   [
-                                                                      116.2290,
-                                                                      39.2095
+                                                                      114.366119759,
+                                                                      30.541053596
                                                                   ],
                                                                   [
-                                                                      116.2120,
-                                                                      39.2095
+                                                                      114.364112684,
+                                                                      30.541059222
                                                                   ],
                                                                   [
-                                                                      116.2120,
-                                                                      39.1945
+                                                                      114.364107031,
+                                                                      30.539543849
                                                                   ]
                                                               ]
                                                           ],
                                           "type":  "Polygon"
                                       },
                          "properties":  {
-                                            "center_lat":  39.2020,
-                                            "feature_count":  1190,
-                                            "name":  "目标区东侧瓦片",
+                                            "center_lat":  30.540298723,
+                                            "grid_row":  1,
+                                            "grid_cols":  8,
+                                            "feature_count":  1579,
+                                            "pixel_bbox":  "3850,0,4813,840",
+                                            "name":  "Luojia auto tile R01C05",
                                             "task_id":  "task_001",
-                                            "source":  "demo_remote_sensing_mosaic",
-                                            "center_alt_m":  130.0,
-                                            "center_lon":  116.2205,
-                                            "tile_id":  "tile_052"
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  5,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r01_c05.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.365113387,
+                                            "tile_id":  "luojia_tile_r01_c05"
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              [
+                                                                  [
+                                                                      114.366114075,
+                                                                      30.539538224
+                                                                  ],
+                                                                  [
+                                                                      114.368121118,
+                                                                      30.539532568
+                                                                  ],
+                                                                  [
+                                                                      114.368126834,
+                                                                      30.541047939
+                                                                  ],
+                                                                  [
+                                                                      114.366119759,
+                                                                      30.541053596
+                                                                  ],
+                                                                  [
+                                                                      114.366114075,
+                                                                      30.539538224
+                                                                  ]
+                                                              ]
+                                                          ],
+                                          "type":  "Polygon"
+                                      },
+                         "properties":  {
+                                            "center_lat":  30.540293082,
+                                            "grid_row":  1,
+                                            "grid_cols":  8,
+                                            "feature_count":  1698,
+                                            "pixel_bbox":  "4813,0,5776,840",
+                                            "name":  "Luojia auto tile R01C06",
+                                            "task_id":  "task_001",
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  6,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r01_c06.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.367120447,
+                                            "tile_id":  "luojia_tile_r01_c06"
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              [
+                                                                  [
+                                                                      114.368121118,
+                                                                      30.539532568
+                                                                  ],
+                                                                  [
+                                                                      114.370126077,
+                                                                      30.539526886
+                                                                  ],
+                                                                  [
+                                                                      114.370131823,
+                                                                      30.541042258
+                                                                  ],
+                                                                  [
+                                                                      114.368126834,
+                                                                      30.541047939
+                                                                  ],
+                                                                  [
+                                                                      114.368121118,
+                                                                      30.539532568
+                                                                  ]
+                                                              ]
+                                                          ],
+                                          "type":  "Polygon"
+                                      },
+                         "properties":  {
+                                            "center_lat":  30.540287413,
+                                            "grid_row":  1,
+                                            "grid_cols":  8,
+                                            "feature_count":  1773,
+                                            "pixel_bbox":  "5776,0,6738,840",
+                                            "name":  "Luojia auto tile R01C07",
+                                            "task_id":  "task_001",
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  7,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r01_c07.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.369126463,
+                                            "tile_id":  "luojia_tile_r01_c07"
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              [
+                                                                  [
+                                                                      114.370126077,
+                                                                      30.539526886
+                                                                  ],
+                                                                  [
+                                                                      114.372133119,
+                                                                      30.539521168
+                                                                  ],
+                                                                  [
+                                                                      114.372138897,
+                                                                      30.541036539
+                                                                  ],
+                                                                  [
+                                                                      114.370131823,
+                                                                      30.541042258
+                                                                  ],
+                                                                  [
+                                                                      114.370126077,
+                                                                      30.539526886
+                                                                  ]
+                                                              ]
+                                                          ],
+                                          "type":  "Polygon"
+                                      },
+                         "properties":  {
+                                            "center_lat":  30.540281713,
+                                            "grid_row":  1,
+                                            "grid_cols":  8,
+                                            "feature_count":  1095,
+                                            "pixel_bbox":  "6738,0,7701,840",
+                                            "name":  "Luojia auto tile R01C08",
+                                            "task_id":  "task_001",
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  8,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r01_c08.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.371132479,
+                                            "tile_id":  "luojia_tile_r01_c08"
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              [
+                                                                  [
+                                                                      114.35607749,
+                                                                      30.538050656
+                                                                  ],
+                                                                  [
+                                                                      114.358084505,
+                                                                      30.538045155
+                                                                  ],
+                                                                  [
+                                                                      114.358090064,
+                                                                      30.539560528
+                                                                  ],
+                                                                  [
+                                                                      114.356083018,
+                                                                      30.53956603
+                                                                  ],
+                                                                  [
+                                                                      114.35607749,
+                                                                      30.538050656
+                                                                  ]
+                                                              ]
+                                                          ],
+                                          "type":  "Polygon"
+                                      },
+                         "properties":  {
+                                            "center_lat":  30.538805592,
+                                            "grid_row":  2,
+                                            "grid_cols":  8,
+                                            "feature_count":  1598,
+                                            "pixel_bbox":  "0,840,963,1680",
+                                            "name":  "Luojia auto tile R02C01",
+                                            "task_id":  "task_001",
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  1,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r02_c01.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.357083769,
+                                            "tile_id":  "luojia_tile_r02_c01"
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              [
+                                                                  [
+                                                                      114.358084505,
+                                                                      30.538045155
+                                                                  ],
+                                                                  [
+                                                                      114.360089435,
+                                                                      30.538039628
+                                                                  ],
+                                                                  [
+                                                                      114.360095026,
+                                                                      30.539555001
+                                                                  ],
+                                                                  [
+                                                                      114.358090064,
+                                                                      30.539560528
+                                                                  ],
+                                                                  [
+                                                                      114.358084505,
+                                                                      30.538045155
+                                                                  ]
+                                                              ]
+                                                          ],
+                                          "type":  "Polygon"
+                                      },
+                         "properties":  {
+                                            "center_lat":  30.538800078,
+                                            "grid_row":  2,
+                                            "grid_cols":  8,
+                                            "feature_count":  1420,
+                                            "pixel_bbox":  "963,840,1925,1680",
+                                            "name":  "Luojia auto tile R02C02",
+                                            "task_id":  "task_001",
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  2,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r02_c02.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.359089758,
+                                            "tile_id":  "luojia_tile_r02_c02"
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              [
+                                                                  [
+                                                                      114.360089435,
+                                                                      30.538039628
+                                                                  ],
+                                                                  [
+                                                                      114.362096449,
+                                                                      30.538034065
+                                                                  ],
+                                                                  [
+                                                                      114.362102071,
+                                                                      30.539549438
+                                                                  ],
+                                                                  [
+                                                                      114.360095026,
+                                                                      30.539555001
+                                                                  ],
+                                                                  [
+                                                                      114.360089435,
+                                                                      30.538039628
+                                                                  ]
+                                                              ]
+                                                          ],
+                                          "type":  "Polygon"
+                                      },
+                         "properties":  {
+                                            "center_lat":  30.538794533,
+                                            "grid_row":  2,
+                                            "grid_cols":  8,
+                                            "feature_count":  1447,
+                                            "pixel_bbox":  "1925,840,2888,1680",
+                                            "name":  "Luojia auto tile R02C03",
+                                            "task_id":  "task_001",
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  3,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r02_c03.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.361095745,
+                                            "tile_id":  "luojia_tile_r02_c03"
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              [
+                                                                  [
+                                                                      114.362096449,
+                                                                      30.538034065
+                                                                  ],
+                                                                  [
+                                                                      114.364101378,
+                                                                      30.538028477
+                                                                  ],
+                                                                  [
+                                                                      114.364107031,
+                                                                      30.539543849
+                                                                  ],
+                                                                  [
+                                                                      114.362102071,
+                                                                      30.539549438
+                                                                  ],
+                                                                  [
+                                                                      114.362096449,
+                                                                      30.538034065
+                                                                  ]
+                                                              ]
+                                                          ],
+                                          "type":  "Polygon"
+                                      },
+                         "properties":  {
+                                            "center_lat":  30.538788957,
+                                            "grid_row":  2,
+                                            "grid_cols":  8,
+                                            "feature_count":  1639,
+                                            "pixel_bbox":  "2888,840,3850,1680",
+                                            "name":  "Luojia auto tile R02C04",
+                                            "task_id":  "task_001",
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  4,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r02_c04.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.363101732,
+                                            "tile_id":  "luojia_tile_r02_c04"
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              [
+                                                                  [
+                                                                      114.364101378,
+                                                                      30.538028477
+                                                                  ],
+                                                                  [
+                                                                      114.366108391,
+                                                                      30.538022852
+                                                                  ],
+                                                                  [
+                                                                      114.366114075,
+                                                                      30.539538224
+                                                                  ],
+                                                                  [
+                                                                      114.364107031,
+                                                                      30.539543849
+                                                                  ],
+                                                                  [
+                                                                      114.364101378,
+                                                                      30.538028477
+                                                                  ]
+                                                              ]
+                                                          ],
+                                          "type":  "Polygon"
+                                      },
+                         "properties":  {
+                                            "center_lat":  30.538783351,
+                                            "grid_row":  2,
+                                            "grid_cols":  8,
+                                            "feature_count":  1571,
+                                            "pixel_bbox":  "3850,840,4813,1680",
+                                            "name":  "Luojia auto tile R02C05",
+                                            "task_id":  "task_001",
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  5,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r02_c05.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.365107719,
+                                            "tile_id":  "luojia_tile_r02_c05"
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              [
+                                                                  [
+                                                                      114.366108391,
+                                                                      30.538022852
+                                                                  ],
+                                                                  [
+                                                                      114.368115403,
+                                                                      30.538017196
+                                                                  ],
+                                                                  [
+                                                                      114.368121118,
+                                                                      30.539532568
+                                                                  ],
+                                                                  [
+                                                                      114.366114075,
+                                                                      30.539538224
+                                                                  ],
+                                                                  [
+                                                                      114.366108391,
+                                                                      30.538022852
+                                                                  ]
+                                                              ]
+                                                          ],
+                                          "type":  "Polygon"
+                                      },
+                         "properties":  {
+                                            "center_lat":  30.53877771,
+                                            "grid_row":  2,
+                                            "grid_cols":  8,
+                                            "feature_count":  1396,
+                                            "pixel_bbox":  "4813,840,5776,1680",
+                                            "name":  "Luojia auto tile R02C06",
+                                            "task_id":  "task_001",
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  6,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r02_c06.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.367114747,
+                                            "tile_id":  "luojia_tile_r02_c06"
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              [
+                                                                  [
+                                                                      114.368115403,
+                                                                      30.538017196
+                                                                  ],
+                                                                  [
+                                                                      114.37012033,
+                                                                      30.538011515
+                                                                  ],
+                                                                  [
+                                                                      114.370126077,
+                                                                      30.539526886
+                                                                  ],
+                                                                  [
+                                                                      114.368121118,
+                                                                      30.539532568
+                                                                  ],
+                                                                  [
+                                                                      114.368115403,
+                                                                      30.538017196
+                                                                  ]
+                                                              ]
+                                                          ],
+                                          "type":  "Polygon"
+                                      },
+                         "properties":  {
+                                            "center_lat":  30.538772041,
+                                            "grid_row":  2,
+                                            "grid_cols":  8,
+                                            "feature_count":  1507,
+                                            "pixel_bbox":  "5776,840,6738,1680",
+                                            "name":  "Luojia auto tile R02C07",
+                                            "task_id":  "task_001",
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  7,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r02_c07.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.369120732,
+                                            "tile_id":  "luojia_tile_r02_c07"
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              [
+                                                                  [
+                                                                      114.37012033,
+                                                                      30.538011515
+                                                                  ],
+                                                                  [
+                                                                      114.372127341,
+                                                                      30.538005797
+                                                                  ],
+                                                                  [
+                                                                      114.372133119,
+                                                                      30.539521168
+                                                                  ],
+                                                                  [
+                                                                      114.370126077,
+                                                                      30.539526886
+                                                                  ],
+                                                                  [
+                                                                      114.37012033,
+                                                                      30.538011515
+                                                                  ]
+                                                              ]
+                                                          ],
+                                          "type":  "Polygon"
+                                      },
+                         "properties":  {
+                                            "center_lat":  30.538766342,
+                                            "grid_row":  2,
+                                            "grid_cols":  8,
+                                            "feature_count":  1294,
+                                            "pixel_bbox":  "6738,840,7701,1680",
+                                            "name":  "Luojia auto tile R02C08",
+                                            "task_id":  "task_001",
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  8,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r02_c08.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.371126717,
+                                            "tile_id":  "luojia_tile_r02_c08"
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              [
+                                                                  [
+                                                                      114.356071955,
+                                                                      30.536533478
+                                                                  ],
+                                                                  [
+                                                                      114.358078939,
+                                                                      30.536527977
+                                                                  ],
+                                                                  [
+                                                                      114.358084505,
+                                                                      30.538045155
+                                                                  ],
+                                                                  [
+                                                                      114.35607749,
+                                                                      30.538050656
+                                                                  ],
+                                                                  [
+                                                                      114.356071955,
+                                                                      30.536533478
+                                                                  ]
+                                                              ]
+                                                          ],
+                                          "type":  "Polygon"
+                                      },
+                         "properties":  {
+                                            "center_lat":  30.537289317,
+                                            "grid_row":  3,
+                                            "grid_cols":  8,
+                                            "feature_count":  1482,
+                                            "pixel_bbox":  "0,1680,963,2521",
+                                            "name":  "Luojia auto tile R03C01",
+                                            "task_id":  "task_001",
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  1,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r03_c01.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.357078222,
+                                            "tile_id":  "luojia_tile_r03_c01"
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              [
+                                                                  [
+                                                                      114.358078939,
+                                                                      30.536527977
+                                                                  ],
+                                                                  [
+                                                                      114.360083838,
+                                                                      30.53652245
+                                                                  ],
+                                                                  [
+                                                                      114.360089435,
+                                                                      30.538039628
+                                                                  ],
+                                                                  [
+                                                                      114.358084505,
+                                                                      30.538045155
+                                                                  ],
+                                                                  [
+                                                                      114.358078939,
+                                                                      30.536527977
+                                                                  ]
+                                                              ]
+                                                          ],
+                                          "type":  "Polygon"
+                                      },
+                         "properties":  {
+                                            "center_lat":  30.537283802,
+                                            "grid_row":  3,
+                                            "grid_cols":  8,
+                                            "feature_count":  1351,
+                                            "pixel_bbox":  "963,1680,1925,2521",
+                                            "name":  "Luojia auto tile R03C02",
+                                            "task_id":  "task_001",
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  2,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r03_c02.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.359084179,
+                                            "tile_id":  "luojia_tile_r03_c02"
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              [
+                                                                  [
+                                                                      114.360083838,
+                                                                      30.53652245
+                                                                  ],
+                                                                  [
+                                                                      114.362090821,
+                                                                      30.536516888
+                                                                  ],
+                                                                  [
+                                                                      114.362096449,
+                                                                      30.538034065
+                                                                  ],
+                                                                  [
+                                                                      114.360089435,
+                                                                      30.538039628
+                                                                  ],
+                                                                  [
+                                                                      114.360083838,
+                                                                      30.53652245
+                                                                  ]
+                                                              ]
+                                                          ],
+                                          "type":  "Polygon"
+                                      },
+                         "properties":  {
+                                            "center_lat":  30.537278258,
+                                            "grid_row":  3,
+                                            "grid_cols":  8,
+                                            "feature_count":  1369,
+                                            "pixel_bbox":  "1925,1680,2888,2521",
+                                            "name":  "Luojia auto tile R03C03",
+                                            "task_id":  "task_001",
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  3,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r03_c03.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.361090136,
+                                            "tile_id":  "luojia_tile_r03_c03"
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              [
+                                                                  [
+                                                                      114.362090821,
+                                                                      30.536516888
+                                                                  ],
+                                                                  [
+                                                                      114.364095718,
+                                                                      30.5365113
+                                                                  ],
+                                                                  [
+                                                                      114.364101378,
+                                                                      30.538028477
+                                                                  ],
+                                                                  [
+                                                                      114.362096449,
+                                                                      30.538034065
+                                                                  ],
+                                                                  [
+                                                                      114.362090821,
+                                                                      30.536516888
+                                                                  ]
+                                                              ]
+                                                          ],
+                                          "type":  "Polygon"
+                                      },
+                         "properties":  {
+                                            "center_lat":  30.537272683,
+                                            "grid_row":  3,
+                                            "grid_cols":  8,
+                                            "feature_count":  1262,
+                                            "pixel_bbox":  "2888,1680,3850,2521",
+                                            "name":  "Luojia auto tile R03C04",
+                                            "task_id":  "task_001",
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  4,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r03_c04.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.363096092,
+                                            "tile_id":  "luojia_tile_r03_c04"
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              [
+                                                                  [
+                                                                      114.364095718,
+                                                                      30.5365113
+                                                                  ],
+                                                                  [
+                                                                      114.3661027,
+                                                                      30.536505675
+                                                                  ],
+                                                                  [
+                                                                      114.366108391,
+                                                                      30.538022852
+                                                                  ],
+                                                                  [
+                                                                      114.364101378,
+                                                                      30.538028477
+                                                                  ],
+                                                                  [
+                                                                      114.364095718,
+                                                                      30.5365113
+                                                                  ]
+                                                              ]
+                                                          ],
+                                          "type":  "Polygon"
+                                      },
+                         "properties":  {
+                                            "center_lat":  30.537267076,
+                                            "grid_row":  3,
+                                            "grid_cols":  8,
+                                            "feature_count":  1242,
+                                            "pixel_bbox":  "3850,1680,4813,2521",
+                                            "name":  "Luojia auto tile R03C05",
+                                            "task_id":  "task_001",
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  5,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r03_c05.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.365102047,
+                                            "tile_id":  "luojia_tile_r03_c05"
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              [
+                                                                  [
+                                                                      114.3661027,
+                                                                      30.536505675
+                                                                  ],
+                                                                  [
+                                                                      114.368109681,
+                                                                      30.536500019
+                                                                  ],
+                                                                  [
+                                                                      114.368115403,
+                                                                      30.538017196
+                                                                  ],
+                                                                  [
+                                                                      114.366108391,
+                                                                      30.538022852
+                                                                  ],
+                                                                  [
+                                                                      114.3661027,
+                                                                      30.536505675
+                                                                  ]
+                                                              ]
+                                                          ],
+                                          "type":  "Polygon"
+                                      },
+                         "properties":  {
+                                            "center_lat":  30.537261435,
+                                            "grid_row":  3,
+                                            "grid_cols":  8,
+                                            "feature_count":  1250,
+                                            "pixel_bbox":  "4813,1680,5776,2521",
+                                            "name":  "Luojia auto tile R03C06",
+                                            "task_id":  "task_001",
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  6,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r03_c06.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.367109044,
+                                            "tile_id":  "luojia_tile_r03_c06"
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              [
+                                                                  [
+                                                                      114.368109681,
+                                                                      30.536500019
+                                                                  ],
+                                                                  [
+                                                                      114.370114577,
+                                                                      30.536494339
+                                                                  ],
+                                                                  [
+                                                                      114.37012033,
+                                                                      30.538011515
+                                                                  ],
+                                                                  [
+                                                                      114.368115403,
+                                                                      30.538017196
+                                                                  ],
+                                                                  [
+                                                                      114.368109681,
+                                                                      30.536500019
+                                                                  ]
+                                                              ]
+                                                          ],
+                                          "type":  "Polygon"
+                                      },
+                         "properties":  {
+                                            "center_lat":  30.537255767,
+                                            "grid_row":  3,
+                                            "grid_cols":  8,
+                                            "feature_count":  1314,
+                                            "pixel_bbox":  "5776,1680,6738,2521",
+                                            "name":  "Luojia auto tile R03C07",
+                                            "task_id":  "task_001",
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  7,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r03_c07.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.369114998,
+                                            "tile_id":  "luojia_tile_r03_c07"
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              [
+                                                                  [
+                                                                      114.370114577,
+                                                                      30.536494339
+                                                                  ],
+                                                                  [
+                                                                      114.372121557,
+                                                                      30.536488621
+                                                                  ],
+                                                                  [
+                                                                      114.372127341,
+                                                                      30.538005797
+                                                                  ],
+                                                                  [
+                                                                      114.37012033,
+                                                                      30.538011515
+                                                                  ],
+                                                                  [
+                                                                      114.370114577,
+                                                                      30.536494339
+                                                                  ]
+                                                              ]
+                                                          ],
+                                          "type":  "Polygon"
+                                      },
+                         "properties":  {
+                                            "center_lat":  30.537250068,
+                                            "grid_row":  3,
+                                            "grid_cols":  8,
+                                            "feature_count":  1546,
+                                            "pixel_bbox":  "6738,1680,7701,2521",
+                                            "name":  "Luojia auto tile R03C08",
+                                            "task_id":  "task_001",
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  8,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r03_c08.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.371120951,
+                                            "tile_id":  "luojia_tile_r03_c08"
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              [
+                                                                  [
+                                                                      114.356066427,
+                                                                      30.535018103
+                                                                  ],
+                                                                  [
+                                                                      114.35807338,
+                                                                      30.535012602
+                                                                  ],
+                                                                  [
+                                                                      114.358078939,
+                                                                      30.536527977
+                                                                  ],
+                                                                  [
+                                                                      114.356071955,
+                                                                      30.536533478
+                                                                  ],
+                                                                  [
+                                                                      114.356066427,
+                                                                      30.535018103
+                                                                  ]
+                                                              ]
+                                                          ],
+                                          "type":  "Polygon"
+                                      },
+                         "properties":  {
+                                            "center_lat":  30.53577304,
+                                            "grid_row":  4,
+                                            "grid_cols":  8,
+                                            "feature_count":  1463,
+                                            "pixel_bbox":  "0,2521,963,3361",
+                                            "name":  "Luojia auto tile R04C01",
+                                            "task_id":  "task_001",
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  1,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r04_c01.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.357072675,
+                                            "tile_id":  "luojia_tile_r04_c01"
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              [
+                                                                  [
+                                                                      114.35807338,
+                                                                      30.535012602
+                                                                  ],
+                                                                  [
+                                                                      114.360078248,
+                                                                      30.535007076
+                                                                  ],
+                                                                  [
+                                                                      114.360083838,
+                                                                      30.53652245
+                                                                  ],
+                                                                  [
+                                                                      114.358078939,
+                                                                      30.536527977
+                                                                  ],
+                                                                  [
+                                                                      114.35807338,
+                                                                      30.535012602
+                                                                  ]
+                                                              ]
+                                                          ],
+                                          "type":  "Polygon"
+                                      },
+                         "properties":  {
+                                            "center_lat":  30.535767526,
+                                            "grid_row":  4,
+                                            "grid_cols":  8,
+                                            "feature_count":  1415,
+                                            "pixel_bbox":  "963,2521,1925,3361",
+                                            "name":  "Luojia auto tile R04C02",
+                                            "task_id":  "task_001",
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  2,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r04_c02.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.359078601,
+                                            "tile_id":  "luojia_tile_r04_c02"
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              [
+                                                                  [
+                                                                      114.360078248,
+                                                                      30.535007076
+                                                                  ],
+                                                                  [
+                                                                      114.362085199,
+                                                                      30.535001514
+                                                                  ],
+                                                                  [
+                                                                      114.362090821,
+                                                                      30.536516888
+                                                                  ],
+                                                                  [
+                                                                      114.360083838,
+                                                                      30.53652245
+                                                                  ],
+                                                                  [
+                                                                      114.360078248,
+                                                                      30.535007076
+                                                                  ]
+                                                              ]
+                                                          ],
+                                          "type":  "Polygon"
+                                      },
+                         "properties":  {
+                                            "center_lat":  30.535761982,
+                                            "grid_row":  4,
+                                            "grid_cols":  8,
+                                            "feature_count":  1280,
+                                            "pixel_bbox":  "1925,2521,2888,3361",
+                                            "name":  "Luojia auto tile R04C03",
+                                            "task_id":  "task_001",
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  3,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r04_c03.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.361084526,
+                                            "tile_id":  "luojia_tile_r04_c03"
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              [
+                                                                  [
+                                                                      114.362085199,
+                                                                      30.535001514
+                                                                  ],
+                                                                  [
+                                                                      114.364090066,
+                                                                      30.534995926
+                                                                  ],
+                                                                  [
+                                                                      114.364095718,
+                                                                      30.5365113
+                                                                  ],
+                                                                  [
+                                                                      114.362090821,
+                                                                      30.536516888
+                                                                  ],
+                                                                  [
+                                                                      114.362085199,
+                                                                      30.535001514
+                                                                  ]
+                                                              ]
+                                                          ],
+                                          "type":  "Polygon"
+                                      },
+                         "properties":  {
+                                            "center_lat":  30.535756407,
+                                            "grid_row":  4,
+                                            "grid_cols":  8,
+                                            "feature_count":  1315,
+                                            "pixel_bbox":  "2888,2521,3850,3361",
+                                            "name":  "Luojia auto tile R04C04",
+                                            "task_id":  "task_001",
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  4,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r04_c04.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.363090451,
+                                            "tile_id":  "luojia_tile_r04_c04"
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              [
+                                                                  [
+                                                                      114.364090066,
+                                                                      30.534995926
+                                                                  ],
+                                                                  [
+                                                                      114.366097017,
+                                                                      30.534990302
+                                                                  ],
+                                                                  [
+                                                                      114.3661027,
+                                                                      30.536505675
+                                                                  ],
+                                                                  [
+                                                                      114.364095718,
+                                                                      30.5365113
+                                                                  ],
+                                                                  [
+                                                                      114.364090066,
+                                                                      30.534995926
+                                                                  ]
+                                                              ]
+                                                          ],
+                                          "type":  "Polygon"
+                                      },
+                         "properties":  {
+                                            "center_lat":  30.535750801,
+                                            "grid_row":  4,
+                                            "grid_cols":  8,
+                                            "feature_count":  1367,
+                                            "pixel_bbox":  "3850,2521,4813,3361",
+                                            "name":  "Luojia auto tile R04C05",
+                                            "task_id":  "task_001",
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  5,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r04_c05.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.365096375,
+                                            "tile_id":  "luojia_tile_r04_c05"
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              [
+                                                                  [
+                                                                      114.366097017,
+                                                                      30.534990302
+                                                                  ],
+                                                                  [
+                                                                      114.368103966,
+                                                                      30.534984647
+                                                                  ],
+                                                                  [
+                                                                      114.368109681,
+                                                                      30.536500019
+                                                                  ],
+                                                                  [
+                                                                      114.3661027,
+                                                                      30.536505675
+                                                                  ],
+                                                                  [
+                                                                      114.366097017,
+                                                                      30.534990302
+                                                                  ]
+                                                              ]
+                                                          ],
+                                          "type":  "Polygon"
+                                      },
+                         "properties":  {
+                                            "center_lat":  30.535745161,
+                                            "grid_row":  4,
+                                            "grid_cols":  8,
+                                            "feature_count":  1515,
+                                            "pixel_bbox":  "4813,2521,5776,3361",
+                                            "name":  "Luojia auto tile R04C06",
+                                            "task_id":  "task_001",
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  6,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r04_c06.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.367103341,
+                                            "tile_id":  "luojia_tile_r04_c06"
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              [
+                                                                  [
+                                                                      114.368103966,
+                                                                      30.534984647
+                                                                  ],
+                                                                  [
+                                                                      114.370108832,
+                                                                      30.534978966
+                                                                  ],
+                                                                  [
+                                                                      114.370114577,
+                                                                      30.536494339
+                                                                  ],
+                                                                  [
+                                                                      114.368109681,
+                                                                      30.536500019
+                                                                  ],
+                                                                  [
+                                                                      114.368103966,
+                                                                      30.534984647
+                                                                  ]
+                                                              ]
+                                                          ],
+                                          "type":  "Polygon"
+                                      },
+                         "properties":  {
+                                            "center_lat":  30.535739493,
+                                            "grid_row":  4,
+                                            "grid_cols":  8,
+                                            "feature_count":  1664,
+                                            "pixel_bbox":  "5776,2521,6738,3361",
+                                            "name":  "Luojia auto tile R04C07",
+                                            "task_id":  "task_001",
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  7,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r04_c07.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.369109264,
+                                            "tile_id":  "luojia_tile_r04_c07"
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              [
+                                                                  [
+                                                                      114.370108832,
+                                                                      30.534978966
+                                                                  ],
+                                                                  [
+                                                                      114.37211578,
+                                                                      30.534973249
+                                                                  ],
+                                                                  [
+                                                                      114.372121557,
+                                                                      30.536488621
+                                                                  ],
+                                                                  [
+                                                                      114.370114577,
+                                                                      30.536494339
+                                                                  ],
+                                                                  [
+                                                                      114.370108832,
+                                                                      30.534978966
+                                                                  ]
+                                                              ]
+                                                          ],
+                                          "type":  "Polygon"
+                                      },
+                         "properties":  {
+                                            "center_lat":  30.535733794,
+                                            "grid_row":  4,
+                                            "grid_cols":  8,
+                                            "feature_count":  1878,
+                                            "pixel_bbox":  "6738,2521,7701,3361",
+                                            "name":  "Luojia auto tile R04C08",
+                                            "task_id":  "task_001",
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  8,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r04_c08.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.371115186,
+                                            "tile_id":  "luojia_tile_r04_c08"
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              [
+                                                                  [
+                                                                      114.3560609,
+                                                                      30.533502728
+                                                                  ],
+                                                                  [
+                                                                      114.358067822,
+                                                                      30.533497228
+                                                                  ],
+                                                                  [
+                                                                      114.35807338,
+                                                                      30.535012602
+                                                                  ],
+                                                                  [
+                                                                      114.356066427,
+                                                                      30.535018103
+                                                                  ],
+                                                                  [
+                                                                      114.3560609,
+                                                                      30.533502728
+                                                                  ]
+                                                              ]
+                                                          ],
+                                          "type":  "Polygon"
+                                      },
+                         "properties":  {
+                                            "center_lat":  30.534257665,
+                                            "grid_row":  5,
+                                            "grid_cols":  8,
+                                            "feature_count":  1470,
+                                            "pixel_bbox":  "0,3361,963,4201",
+                                            "name":  "Luojia auto tile R05C01",
+                                            "task_id":  "task_001",
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  1,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r05_c01.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.357067132,
+                                            "tile_id":  "luojia_tile_r05_c01"
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              [
+                                                                  [
+                                                                      114.358067822,
+                                                                      30.533497228
+                                                                  ],
+                                                                  [
+                                                                      114.360072659,
+                                                                      30.533491702
+                                                                  ],
+                                                                  [
+                                                                      114.360078248,
+                                                                      30.535007076
+                                                                  ],
+                                                                  [
+                                                                      114.35807338,
+                                                                      30.535012602
+                                                                  ],
+                                                                  [
+                                                                      114.358067822,
+                                                                      30.533497228
+                                                                  ]
+                                                              ]
+                                                          ],
+                                          "type":  "Polygon"
+                                      },
+                         "properties":  {
+                                            "center_lat":  30.534252152,
+                                            "grid_row":  5,
+                                            "grid_cols":  8,
+                                            "feature_count":  1404,
+                                            "pixel_bbox":  "963,3361,1925,4201",
+                                            "name":  "Luojia auto tile R05C02",
+                                            "task_id":  "task_001",
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  2,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r05_c02.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.359073027,
+                                            "tile_id":  "luojia_tile_r05_c02"
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              [
+                                                                  [
+                                                                      114.360072659,
+                                                                      30.533491702
+                                                                  ],
+                                                                  [
+                                                                      114.362079579,
+                                                                      30.53348614
+                                                                  ],
+                                                                  [
+                                                                      114.362085199,
+                                                                      30.535001514
+                                                                  ],
+                                                                  [
+                                                                      114.360078248,
+                                                                      30.535007076
+                                                                  ],
+                                                                  [
+                                                                      114.360072659,
+                                                                      30.533491702
+                                                                  ]
+                                                              ]
+                                                          ],
+                                          "type":  "Polygon"
+                                      },
+                         "properties":  {
+                                            "center_lat":  30.534246608,
+                                            "grid_row":  5,
+                                            "grid_cols":  8,
+                                            "feature_count":  1499,
+                                            "pixel_bbox":  "1925,3361,2888,4201",
+                                            "name":  "Luojia auto tile R05C03",
+                                            "task_id":  "task_001",
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  3,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r05_c03.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.361078921,
+                                            "tile_id":  "luojia_tile_r05_c03"
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              [
+                                                                  [
+                                                                      114.362079579,
+                                                                      30.53348614
+                                                                  ],
+                                                                  [
+                                                                      114.364084415,
+                                                                      30.533480552
+                                                                  ],
+                                                                  [
+                                                                      114.364090066,
+                                                                      30.534995926
+                                                                  ],
+                                                                  [
+                                                                      114.362085199,
+                                                                      30.535001514
+                                                                  ],
+                                                                  [
+                                                                      114.362079579,
+                                                                      30.53348614
+                                                                  ]
+                                                              ]
+                                                          ],
+                                          "type":  "Polygon"
+                                      },
+                         "properties":  {
+                                            "center_lat":  30.534241033,
+                                            "grid_row":  5,
+                                            "grid_cols":  8,
+                                            "feature_count":  1639,
+                                            "pixel_bbox":  "2888,3361,3850,4201",
+                                            "name":  "Luojia auto tile R05C04",
+                                            "task_id":  "task_001",
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  4,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r05_c04.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.363084815,
+                                            "tile_id":  "luojia_tile_r05_c04"
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              [
+                                                                  [
+                                                                      114.364084415,
+                                                                      30.533480552
+                                                                  ],
+                                                                  [
+                                                                      114.366091334,
+                                                                      30.533474928
+                                                                  ],
+                                                                  [
+                                                                      114.366097017,
+                                                                      30.534990302
+                                                                  ],
+                                                                  [
+                                                                      114.364090066,
+                                                                      30.534995926
+                                                                  ],
+                                                                  [
+                                                                      114.364084415,
+                                                                      30.533480552
+                                                                  ]
+                                                              ]
+                                                          ],
+                                          "type":  "Polygon"
+                                      },
+                         "properties":  {
+                                            "center_lat":  30.534235427,
+                                            "grid_row":  5,
+                                            "grid_cols":  8,
+                                            "feature_count":  1694,
+                                            "pixel_bbox":  "3850,3361,4813,4201",
+                                            "name":  "Luojia auto tile R05C05",
+                                            "task_id":  "task_001",
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  5,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r05_c05.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.365090708,
+                                            "tile_id":  "luojia_tile_r05_c05"
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              [
+                                                                  [
+                                                                      114.366091334,
+                                                                      30.533474928
+                                                                  ],
+                                                                  [
+                                                                      114.368098252,
+                                                                      30.533469274
+                                                                  ],
+                                                                  [
+                                                                      114.368103966,
+                                                                      30.534984647
+                                                                  ],
+                                                                  [
+                                                                      114.366097017,
+                                                                      30.534990302
+                                                                  ],
+                                                                  [
+                                                                      114.366091334,
+                                                                      30.533474928
+                                                                  ]
+                                                              ]
+                                                          ],
+                                          "type":  "Polygon"
+                                      },
+                         "properties":  {
+                                            "center_lat":  30.534229788,
+                                            "grid_row":  5,
+                                            "grid_cols":  8,
+                                            "feature_count":  1791,
+                                            "pixel_bbox":  "4813,3361,5776,4201",
+                                            "name":  "Luojia auto tile R05C06",
+                                            "task_id":  "task_001",
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  6,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r05_c06.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.367097642,
+                                            "tile_id":  "luojia_tile_r05_c06"
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              [
+                                                                  [
+                                                                      114.368098252,
+                                                                      30.533469274
+                                                                  ],
+                                                                  [
+                                                                      114.370103086,
+                                                                      30.533463594
+                                                                  ],
+                                                                  [
+                                                                      114.370108832,
+                                                                      30.534978966
+                                                                  ],
+                                                                  [
+                                                                      114.368103966,
+                                                                      30.534984647
+                                                                  ],
+                                                                  [
+                                                                      114.368098252,
+                                                                      30.533469274
+                                                                  ]
+                                                              ]
+                                                          ],
+                                          "type":  "Polygon"
+                                      },
+                         "properties":  {
+                                            "center_lat":  30.53422412,
+                                            "grid_row":  5,
+                                            "grid_cols":  8,
+                                            "feature_count":  1496,
+                                            "pixel_bbox":  "5776,3361,6738,4201",
+                                            "name":  "Luojia auto tile R05C07",
+                                            "task_id":  "task_001",
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  7,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r05_c07.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.369103534,
+                                            "tile_id":  "luojia_tile_r05_c07"
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              [
+                                                                  [
+                                                                      114.370103086,
+                                                                      30.533463594
+                                                                  ],
+                                                                  [
+                                                                      114.372110004,
+                                                                      30.533457877
+                                                                  ],
+                                                                  [
+                                                                      114.37211578,
+                                                                      30.534973249
+                                                                  ],
+                                                                  [
+                                                                      114.370108832,
+                                                                      30.534978966
+                                                                  ],
+                                                                  [
+                                                                      114.370103086,
+                                                                      30.533463594
+                                                                  ]
+                                                              ]
+                                                          ],
+                                          "type":  "Polygon"
+                                      },
+                         "properties":  {
+                                            "center_lat":  30.534218422,
+                                            "grid_row":  5,
+                                            "grid_cols":  8,
+                                            "feature_count":  1720,
+                                            "pixel_bbox":  "6738,3361,7701,4201",
+                                            "name":  "Luojia auto tile R05C08",
+                                            "task_id":  "task_001",
+                                            "source":  "luojia_ortho_auto_grid",
+                                            "grid_rows":  5,
+                                            "center_alt_m":  120.0,
+                                            "grid_col":  8,
+                                            "tile_image":  "/demo/vision_tiles/luojia_tile_r05_c08.png",
+                                            "source_image":  "data_sources/luojia_mountain/raw_test_data/珞珈山影像.tif",
+                                            "feature_count_method":  "sampled_tiff_texture_proxy",
+                                            "center_lon":  114.371109426,
+                                            "tile_id":  "luojia_tile_r05_c08"
                                         }
                      }
                  ]

@@ -1,0 +1,12 @@
+{
+  "workspace": "E:\\supermap_project\\supermap_file_root\\demo_workspace\\low_altitude_demo.smwu",
+  "map_name": "low_altitude_demo_map",
+  "output": "E:\\supermap_project\\docs\\delivery\\screenshots\\low_altitude_demo_map_iobjectspy_preview.png",
+  "image_size": [
+    1600,
+    1000
+  ],
+  "map_layer_count": 8,
+  "map_bounds": "(116.1, 39.1, 116.235, 39.215)",
+  "strict_status": "iObjectSpy rendered project map preview; this is script evidence, not an iDesktopX GUI screenshot."
+}

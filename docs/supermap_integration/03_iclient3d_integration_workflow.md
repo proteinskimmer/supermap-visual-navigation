@@ -49,6 +49,15 @@ VITE_SCENE_PROVIDER=supermap
 - Cesium 资源路径。
 - 是否需要 token 或许可。
 
+本机 2025U1 安装包已核验，静态资源引入方式为：
+
+```html
+<link href="../../Build/SuperMap3D/Widgets/widgets.css" rel="stylesheet">
+<script src="../../Build/SuperMap3D/SuperMap3D.js"></script>
+```
+
+项目接入时建议优先将 SDK 静态资源复制或映射到 `frontend/public/vendor/supermap3d/`，再通过 `/vendor/supermap3d/SuperMap3D.js` 和 `/vendor/supermap3d/Widgets/widgets.css` 加载。不要把本机绝对路径写死进前端源码。
+
 ### 步骤 2：填写服务配置
 
 复制配置模板：
@@ -76,7 +85,21 @@ Copy-Item config\supermap_services.example.json config\supermap_services.local.j
 4. 设置默认视角到任务区域。
 5. 显示加载状态和错误状态。
 
-注意：具体加载方法必须现场核对本机官方示例，例如 S3M/SCP 加载方式。
+已核对本机官方示例，最小加载链路为：
+
+```javascript
+const viewer = new SuperMap3D.Viewer('Container', {
+  contextOptions: {
+    contextType: 2
+  }
+})
+
+viewer.scenePromise.then((scene) => {
+  scene.open(sceneUrl)
+})
+```
+
+注意：`contextType: 2` 表示 WebGL2，`contextType: 3` 或 `SuperMap3D.ContextType.WebGPU` 表示 WebGPU。比赛演示先用 WebGL2，WebGPU 后置为增强项。
 
 ### 步骤 4：叠加任务图层
 
@@ -127,4 +150,4 @@ http://localhost:8000/api
 | 坐标偏移 | 检查 iDesktopX 坐标系和前端 lon/lat 顺序 |
 | 跨域失败 | 配置 iServer CORS 或 Vite 代理 |
 | 性能差 | 缩小任务区域，减少图层 |
-
+| Vue 响应式拖慢 Viewer | 不把 `viewer` 放进 `data`、`computed` 或普通响应式 store |

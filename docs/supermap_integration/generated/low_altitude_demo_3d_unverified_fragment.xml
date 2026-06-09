@@ -1,0 +1,13 @@
+﻿<!-- Candidate only: project-owned 3D service. Not verified until a real scene exists in the workspace and REST /realspace/scenes.json passes. -->
+<component alias="3D-low_altitude_demo" class="com.supermap.services.components.impl.RealspaceImpl" enabled="true" initOnCreate="false" initPriority="0" instanceCount="0" interfaceNames="rest" name="3D-low_altitude_demo" providers="3D-low_altitude_demo">
+  <config class="com.supermap.services.components.RealspaceConfig"/>
+</component>
+<provider class="com.supermap.services.providers.UGCRealspaceProvider" enabled="true" name="3D-low_altitude_demo">
+  <config class="com.supermap.services.providers.UGCRealspaceProviderSetting">
+    <workspacePath>${fileManagerWorkDir}/demo_workspace/low_altitude_demo.smwu</workspacePath>
+    <xmlParse>false</xmlParse>
+    <publishAllDatasets>false</publishAllDatasets>
+    <output>./output</output>
+    <isMultiInstance>false</isMultiInstance>
+  </config>
+</provider>

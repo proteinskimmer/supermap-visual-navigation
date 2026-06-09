@@ -1,0 +1,11 @@
+﻿{
+    "generated_at":  "2026-06-09T12:28:15",
+    "map_service":  "map-low_altitude_demo",
+    "data_service":  "data-low_altitude_demo",
+    "scene_service_candidate":  "3D-low_altitude_demo",
+    "workspace_path_in_iserver":  "${fileManagerWorkDir}/demo_workspace/low_altitude_demo.smwu",
+    "map_data_fragment":  "E:\\supermap_project\\docs\\supermap_integration\\generated\\low_altitude_demo_map_data_iserver_services_fragment.xml",
+    "full_draft":  "E:\\supermap_project\\docs\\supermap_integration\\generated\\low_altitude_demo_iserver_services_draft.xml",
+    "unverified_3d_fragment":  "E:\\supermap_project\\docs\\supermap_integration\\generated\\low_altitude_demo_3d_unverified_fragment.xml",
+    "strict_status":  "map/data XML route documented; 3D service remains unverified until a real scene REST gate passes"
+}

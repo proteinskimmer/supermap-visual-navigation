@@ -25,6 +25,7 @@ export const api = {
   layers: () => request("/layers"),
   supermapConfig: () => request("/supermap/config"),
   supermapServices: () => request("/supermap/services"),
+  supermapStatus: () => request("/supermap/status"),
   planRoutes: (body) =>
     request("/routes/plan", {
       method: "POST",

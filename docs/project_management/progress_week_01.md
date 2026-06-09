@@ -15,9 +15,9 @@
 | 成员 | 今日完成 | 明日计划 | 阻塞 |
 |---|---|---|---|
 | 统筹 | 补充项目状态日志、任务看板和本周进度记录 | 推进 M2 真实运行验收 | 依赖环境安装 |
-| GIS | 暂未开始真实任务区和 iServer 服务 | 安装 SuperMap 并选择任务区域 | SuperMap 软件未安装 |
-| 前端 | 抽离 `MockMissionMap.vue`，新增 `SuperMapScene.vue`，增加演示闭环清单和按钮状态约束；继续拆分 `TaskSidebar`、`InspectorPanel`、`ElevationProfile`、`TimelinePanel`、`ReportPage` 等组件 | 安装依赖后运行前端页面，检查 mock 演示闭环和报告页 | `frontend/node_modules` 不存在，`vite` 未安装 |
-| 后端 | 保持 FastAPI mock 接口、规划、风险、仿真、重规划、报告链路可用；补统一异常处理、Pydantic 响应模型、mock API 测试和增强 smoke | 创建/更新 Conda 环境并启动服务验收 | 当前 Python 缺少 `fastapi` 和 `pytest`，后端依赖尚未实际安装验收 |
+| GIS | iDesktopX 2025 安装、试用许可显示、`CBD` 样例工作空间和三维场景已由截图确认；已生成 demo GeoJSON 导入包；iServer 2025U1A 安装和本机运行入口已通过验收 | 在 iDesktopX 中导入 `demo_data/gis_export/`，保存 demo 工作空间并准备 iServer 服务发布/确认 | iServer 真实三维服务 URL 未确认；正式任务区域和真实 GIS 数据仍未确定 |
+| 前端 | 抽离 `MockMissionMap.vue`，新增 `SuperMapScene.vue`，增加演示闭环清单和按钮状态约束；继续拆分 `TaskSidebar`、`InspectorPanel`、`ElevationProfile`、`TimelinePanel`、`ReportPage` 等组件；实现 iClient3D SDK 动态加载、Viewer 初始化、空球 mock 三维绘制、最小验证页和错误回退 | 运行最小验证页和 `VITE_SCENE_PROVIDER=supermap` 工作台，截图确认浏览器渲染和许可状态 | iServer 服务未发布；`frontend/public/vendor/supermap3d/` 需先准备 SDK 静态资源 |
+| 后端 | FastAPI mock 接口、规划、风险、仿真、重规划、报告链路可用；补统一异常处理、Pydantic 响应模型、mock API 测试和增强 smoke，已在 `supermap_nav` 环境通过测试 | 配合前端启动 dev server 做浏览器联调 | iServer 服务地址未产出，真实 SuperMap 配置仍为空 |
 | 规划算法 | mock A* 三模式规划、风险评分、高程剖面和重规划链路可用 | 结合真实 GIS 数据调整约束和代价 | 真实任务区域和 GIS 数据未确定 |
 | 视觉 | 视觉模块由其他对话推进，当前工程已有预计算展示接口和前端展示 | 等待真实图片或预计算结果补齐 | 真实图片文件仍为路径占位 |
 | 材料 | 部署说明、源码结构说明已补充场景组件说明 | 准备 PPT 截图清单和演示脚本 | 前端页面尚未真实启动截图 |
@@ -26,9 +26,10 @@
 
 | 编号 | 问题 | 影响任务 | 需要谁处理 | 截止时间 | 状态 |
 |---|---|---|---|---|---|
-| B-001 | SuperMap 软件尚未安装，iServer 服务未发布 | M1、M2-03、M3、M4 | GIS/环境负责人 | 待定 | Open |
-| B-002 | 前端依赖尚未安装，`npm run build` 找不到 `vite` | M2-01、M2-07 | 前端/环境负责人 | 待定 | Open |
-| B-003 | 后端 Conda 环境尚未实际创建和启动验收，当前 Python 缺少 `fastapi` 和 `pytest` | M2-02、M2-07 | 后端/环境负责人 | 待定 | Open |
+| B-001 | iServer 已完成本机运行验收，但真实三维服务 URL 尚未确认/发布 | M1、M2-03、M3、M4 | GIS/环境负责人 | 待定 | Open |
+| B-005 | iClient3D 浏览器渲染和许可状态尚未截图验证 | M1、M2-03 | 前端/GIS | 待定 | Open |
+| B-002 | 前端浏览器页面尚未截图验收 | M2-01、M2-07 | 前端/环境负责人 | 待定 | Open |
+| B-003 | 后端环境和测试已通过，尚未完成前后端 dev server 联调截图 | M2-02、M2-07 | 后端/前端 | 待定 | Open |
 | B-004 | 真实任务区域、GIS 数据源和服务地址未确定 | M1、M3、M5 | GIS/统筹 | 待定 | Open |
 
 ## 4. 决策记录
@@ -46,37 +47,41 @@
 - mock 前后端主流程已具备任务、航线、风险、仿真、重规划、视觉和报告展示能力。
 - 前端三维区域已拆成 `SuperMapScene.vue` 接入边界和 `MockMissionMap.vue` 备用展示。
 - 前端继续拆成侧栏、检查器、高程剖面、时间轴和报告页组件。
+- iClient3D 前端承载层已实现，新增最小验证页和 SDK 准备脚本。
 - 后端补充统一异常处理、Pydantic 响应模型、mock API 测试和增强 smoke。
+- iDesktopX 2025 已完成本机安装、试用许可显示和 `CBD` 样例三维场景验证。
+- 已生成 `demo_data/gis_export/`，可在 iDesktopX 中导入制作 demo 工作空间。
 - 状态日志、任务看板、部署说明、源码结构说明已同步更新。
 - 后端 smoke 通过。
 
 ### 本周未完成
 
-- 前端未完成真实构建和页面验收。
-- 后端未完成 Conda 环境启动验收。
-- SuperMap 软件、任务区域、iServer 服务尚未完成。
+- 前端未完成浏览器页面截图验收。
+- 前后端 dev server 联调尚未截图验收。
+- iServer 真实三维服务 URL、正式任务区域和真实 GIS 数据尚未完成。
 - PPT、演示视频和截图素材未完成。
 
 ### 下周必须完成
 
-- 安装前端依赖并运行 `npm run build`。
-- 创建或更新 `supermap_nav` 后端环境并启动 FastAPI。
-- 运行 `.\scripts\check_backend_smoke_full.ps1` 和 `pytest`。
+- 在 iDesktopX 中导入 `demo_data/gis_export/` 并保存 demo 工作空间。
+- 在 iServer 管理页确认/发布 demo 三维服务，并记录可用于前端的真实 URL。
+- 启动前后端 dev server，完成浏览器演示闭环截图。
+- 准备 `frontend/public/vendor/supermap3d/`，打开 `supermap-minimal.html` 截图验证。
 - 完成一次 mock 演示彩排并截图。
-- 启动 SuperMap 软件安装和任务区域选择。
+- 完成真实任务区域和真实 GIS 数据源选择。
 
 ### 需要统筹协调
 
 - 明确谁负责安装 SuperMap 和输出 iServer 服务地址。
 - 明确是否先使用公开样例数据作为任务区域。
-- 确认前端依赖安装是否可以联网执行。
+- 明确 iServer 安装、工作空间发布和服务 URL 记录负责人。
 
 ## 6. 阶段验收记录
 
 | 里程碑 | 是否通过 | 证据 | 遗留问题 |
 |---|---|---|---|
-| M1 环境与 SuperMap 底座 | 否 | 无 | SuperMap 软件和 iServer 服务未完成 |
-| M2 平台基础功能 | 否 | 后端轻量 smoke 通过；前端源码已拆分补强；增强 smoke 服务层通过 | 前端依赖未安装，页面未真实启动；当前 Python 缺少 FastAPI/pytest |
+| M1 环境与 SuperMap 底座 | 否 | iDesktopX 安装、许可显示、`CBD` 样例三维场景已验证；demo GeoJSON 导入包已生成；iServer 安装和本机运行入口已验证 | iServer 真实三维服务 URL 未确认，demo 工作空间尚未保存为正式交付文件 |
+| M2 平台基础功能 | 否 | 后端 smoke、pytest、前端 build 已通过；前端源码已拆分补强 | 页面浏览器截图和前后端 dev server 联调仍未完成 |
 | M3 航线规划与风险校验 | 否 | mock 算法可返回三类航线和评分 | 未接真实 GIS 数据 |
 | M4 动态重规划与仿真 | 否 | 前端/后端 mock 链路已实现 | 未完成页面运行验收 |
 | M5 视觉匹配 | 否 | 预计算接口和展示框架存在 | 真实图片文件未放入仓库 |

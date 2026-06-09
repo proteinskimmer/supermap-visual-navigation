@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SuperMap iClient3D 最小验证</title>
+    <style>
+      html,
+      body,
+      #viewer {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        font-family: "Microsoft YaHei", system-ui, sans-serif;
+      }
+
+      .status {
+        position: absolute;
+        z-index: 10;
+        top: 12px;
+        left: 12px;
+        display: grid;
+        gap: 6px;
+        max-width: 520px;
+        padding: 12px;
+        color: #1c2733;
+        background: rgba(255, 255, 255, 0.94);
+        border: 1px solid #cbd8e3;
+        border-radius: 6px;
+        box-shadow: 0 8px 24px rgba(16, 24, 32, 0.12);
+      }
+
+      .status strong {
+        color: #244f78;
+      }
+
+      .status code {
+        color: #315c86;
+      }
+
+      .ok {
+        color: #1f7a4a;
+      }
+
+      .bad {
+        color: #b42332;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="viewer"></div>
+    <div class="status" id="status">
+      <strong>SuperMap iClient3D 最小验证</strong>
+      <span>初始化中...</span>
+    </div>
+
+    <script>
+      const params = new URLSearchParams(location.search);
+      const sdkBase = trimSlash(params.get("sdkBase") || "/vendor/supermap3d/Build/SuperMap3D");
+      const sceneUrl = params.get("sceneUrl") || "";
+      const contextType = Number(params.get("contextType") || 2);
+      const statusEl = document.getElementById("status");
+
+      function log(message, type = "") {
+        const line = document.createElement("span");
+        line.className = type;
+        line.innerHTML = message;
+        statusEl.appendChild(line);
+      }
+
+      function trimSlash(value) {
+        return value.endsWith("/") ? value.slice(0, -1) : value;
+      }
+
+      function detectWebGL2() {
+        const canvas = document.createElement("canvas");
+        return Boolean(canvas.getContext("webgl2"));
+      }
+
+      function loadCss(href) {
+        return new Promise((resolve, reject) => {
+          const link = document.createElement("link");
+          link.rel = "stylesheet";
+          link.href = href;
+          link.onload = resolve;
+          link.onerror = () => reject(new Error("CSS 加载失败：" + href));
+          document.head.appendChild(link);
+        });
+      }
+
+      function loadScript(src) {
+        return new Promise((resolve, reject) => {
+          const script = document.createElement("script");
+          script.src = src;
+          script.onload = resolve;
+          script.onerror = () => reject(new Error("JS 加载失败：" + src));
+          document.head.appendChild(script);
+        });
+      }
+
+      async function main() {
+        statusEl.innerHTML = "<strong>SuperMap iClient3D 最小验证</strong>";
+        log("SDK base: <code>" + sdkBase + "</code>");
+        log("WebGL2: " + (detectWebGL2() ? "可用" : "不可用"), detectWebGL2() ? "ok" : "bad");
+
+        window.CESIUM_BASE_URL = sdkBase + "/";
+        window.SUPERMAP3D_BASE_URL = sdkBase + "/";
+        await loadCss(sdkBase + "/Widgets/widgets.css");
+        log("widgets.css 加载成功", "ok");
+        await loadScript(sdkBase + "/SuperMap3D.js");
+        if (!window.SuperMap3D) throw new Error("SuperMap3D.js 已加载，但 window.SuperMap3D 不存在");
+        log("SuperMap3D.js 加载成功", "ok");
+
+        const viewer = new SuperMap3D.Viewer("viewer", {
+          animation: false,
+          baseLayerPicker: false,
+          geocoder: false,
+          homeButton: false,
+          infoBox: false,
+          sceneModePicker: false,
+          selectionIndicator: false,
+          timeline: false,
+          navigationHelpButton: false,
+          contextOptions: {
+            contextType,
+          },
+        });
+        window.__supermapMinimalViewer = viewer;
+        log("new SuperMap3D.Viewer(...) 创建成功", "ok");
+
+        const point = SuperMap3D.Cartesian3.fromDegrees(116.17, 39.16, 120);
+        viewer.entities.add({
+          name: "minimal-test-point",
+          position: point,
+          point: {
+            pixelSize: 14,
+            color: SuperMap3D.Color.LIME,
+          },
+        });
+        viewer.camera.setView({
+          destination: SuperMap3D.Rectangle.fromDegrees(116.1, 39.1, 116.235, 39.215),
+        });
+        log("实体点和相机视角设置成功", "ok");
+
+        if (sceneUrl) {
+          const scene = viewer.scenePromise && viewer.scenePromise.then ? await viewer.scenePromise : viewer.scene;
+          await scene.open(sceneUrl);
+          log("scene.open(sceneUrl) 成功：<code>" + sceneUrl + "</code>", "ok");
+        } else {
+          log("未提供 sceneUrl，仅验证空三维球和实体绘制。");
+        }
+      }
+
+      main().catch((error) => {
+        console.error(error);
+        log(error.message || String(error), "bad");
+      });
+    </script>
+  </body>
+</html>

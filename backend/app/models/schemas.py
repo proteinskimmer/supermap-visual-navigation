@@ -195,12 +195,28 @@ class VisionMatchResult(BaseModel):
     total_candidate_count: int
 
 
+class VisionSummary(BaseModel):
+    image_count: int
+    matched_image_count: int
+    best_tile_id: str
+    best_confidence: float = Field(ge=0, le=1)
+    average_matched_points: float
+    geometry_verified: bool
+    needs_review_count: int
+    summary: str
+
+
 class SuperMapServiceSummary(BaseModel):
     id: str
     name: str
     url: str
     type: str
     status: str
+    runtime_status: str = "not_checked"
+    reachable: bool | None = None
+    checked_url: str = ""
+    http_status: int | None = None
+    message: str = ""
 
 
 class ReportData(BaseModel):
@@ -209,6 +225,7 @@ class ReportData(BaseModel):
     risk: RiskAnalysis
     events: list[SimulationEvent]
     vision: VisionMatchResult
+    vision_summary: VisionSummary
     summary: str
 
 

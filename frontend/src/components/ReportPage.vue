@@ -96,6 +96,19 @@ defineEmits(["close", "reload"]);
 
         <section class="report-section">
           <h2>视觉匹配</h2>
+          <div class="report-grid report-grid-wide" v-if="report.vision_summary">
+            <span>输入图数量</span>
+            <strong>{{ report.vision_summary.image_count }}</strong>
+            <span>最高置信候选</span>
+            <strong>{{ report.vision_summary.best_tile_id }} · {{ Math.round(report.vision_summary.best_confidence * 100) }}%</strong>
+            <span>平均匹配点</span>
+            <strong>{{ report.vision_summary.average_matched_points }}</strong>
+            <span>几何验证</span>
+            <strong>{{ report.vision_summary.geometry_verified ? "通过" : "需复核" }}</strong>
+            <span>复核数量</span>
+            <strong>{{ report.vision_summary.needs_review_count }}</strong>
+          </div>
+          <p class="summary-text" v-if="report.vision_summary">{{ report.vision_summary.summary }}</p>
           <div class="candidate-row" v-for="candidate in report.vision.candidates" :key="candidate.tile_id">
             <span>{{ candidate.tile_id }}</span>
             <strong>{{ Math.round(candidate.confidence * 100) }}%</strong>

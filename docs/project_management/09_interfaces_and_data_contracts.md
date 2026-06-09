@@ -181,6 +181,21 @@
 }
 ```
 
+### VisionSummary
+
+```json
+{
+  "image_count": 4,
+  "matched_image_count": 4,
+  "best_tile_id": "tile_034",
+  "best_confidence": 0.87,
+  "average_matched_points": 107.0,
+  "geometry_verified": false,
+  "needs_review_count": 1,
+  "summary": "已汇总 4 张视觉样例，最高置信候选为 tile_034 (87%)。其中 1 张需要人工复核。"
+}
+```
+
 ## 4. API 草案
 
 ### GET /api/health
@@ -380,7 +395,7 @@ task_id=task_001
 
 用途：获取任务报告。
 
-返回：任务摘要、航线、风险、事件、视觉匹配结果。
+返回：任务摘要、航线、风险、事件、视觉匹配结果和 `VisionSummary` 视觉摘要。
 
 ## 5. 联调规则
 

@@ -1,9 +1,13 @@
 <script setup>
 import EmptyState from "./EmptyState.vue";
+import SuperMapServicePanel from "./SuperMapServicePanel.vue";
 
 defineProps({
   tasks: { type: Array, default: () => [] },
   layers: { type: Array, default: () => [] },
+  supermapConfig: { type: Object, default: null },
+  supermapStatus: { type: Object, default: null },
+  supermapRefreshing: { type: Boolean, default: false },
   visionImages: { type: Array, default: () => [] },
   selectedVisionImageId: { type: String, default: "" },
   selectedTask: { type: Object, default: null },
@@ -23,6 +27,7 @@ defineEmits([
   "reset-simulation",
   "open-report",
   "select-vision-image",
+  "refresh-supermap",
 ]);
 </script>
 
@@ -45,6 +50,13 @@ defineEmits([
         <span>{{ layer.name }}</span>
       </label>
     </section>
+
+    <SuperMapServicePanel
+      :config="supermapConfig"
+      :status="supermapStatus"
+      :refreshing="supermapRefreshing"
+      @refresh="$emit('refresh-supermap')"
+    />
 
     <section class="panel-section">
       <h2>视觉样例</h2>

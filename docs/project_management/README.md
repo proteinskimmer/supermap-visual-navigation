@@ -27,6 +27,7 @@
 | `11_progress_tracking_template.md` | 日报、周会、阻塞和决策记录模板 |
 | `12_project_status_log.md` | 项目推进状态日志，跨对话同步当前进度 |
 | `13_status_gates.md` | 严格状态门禁，区分 mock、运行验证、SuperMap 验证和交付就绪 |
+| `14_real_data_collection_guide.md` | 真实 / 半真实 demo 数据采集任务书，可直接下发给组员 |
 
 ## 外部专题文档
 
@@ -45,6 +46,7 @@
 | `../delivery/screenshot_shotlist.md` | 截图素材清单 |
 | `../delivery/real_data_worklist.md` | 真实数据准备工作清单 |
 | `../delivery/submission_package_template.md` | 最终提交包模板 |
+| `../../data_sources/README.md` | 组员提交真实 / 半真实数据的目录说明 |
 
 ## 当前推荐团队配置
 

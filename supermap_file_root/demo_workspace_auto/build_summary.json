@@ -1,0 +1,19 @@
+{
+  "workspace": "E:\\supermap_project\\supermap_file_root\\demo_workspace_auto\\low_altitude_demo.smwu",
+  "datasource": "E:\\supermap_project\\supermap_file_root\\demo_workspace_auto\\low_altitude_demo.udbx",
+  "datasource_alias": "low_altitude_demo",
+  "map_name": "low_altitude_demo_map",
+  "dataset_count": 8,
+  "dataset_names": [
+    "task_area_R",
+    "risk_zone_R",
+    "obstacle_ZP",
+    "vision_tile_R",
+    "start_target_ZP",
+    "routes_preview_ZL",
+    "vision_image_center_ZP",
+    "uav_position_ZP"
+  ],
+  "map_layer_count": 8,
+  "map_bounds": "(116.1, 39.1, 116.235, 39.215)"
+}

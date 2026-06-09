@@ -1,0 +1,17 @@
+﻿{
+    "started_at":  "2026-06-09T12:28:10",
+    "finished_at":  "2026-06-09T12:28:35",
+    "project_root":  "E:\\supermap_project",
+    "auto_workspace":  "E:\\supermap_project\\supermap_file_root\\demo_workspace_auto\\low_altitude_demo.smwu",
+    "auto_datasource":  "E:\\supermap_project\\supermap_file_root\\demo_workspace_auto\\low_altitude_demo.udbx",
+    "steps":  [
+                  "export_demo_geojson",
+                  "build_workspace_auto",
+                  "export_iserver_config_draft",
+                  "render_project_map_preview",
+                  "check_publish_ready",
+                  "ensure_backend_for_rest_gate",
+                  "check_delivery_gate"
+              ],
+    "strict_status":  "GeoJSON export, auto workspace build, iServer config draft, iObjectSpy map preview, backend config gate, and iServer REST gate completed. Existing iServer map/data publication is verified; creating or replacing publication entries still depends on iServer Admin/API/XML deployment."
+}

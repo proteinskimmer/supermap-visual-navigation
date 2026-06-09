@@ -82,6 +82,9 @@ def test_simulation_replan_and_report_contract():
     report = unwrap(client.get(f"/api/reports/{task['id']}"))
     assert report["recommended_route"]["mode"] == "balanced"
     assert report["vision"]["candidate_count"] >= 1
+    assert report["vision_summary"]["image_count"] >= 4
+    assert report["vision_summary"]["needs_review_count"] >= 1
+    assert any(event["type"] == "vision_match" for event in report["events"])
 
 
 def test_vision_top_k_and_error_contract():
@@ -99,6 +102,15 @@ def test_vision_top_k_and_error_contract():
     assert result["candidate_count"] == 2
     assert result["total_candidate_count"] >= result["candidate_count"]
     assert [candidate["rank"] for candidate in result["candidates"]] == [1, 2]
+
+    low_confidence = unwrap(
+        client.post(
+            "/api/vision/match",
+            json={"task_id": "task_001", "image_id": "demo_uav_004", "top_k": 1, "algorithm_mode": "precomputed"},
+        )
+    )
+    assert low_confidence["candidates"][0]["confidence"] < 0.5
+    assert low_confidence["candidates"][0]["status"] == "needs_review"
 
     error = client.get("/api/tasks/missing-task")
     assert error.status_code == 404

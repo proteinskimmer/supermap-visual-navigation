@@ -17,36 +17,36 @@
 | 项目规划 | Done | 已形成原始规划和项目管理文档体系 |
 | 分工与看板 | Review | 已拆分角色、任务、接口和验收标准，等待团队真实负责人填入 |
 | 后端 mock 原型 | Runtime Verified | FastAPI 路由、统一异常处理、Pydantic 请求/响应模型、规划/风险/仿真/视觉/报告接口已完成；`pytest backend/tests` 通过 |
-| 前端 mock 原型 | Mock Done | Vue 工作台已拆分为侧栏、地图、检查器、高程剖面、时间轴、报告页等组件；`npm run build` 通过，但浏览器演示流程尚未截图验收 |
-| demo 数据 | Review | 已有固定任务区、风险区、障碍物、3 张视觉样例、5 个瓦片索引、3 组预计算匹配结果 |
+| 前端 mock 原型 | Runtime Verified | Vue 工作台已拆分为侧栏、地图、检查器、高程剖面、时间轴、报告页等组件；`npm run build` 通过；浏览器工作台已运行并显示任务、候选航线、风险校验、高程剖面和 SuperMap 场景状态 |
+| demo 数据 | Runtime Verified | `task_demo.json` 已通过 UTF-8 JSON 解析验证；已生成 `demo_data/gis_export/`，包含任务区、风险区、障碍物、视觉瓦片、起终点、预览航线、视觉中心点和无人机位置 GeoJSON |
 | 环境配置 | Runtime Verified | 已创建 `supermap_nav` Conda 环境，后端依赖、pytest、前端依赖已安装；后端测试和前端构建通过 |
-| SuperMap 软件 | Todo | iDesktopX、iServer、iClient3D 尚未完成安装和服务发布 |
-| SuperMap 三维接入 | Review | 已拆出 `SuperMapScene.vue` 接入边界和 `MockMissionMap.vue` 备用演示图；真实 iClient3D 场景待 iServer 服务发布后接入 |
+| SuperMap 软件 | Runtime Verified | iClient3D、iDesktopX、iServer 安装与官方 `3D-CBD` 样例链路已验证；项目自建 `low_altitude_demo` 工作空间和服务发布仍待完成 |
+| SuperMap 三维接入 | SuperMap Verified | 官方 `3D-CBD` 样例链路和项目自建 `3D-low_altitude_demo` 三维服务均已完成 REST 门禁；当前配置已指向项目自建 scene/map/data 服务 |
 | SuperMap 接入预案 | Review | 已完成 iDesktopX、iServer、iClient3D 操作流程、服务地址记录模板、验收清单和服务配置读取接口 |
-| 官方文档本地化 | Todo | 已预留 `docs/vendor/supermap_official/`，下载动作已暂停，目录当前无文档文件 |
-| 比赛材料 | Review | 已有系统设计、部署说明、数据说明、源码结构说明、PPT 初稿、答辩讲稿、演示视频脚本、截图清单、真实数据清单和提交包模板；PPT 文件、截图和视频未实际生成 |
+| 官方文档本地化 | Review | 已在 `docs/vendor/supermap_official/README.md` 建立本机官方文档索引；全量 HTML 文档仍保留在 iClient3D 安装包内，尚未复制进仓库 |
+| 比赛材料 | Review | 已有系统设计、部署说明、数据说明、源码结构说明、PPT 初稿、答辩讲稿、演示视频脚本、截图清单、真实数据清单和提交包模板；SuperMap/iDesktopX/项目工作台截图已部分归档，PPT 文件和视频未实际生成 |
 | 版本管理 | Runtime Verified | 已初始化 Git 仓库并创建基线提交 `fed8b4f Establish mock prototype baseline` |
 
 ## 里程碑状态
 
 | 里程碑 | 状态 | 当前说明 |
 |---|---|---|
-| M1 环境与 SuperMap 底座 | Todo | 需要安装 SuperMap 软件、制作数据、发布 iServer 服务 |
-| M2 平台基础功能 | Review | 前后端代码初稿已完成，待安装依赖后真实启动联调 |
+| M1 环境与 SuperMap 底座 | SuperMap Verified | iClient3D SDK、iDesktopX、iServer 初始化、文件管理根目录、项目自建工作空间、map/data 服务和 `3D-low_altitude_demo` 三维服务均已通过脚本门禁；仍需补齐完整演示截图和最终交付材料 |
+| M2 平台基础功能 | Runtime Verified | 前后端代码初稿、后端测试、增强 smoke、前端构建和浏览器工作台运行截图已完成；后续仍需完整彩排截图归档 |
 | M3 航线规划与风险校验 | Review | mock 算法和风险评分已完成，待真实运行和 GIS 数据接入 |
 | M4 动态重规划与仿真 | Review | mock 仿真、事件、临时风险区、重规划已完成，待前端运行验收 |
-| M5 视觉匹配 | Review | 预计算演示框架已扩展完成：图片清单、瓦片索引、Top-K 候选排序、结果详情和前端解释展示；真实图片和算法模型待后置 |
+| M5 视觉匹配 | Runtime Verified | 预计算演示框架已扩展完成：输入图占位小窗、Top-K 候选切换、低置信复核样例、视觉事件日志、报告视觉摘要、瓦片调试和 provider 抽象均已通过测试/构建；真实模型待后置 |
 | M6 比赛材料 | Todo | 基础文档已有，PPT、视频、最终提交包未完成 |
 
 ## 当前阻塞
 
 | 编号 | 阻塞项 | 影响范围 | 当前处理建议 |
 |---|---|---|---|
-| B-001 | SuperMap 软件尚未安装完成 | M1、三维接入、真实 GIS 服务 | 继续先完成 mock 工程和环境联调；软件安装后进入 M1 |
 | B-003 | 未确定真实任务区域和 GIS 数据源 | M1、M3、M5 | 先使用 demo 数据演示；后续由 GIS 负责人选择区域并输出服务地址 |
-| B-004 | 官方 SuperMap 文档尚未本地下载 | SuperMap 接入 | 已暂停下载动作，仅保留空目录；后续需经确认后再从官方来源下载/整理 |
+| B-004 | 官方 SuperMap 全量文档尚未复制入仓库 | SuperMap 接入 | 已建立本机文档索引；如最终提交需要离线文档，再从 iClient3D 安装包复制必要 HTML、图片和示例资源 |
 | B-005 | 视觉样例真实航拍图片尚未入库 | M5、演示视频、PPT 截图 | 已补 3 张可显示 jpg 演示占位图；若需真实航拍效果，后续替换同名文件或公开图片 URL |
-| B-006 | 前端浏览器演示流程尚未截图验收 | M2、M4、M6 | `npm run build` 已通过；仍需启动前后端，在浏览器完成一次 mock 演示闭环并截图 |
+| B-006 | 完整演示闭环截图尚未全部归档且截图命名不规范 | M2、M4、M6 | `docs/delivery/screenshots/` 已有 7 张截图；仍需按截图清单补齐规划、仿真、重规划、视觉匹配、报告等完整流程截图，并把 QQ 时间戳文件名改为可读验收名称 |
+| B-008 | 截图已归档但文件名仍不适合最终提交 | M1、比赛截图 | 已补 `docs/delivery/screenshots/README.md` 说明每张截图对应验收项；后续提交包中需复制并重命名为可读文件名 |
 
 ## 关键决策
 
@@ -59,8 +59,299 @@
 | D-005 | 2026-06-08 | 当前项目边界为软件仿真，不接真实飞控 | 降低安全和工程复杂度，符合比赛演示主线 |
 | D-006 | 2026-06-08 | 前端三维区域采用 `SuperMapScene.vue` 作为统一接入边界，保留 `MockMissionMap.vue` 作为备用演示图 | SuperMap 环境未完成时保证 mock 演示闭环可推进，环境完成后减少替换范围 |
 | D-007 | 2026-06-08 | 视觉匹配优先采用预计算 provider，真实模型后置 | 保证比赛演示稳定，后续可在服务层替换 DINOv2、LoFTR、LightGlue 或 OpenCV RANSAC |
+| D-008 | 2026-06-08 | iClient3D 接入默认先用 WebGL2，WebGPU 作为后置增强 | 本机示例支持 WebGL2/WebGPU 切换；比赛演示稳定性优先，WebGPU 需浏览器和显卡环境进一步确认 |
+| D-009 | 2026-06-08 | iDesktopX 后续验收优先使用 `sampleData/3D/CBDDataset/CBD.smwu` | 安装包自带三维 CBD 工作空间、UDB 数据源和飞行路线文件，适合作为三维场景制作前的最小验证样例 |
+| D-010 | 2026-06-09 | 真实数据采集先按最低必交包推进，不等待完美影像/DEM/三维模型 | 先打通项目自建数据发布链路，真实高质量数据后续替换 |
 
 ## 推进记录
+
+### 2026-06-09 当前内容全量验收
+
+- 本次验收范围：
+  - 项目运行门禁、SuperMap 项目自建 scene/map/data 服务门禁、iClient3D/iDesktopX/iServer 本机安装门禁、证据包门禁和提交包生成门禁。
+  - 重点复核前序“3D-low_altitude_demo 未发布 / 仍依赖 3D-CBD”的旧风险是否已经被后续工作修复。
+- 脚本验收结果：
+  - `scripts/check_project_runtime.ps1` 通过：GeoJSON 导出与解析、前端 `npm run build`、后端 `pytest`、增强 smoke 均通过。
+  - `scripts/check_low_altitude_demo_publish_ready.ps1` 串行复跑通过；前序 `routes_preview.geojson` 失败属于并行读写同一生成文件导致的竞态，不作为当前失败项。
+  - 临时启动后端后，`scripts/check_low_altitude_3d_gate.ps1` 通过。
+  - 临时启动后端后，`scripts/check_supermap_delivery_gate.ps1` 通过。
+  - `scripts/check_supermap_iclient3d.ps1`、`scripts/check_supermap_idesktopx.ps1`、`scripts/check_supermap_iserver.ps1` 均通过。
+  - `scripts/check_supermap_goal_evidence.ps1 -Strict` 通过，输出为 `[PASS] SuperMap goal evidence is complete.`。
+  - `scripts/prepare_submission_package.ps1` 通过，已刷新 `release/low_altitude_demo_submission/`。
+- 当前可确认成果：
+  - `config/supermap_services.local.json` 已指向项目自建 `3D-low_altitude_demo`、`map-low_altitude_demo`、`data-low_altitude_demo`，三项状态为 `verified`。
+  - iServer `3D-low_altitude_demo/rest/realspace/scenes.json` 可访问并包含 `low_altitude_demo` 场景标记。
+  - release 包 manifest 版本为 `v0.3-supermap-verified`，当前生成包包含 32 个文件级交付物。
+  - 临时验收后端已停止，未发现残留 `uvicorn`/后端 Python 进程占用。
+- 严格监督结论：
+  - 当前内容可以认定为达到 `v0.3-supermap-verified` 阶段证据包标准。
+  - 可以对外表述“项目已完成 SuperMap scene/map/data 接口级闭环和证据归档”。
+  - 仍不能表述“最终比赛提交完成”“三维达到精细建模或真实倾斜摄影级效果”“已具备真实无人机飞控/真实飞行定位闭环”。
+  - PPT 成品、演示视频和至少 3 次完整彩排仍需继续验收，未完成前 M6 不得标为 Done。
+- 版本管理监督补充：
+  - 新增 `docs/project_management/15_versioning_artifact_policy.md`，明确源码、脚本、轻量配置、demo GeoJSON 和证据文档进入 Git；release 包、SuperMap 二进制工作空间、iClient3D SDK 静态副本、临时探针、日志和原始截图 dump 保留本地或由脚本生成。
+  - 新增 `scripts/check_git_artifact_policy.ps1`，用于在建立稳定提交点前检查本地生成物是否误暴露到 `git status`。
+  - `.gitignore` 已补充 `release/`、`supermap_file_root` 二进制工作空间、`tmp_iobjectspy_probe*/`、原始 QQ 截图 dump、兼容性重复截图等规则。
+  - `scripts/check_git_artifact_policy.ps1` 已通过。
+
+### 2026-06-09 v0.3-supermap-verified 版本记录与 ABC 任务完成
+
+- 已记录当前版本：
+  - 新增 `docs/delivery/version_record.md`。
+  - 版本号：`v0.3-supermap-verified`。
+  - 版本范围：SuperMap scene/map/data 接口级闭环、前端真实服务读取、3D-CBD 兼容、项目自建 `3D-low_altitude_demo` 门禁、GUI/REST 截图证据归档。
+  - 注意：当前工作区含大量 SuperMap 集成产物和生成文件，本次先做文档化版本记录，不贸然把全部二进制工作空间与 release 目录打入 Git。
+- A：答辩阶段证据包已生成：
+  - 新增 `scripts/prepare_submission_package.ps1`。
+  - 已生成 `release/low_altitude_demo_submission/`。
+  - 包含 `README.md`、`run_demo.ps1`、`manifest.json`、核心答辩文档、关键截图和复验脚本。
+  - 生成脚本运行通过。
+- B：前端 SuperMap 服务面板增强已完成：
+  - `SuperMapServicePanel.vue` 新增刷新按钮、最后检查时间、HTTP 状态、服务消息、地图图层数、EPSG 和数据集数量。
+  - `TaskSidebar.vue` 与 `App.vue` 已接入 `refresh-supermap` 事件，可重新请求 `/api/supermap/config` 与 `/api/supermap/status`。
+  - `styles.css` 已补充面板标题、刷新按钮和 KPI 样式。
+- C：三维视觉增强已完成：
+  - `supermap3d.js` 中候选航线新增高亮光带。
+  - 风险区和临时风险区新增拉伸高度与 beacon 标记。
+  - 视觉候选区新增高度差异，最佳候选更突出。
+  - 无人机当前位置新增环形点与高度线。
+- 验证结果：
+  - `scripts/prepare_submission_package.ps1` 通过。
+  - `npm run build` 通过。
+  - `scripts/check_supermap_goal_evidence.ps1 -Strict` 通过。
+  - `scripts/check_project_runtime.ps1` 通过：前端构建、后端测试 6 passed、增强 smoke 均通过。
+- 严格监督结论：
+  - ABC 已完成。
+  - 当前 release 包可以作为答辩材料整理基线。
+  - 后续若要做 Git 提交，建议先明确是否纳入 `supermap_file_root/`、`release/`、截图和生成 XML 等二进制/生成产物。
+
+### 2026-06-09 SuperMap 接口闭环目标最终完成
+
+- 用户已在真实交互桌面补齐两张 GUI 原始截图：
+  - `docs/delivery/screenshots/idesktopx_low_altitude_demo_map_layers.png`，516975 bytes。
+  - `docs/delivery/screenshots/iserver_publish_success_admin.png`，128708 bytes。
+- 已执行最终证据检查：
+  - `powershell -ExecutionPolicy Bypass -File E:\supermap_project\scripts\check_supermap_goal_evidence.ps1 -Strict`
+  - 结果：`[PASS] SuperMap goal evidence is complete.`
+- 最终门禁覆盖：
+  - 前端工作台截图。
+  - `map-low_altitude_demo` 地图服务页面截图。
+  - `data-low_altitude_demo` 数据集列表截图。
+  - `3D-low_altitude_demo` scenes REST 截图。
+  - `3D-CBD` 兼容前端截图。
+  - iServer 已登录后台/发布管理 GUI 截图。
+  - iDesktopX 项目地图图层 GUI 截图。
+  - REST 验证：`map-low_altitude_demo`、`data-low_altitude_demo`、`low_altitude_demo_map`、8 个业务图层、`3D-low_altitude_demo`、后端 `/api/supermap/services`。
+- 严格监督结论：
+  - 可以将本目标标为完成。
+  - 可以说“项目已完成 SuperMap scene/map/data 接口级闭环和截图证据归档”。
+  - 仍不能说“项目三维达到精细建模或真实倾斜摄影级效果”。
+
+### 2026-06-09 一键 SuperMap map/data 管线与浏览器验收复跑通过
+
+- 本次复跑目标：
+  - 验证 `导入 GeoJSON -> 生成地图 -> 保存 smwu -> 验收 REST` 是否已经成为可脚本化流程。
+  - 验证前端是否能读取当前真实 SuperMap scene/map/data 配置并展示 map/data verified 状态。
+- 已修正脚本可靠性：
+  - `scripts/run_low_altitude_map_data_pipeline.ps1` 已检查子 PowerShell 进程退出码，避免子脚本失败但主脚本误报 `[PASS]`。
+  - 管线在 REST 门禁前会检查后端健康接口；若后端未启动，会临时启动后端并等待 `/api/health`。
+  - 保留 iObjectSpy 从 iDesktopX 安装根目录运行的方式，因为其 Java 网关依赖安装目录下的 `bin`、`jre` 和原生库路径。
+- 一键管线复跑结果：
+  - 命令：`powershell -ExecutionPolicy Bypass -File E:\supermap_project\scripts\run_low_altitude_map_data_pipeline.ps1 -OverwriteAutoWorkspace`
+  - 结果：通过。
+  - 已重新导出 8 份 GeoJSON。
+  - 已自动生成 `supermap_file_root\demo_workspace_auto\low_altitude_demo.smwu` 和 `low_altitude_demo.udbx`。
+  - 已生成 iServer map/data 配置草案。
+  - 已使用 iObjectSpy 渲染 `low_altitude_demo_map_iobjectspy_preview.png`。
+  - 已自动拉起后端并通过 `/api/supermap/services` 验收。
+  - 已通过 iServer REST 门禁：`map-low_altitude_demo`、`data-low_altitude_demo`、`3D-low_altitude_demo` 均返回有效资源。
+  - 管线摘要：`docs/delivery/low_altitude_map_data_pipeline_summary.json`。
+- 浏览器验收复跑结果：
+  - 命令：`powershell -ExecutionPolicy Bypass -File E:\supermap_project\scripts\run_supermap_browser_acceptance.ps1 -FrontendUrl http://localhost:5174 -FrontendPort 5174`
+  - 结果：通过。
+  - 自动截图已覆盖保存到 `docs/delivery/screenshots/`：
+    - `frontend_supermap_workspace.png`
+    - `iserver_services_list.png`
+    - `iserver_map_low_altitude_demo_map.png`
+    - `iserver_map_low_altitude_demo_map_json.png`
+    - `iserver_data_low_altitude_demo_datasets.png`
+    - `iserver_3d_cbd_scenes.png`
+    - `iserver_3d_low_altitude_demo_scenes.png`
+    - `iserver_publish_services_admin_attempt.png`
+- 3D-CBD 兼容验收：
+  - 已恢复 `scripts/start_frontend_supermap_cbd.ps1` 的默认 `SceneUrl` 为官方 `3D-CBD`。
+  - 已新增 `scripts/start_frontend_supermap_project.ps1`，默认指向项目自建 `3D-low_altitude_demo`。
+  - 已临时用 `VITE_SUPERMAP_SCENE_URL=http://localhost:8090/iserver/services/3D-CBD/rest/realspace` 启动前端到 `http://localhost:5175`。
+  - 已保存兼容截图到 `docs/delivery/screenshots/compat_cbd/`，不覆盖主验收截图。
+- 严格监督结论：
+  - 可以说“项目已完成 SuperMap scene/map/data 的接口级闭环，且一键 map/data 管线和浏览器验收脚本已复跑通过”。
+  - 可以说“前端工作台已经读取真实 SuperMap 服务配置，map/data 状态为 verified，8 个业务图层可访问并可作为叠加证据”。
+  - 可以说“前端默认可接项目自建 `3D-low_altitude_demo`，同时仍可通过环境变量切换到官方 `3D-CBD` 作为兼容底座”。
+  - 不能说“iServer 发布成功页已自动截图”，因为自动截图仍命中登录页，只能作为管理入口可访问证据。
+  - 不能说“项目三维已达到精细建模或真实倾斜摄影级效果”，当前 `3D-low_altitude_demo` 是最小项目场景和 REST 门禁证据。
+
+### 2026-06-09 GUI 截图自动化边界确认
+
+- 已尝试在 Codex 执行上下文中调用 Windows `CopyFromScreen` 捕获当前桌面。
+- 结果：
+  - 系统返回 `The handle is invalid`。
+  - 生成图像为黑屏，已删除，不能作为验收证据。
+- 结论：
+  - Codex 当前进程无法直接获取真实交互桌面截图。
+  - iServer 已登录后台发布成功页和 iDesktopX GUI 图层页仍需用户把窗口置前后，在普通 PowerShell 中运行交互式截图脚本。
+- 已新增脚本：
+  - `scripts/capture_interactive_gui_evidence.ps1`
+  - `scripts/open_supermap_gui_evidence_targets.ps1`
+  - `scripts/check_supermap_goal_evidence.ps1`
+- 已执行 `scripts/check_supermap_goal_evidence.ps1`：
+  - REST 证据通过。
+  - 自动浏览器截图证据通过。
+  - 后端 `/api/supermap/services` 可由脚本临时拉起后验收，scene/map/data 均为 `verified`。
+  - 当前仅剩 2 项 pending：`iserver_publish_success_admin.png` 与 `idesktopx_low_altitude_demo_map_layers.png`。
+- 已尝试执行 `scripts/open_supermap_gui_evidence_targets.ps1` 打开补证目标：
+  - iServer 发布/管理页。
+  - iDesktopX 项目工作空间 `low_altitude_demo.smwu`。
+- 推荐补证命令：
+  - `powershell -ExecutionPolicy Bypass -File E:\supermap_project\scripts\open_supermap_gui_evidence_targets.ps1`
+  - `powershell -ExecutionPolicy Bypass -File E:\supermap_project\scripts\capture_interactive_gui_evidence.ps1 -Name iserver_publish_success_admin.png`
+  - `powershell -ExecutionPolicy Bypass -File E:\supermap_project\scripts\capture_interactive_gui_evidence.ps1 -Name idesktopx_low_altitude_demo_map_layers.png`
+  - `powershell -ExecutionPolicy Bypass -File E:\supermap_project\scripts\check_supermap_goal_evidence.ps1 -Strict`
+- 严格监督结论：
+  - 当前项目功能与 REST/浏览器自动验收已经完成。
+  - 两张 GUI 证据仍未入库前，不把“截图清单全部完成”标为 Done。
+
+### 2026-06-09 3D-low_altitude_demo 门禁复验通过
+
+- 复核背景：
+  - 前序记录中 `3D-low_altitude_demo` 曾为 HTTP 404，并判断项目自建三维服务未发布。
+  - 本次复验显示该门禁已被后续工作修复并通过，以下结论覆盖前序失败状态。
+- 当前配置：
+  - `config/supermap_services.local.json` 中 `services.scene.name` 为 `3D-low_altitude_demo`。
+  - `services.scene.url` 为 `http://localhost:8090/iserver/services/3D-low_altitude_demo/rest/realspace`。
+  - scene、map、data 三项服务状态均为 `verified`。
+- 验证结果：
+  - `scripts/check_low_altitude_3d_gate.ps1` 通过。
+  - 后端 `/api/supermap/services` 返回 scene 为 `3D-low_altitude_demo`，状态为 `verified`。
+  - `3D-low_altitude_demo/rest/realspace/scenes.json` 返回 HTTP 200，并包含 `low_altitude_demo` 场景标记。
+  - 在临时后端作业在线时复跑 `scripts/check_supermap_delivery_gate.ps1` 通过：scene、map、data 三项 SuperMap 交付门禁均已验证。
+  - `scripts/check_project_runtime.ps1` 通过：GeoJSON、SuperMap 静态资源、前端构建、后端测试和增强 smoke 均正常。
+- 状态纠偏：
+  - `M1 环境与 SuperMap 底座` 升级为 `SuperMap Verified`。
+  - `M1-06`、`M1-15`、`M1-16` 均按项目自建 scene/map/data 服务完成状态更新。
+  - 验收清单中“项目自建 3D 服务尚未发布”和“前端仍使用官方 3D-CBD”已从未通过项移除。
+- 严格监督结论：
+  - 可以说“项目自建 SuperMap scene/map/data 服务已完成 REST 门禁验证”。
+  - 可以说“当前后端配置已切换到项目自建 `3D-low_altitude_demo`、`map-low_altitude_demo` 和 `data-low_altitude_demo`”。
+  - 仍不能说“最终交付完成”，因为 PPT、演示视频、完整演示闭环截图和最终提交包尚未完成。
+
+### 2026-06-09 严格监督复核与状态纠偏
+
+- 复核当前未提交变更：
+  - 已有 2 个历史提交：`fed8b4f Establish mock prototype baseline`、`2f75d8d Record runtime verification and strict status gates`。
+  - 当前工作区仍有大量未提交修改和新增文件，需在下一阶段完成复核后建立新的提交点。
+- 复核运行验证：
+  - `scripts/check_low_altitude_demo_publish_ready.ps1` 通过。
+  - `scripts/check_project_runtime.ps1` 通过。
+  - 前端 `npm run build` 通过。
+  - 后端测试为 6 项：6 passed，1 warning。
+  - 增强 smoke 通过。
+- 复核 SuperMap 项目自建服务：
+  - `supermap_file_root\demo_workspace\low_altitude_demo.smwu` 存在。
+  - `config/supermap_services.local.json` 中 map/data 服务状态均为 `verified`。
+  - `map-low_altitude_demo/rest/maps.json` 返回 1 个地图资源。
+  - `data-low_altitude_demo` 发布 8 个项目数据集：`task_area_R`、`risk_zone_R`、`obstacle_ZP`、`vision_tile_R`、`start_target_ZP`、`routes_preview_ZL`、`vision_image_center_ZP`、`uav_position_ZP`。
+- 复核截图材料：
+  - `docs/delivery/screenshots/` 已有 7 张截图。
+  - 抽检确认包含项目工作台 SuperMap 场景、iClient3D 最小验证页、iDesktopX 三维样例等有效证据。
+  - 已新增 `docs/delivery/screenshots/README.md`，记录每张截图对应的验收内容。
+  - 但截图仍使用 QQ 时间戳命名，最终提交包仍需复制并改为可读文件名。
+- 状态纠偏：
+  - `M1-14` 从 `Todo` 升级为 `Runtime Verified`。
+  - `M1-15` 从 `Todo` 升级为 `SuperMap Verified`，限定为项目自建 map/data 服务。
+  - `M1-16` 从 `Todo` 调整为 `Doing`，因为项目 map/data 已切换，但三维 scene 仍使用官方 `3D-CBD`。
+- 严格监督结论：
+  - 可以说“项目自建 SuperMap map/data 服务已完成发布与 REST 验收”。
+  - 可以说“官方 `3D-CBD` 三维底座已完成前端 iClient3D 加载与业务图形叠加验收”。
+  - 不能说“项目自建三维场景 `3D-low_altitude_demo` 已完成”，也不能说“最终交付材料已完成”。
+
+### 2026-06-09 真实 / 半真实 demo 数据采集任务书
+
+- 已新增数据采集任务书：
+  - `docs/project_management/14_real_data_collection_guide.md`
+- 已新增组员提交目录说明：
+  - `data_sources/README.md`
+- 任务书明确：
+  - 最低必交数据：任务区域、起终点、风险区、障碍物、数据来源 README。
+  - 强烈建议数据：道路、水系、建筑轮廓、影像、DEM。
+  - 加分项：视觉样例图、倾斜摄影/三维模型、真实建筑高度、来源截图。
+  - 坐标要求：优先 WGS84，经纬度顺序 `[lon, lat, height]`。
+  - 字段规范：`task_area`、`start_target`、`risk_zone`、`obstacle`、`road/water/building`、视觉元数据。
+  - 提交结构：`data_sources/低空巡检示范区_YYYYMMDD/`。
+  - 验收标准：文件可打开、坐标可说明、字段齐全、iDesktopX 可导入、iServer 可发布。
+- 下发口径：
+  - 先交最低包，不等待完美真实数据。
+  - 数据仅用于比赛演示和软件仿真，不用于真实无人机飞行。
+  - 不接受来源说不清或涉及敏感区域的数据。
+
+### 2026-06-09 iServer 2025U1A 本地安装与运行验收
+
+- 已核验本机安装路径：
+  - `E:\supermap_software\supermap-iserver-2025u1a-windows-x64-all`
+- `scripts/check_supermap_iserver.ps1` 复查通过：
+  - `bin/iserver.bat`、`bin/startup.bat`、`bin/shutdown.bat`、`conf/server.xml`、`webapps/iserver`、`docs/`、`samples/data`、`support/jre`、`support/objectsjava`、`support/SuperMapLicenseCenter` 均存在。
+  - 自带 JRE 为 OpenJDK `17.0.13+11`。
+  - Objects Java 版本文件为 `12.0.1 24924 125253 x64_Beijing`。
+  - `server.xml` 包含默认 HTTP 端口 `8090`。
+  - `netstat` 显示 `java.exe` 正在监听 `0.0.0.0:8090` 和 `[::]:8090`。
+- 已通过 HTTP 验收：
+  - `http://localhost:8090/iserver`
+  - `http://localhost:8090/iserver/services`
+  - `http://localhost:8090/iserver/admin-ui/services/serviceManagement`
+  - `http://localhost:8090/iserver/help`
+- 用户已完成 iServer 初始化向导：
+  - 首页：`http://localhost:8090/iserver/`
+  - 服务管理器：`http://localhost:8090/iserver/admin-ui/home`
+  - 文件管理根目录：`E:\supermap_project\supermap_file_root`
+- 已确认 `E:\supermap_project\supermap_file_root` 目录存在，作为后续 demo 工作空间、上传数据和发布文件的集中管理根目录。
+- 已确认 iServer 内置 `3D-CBD` 三维服务：
+  - 三维服务根节点：`http://localhost:8090/iserver/services/3D-CBD/rest/realspace`
+  - 场景列表：`http://localhost:8090/iserver/services/3D-CBD/rest/realspace/scenes.json`
+  - CBD 场景元数据：`http://localhost:8090/iserver/services/3D-CBD/rest/realspace/scenes/CBD.json`
+  - 浏览器页面显示 `三维服务根节点(3D)`，包含 `datas`、`scenes`、`symbols` 子资源。
+- 已新增本地配置 `config/supermap_services.local.json`：
+  - `services.scene.name` 为 `3D-CBD`
+  - `services.scene.url` 为 `http://localhost:8090/iserver/services/3D-CBD/rest/realspace`
+  - 后端配置读取已确认 `using_local_config=True`
+- 已新增 `scripts/start_frontend_supermap_cbd.ps1`：
+  - 自动设置 `VITE_SCENE_PROVIDER=supermap`
+  - 自动设置 `VITE_SUPERMAP_SCENE_URL=http://localhost:8090/iserver/services/3D-CBD/rest/realspace`
+  - 用于后续浏览器截图验收。
+- 已加固 `scripts/start_frontend.ps1`：
+  - 优先使用 `frontend/node_modules/.bin/vite.cmd`，减少对系统 `npm` PATH 的依赖。
+- 已完成命令行验证：
+  - `scripts/prepare_iclient3d_public.ps1` 通过。
+  - `npm run build` 通过。
+  - `backend/tests` 在 `supermap_nav` 环境中通过：6 passed，1 warning。
+  - 后端 SuperMap 配置读取确认使用 `config/supermap_services.local.json`。
+- 当前 Codex 桌面线程中隐藏/最小化后台启动 dev server 会很快退出；前台短跑已确认后端和前端均可启动，正式截图需在普通 PowerShell 窗口中分别运行启动脚本并保持窗口打开。
+- 用户已提供浏览器截图确认 iClient3D 前端加载成功：
+  - `supermap-minimal.html` 显示 `WebGL2: 可用`、`widgets.css 加载成功`、`SuperMap3D.js 加载成功`、`new SuperMap3D.Viewer(...) 创建成功`、`实体点和相机视角设置成功`、`scene.open(sceneUrl) 成功`。
+  - 最小验证页实际渲染了 `3D-CBD` 城市三维模型、道路、建筑、湖泊和 SuperMap 版权标识。
+  - 项目工作台显示 `SuperMap 场景已就绪`，`scene.open(sceneUrl)` 指向 `http://localhost:8090/iserver/services/3D-CBD/rest/realspace`。
+  - 项目工作台已在 SuperMap 三维场景上叠加候选航线、风险区、视觉候选区、起终点等业务图形，右侧候选航线、风险校验和高程剖面面板可见。
+- 已确认正确启动方式：
+  - 进入 `E:\supermap_software\supermap-iserver-2025u1a-windows-x64-all\bin`
+  - 执行 `iserver.bat -start`
+- 已记录风险：
+  - 不要从安装根目录直接调用 `bin\startup.bat`，否则可能导致 Objects Java/UGO 环境推导错误，并造成 `/iserver` 主应用异常。
+- 监督口径：
+  - 可以说“内置 `3D-CBD` 三维服务已完成 iServer 到 iClient3D 前端的真实加载验收”。
+  - 可以说“项目已具备 SuperMap 三维接入能力，且已完成样例服务闭环”。
+  - 不能说“项目自建三维服务和真实业务数据服务已发布完成”。
+- 后续动作：
+  - 将浏览器截图正式保存到 `docs/delivery/screenshots/`。
+  - 使用 iDesktopX demo/真实工作空间发布项目自建三维/数据服务。
+  - 将 `config/supermap_services.local.json` 从 `3D-CBD` 样例 URL 切换为项目自建服务 URL。
 
 ### 2026-06-08 当前项目体检
 
@@ -86,6 +377,31 @@
   - SuperMap 软件和 iServer 服务尚未接入。
   - 官方文档本地化目录为空。
   - 视觉真实图片文件仍未放入仓库。
+
+### 2026-06-08 SuperMap 安装完成项监督复核
+
+- 用户确认 iDesktopX 已下载并完善相关内容，iClient3D for WebGL/WebGPU 2025U1 已安装并完成相关任务。
+- 本次复核确认本机路径存在：
+  - `E:\supermap_software\supermap-iclient3d-for-webgl_webgpu-2025u1`
+  - `E:\supermap_software\SuperMap iDesktopX 2025`
+- `scripts/check_supermap_iclient3d.ps1` 通过：
+  - SDK 根目录、`SuperMap3D.js`、`widgets.css`、`Workers`、`Assets`、`ThirdParty`、API 文档和示例目录均存在。
+  - 本地 WebGL 示例数量为 249，API 文档 HTML 数量为 719。
+  - 核心接口样例可检索到 `new SuperMap3D.Viewer`、`viewer.scenePromise`、`scene.open`、影像/地形 provider 和实体绘制接口。
+- `scripts/check_supermap_idesktopx.ps1` 通过：
+  - 主程序、启动脚本、`iDesktop.jar`、自带 JRE、帮助文档、用户手册、安装指南、样例数据和三维核心组件均存在。
+  - 版本文件显示 `12.0.1 24930 125282 x64_Beijing`。
+  - `readme.html` 可检索到 90 天试用许可说明。
+- 前端静态 SDK 资源已准备：
+  - `frontend/public/vendor/supermap3d/` 存在。
+  - 当前目录下可统计到 472 个文件。
+- 运行验证重新通过：
+  - `npm run build` 通过。
+  - `conda run -n supermap_nav python -m pytest backend\tests` 通过：4 passed，1 warning。
+  - `scripts/check_backend_smoke_full.ps1` 使用 `supermap_nav` 环境通过。
+- 监督结论：
+  - 可以承认“iDesktopX 与 iClient3D 本机安装/SDK 准备已完成，并具备前端承载条件”。
+  - 仍不能承认“SuperMap 三维服务实接完成”，因为 iServer 管理页、三维服务发布 URL、浏览器 `scene.open(sceneUrl)` 截图和项目页面三维渲染截图仍未归档。
 
 ### 2026-06-08 严格监督整改与运行验证
 
@@ -142,6 +458,103 @@
 - 新增后端配置读取接口：
   - `GET /api/supermap/config`
   - `GET /api/supermap/services`
+
+### 2026-06-08 iClient3D 本地 SDK 核验
+
+- 已核验本机安装路径：
+  - `E:\supermap_software\supermap-iclient3d-for-webgl_webgpu-2025u1`
+- 已确认核心目录和文件存在：
+  - `Build/SuperMap3D/SuperMap3D.js`
+  - `Build/SuperMap3D/Widgets/widgets.css`
+  - `Build/SuperMap3D/Workers/`
+  - `Build/SuperMap3D/Assets/`
+  - `Build/SuperMap3D/ThirdParty/`
+  - `docs/Documentation/`
+  - `examples/webgl/`
+  - `examples/component/`
+  - `examples/TopicDOC/`
+- 已确认本地示例覆盖项目所需接口：
+  - `new SuperMap3D.Viewer(...)`
+  - `viewer.scenePromise.then(...)`
+  - `scene.open(sceneUrl)`
+  - `SuperMapImageryProvider`
+  - `SuperMapTerrainProvider`
+  - `UrlTemplateImageryProvider`
+  - `viewer.entities.add(...)`
+  - `Cartesian3.fromDegrees(...)`
+  - `Cartesian3.fromDegreesArray(...)`
+- 新增核验文档：
+  - `docs/supermap_integration/06_iclient3d_local_verification.md`
+  - `docs/vendor/supermap_official/README.md`
+- 新增可复查脚本：
+  - `scripts/check_supermap_iclient3d.ps1`
+- 口径更新：
+  - 可以说“iClient3D SDK 包和接口样例已核验”。
+  - 不能说“SuperMap 三维接入已完成”。
+  - 不能说“许可已验证可用”，只能说“按主办方说明应有试用许可，实际许可状态待打开示例/服务后截图确认”。
+
+### 2026-06-08 iDesktopX 本地安装验收
+
+- 已核验本机安装路径：
+  - `E:\supermap_software\SuperMap iDesktopX 2025`
+- 已确认核心目录和文件存在：
+  - `SuperMap iDesktopX.exe`
+  - `startup.bat`
+  - `iDesktop.jar`
+  - `bin/`
+  - `jre/`
+  - `help/SuperMap iDesktopX Help.chm`
+  - `SuperMap iDesktopX UserManual.pdf`
+  - `InstallationGuide.pdf`
+  - `readme.html`
+  - `What_is_new.html`
+  - `sampleData/`
+- 已确认自带 Java 可运行：
+  - OpenJDK `1.8.0_452`
+- 已确认版本信息：
+  - `bin/VERSION`：`12.0.1 24930 125282 x64_Beijing`
+  - `What_is_new.html`：版本号 `12.0.1.0`，发布日期 `2025.09`
+- 已确认试用许可依据：
+  - `readme.html` 写明使用安装包时，首次安装成功后具有 90 天试用许可，无需再次申请试用许可。
+- 已确认项目相关能力组件存在：
+  - 数据：`com.supermap.data.jar`
+  - 地图：`com.supermap.mapping.jar`
+  - 三维：`com.supermap.realspace.jar`、`WrapjRealspace.dll`、`SuScene.dll`
+  - 三维缓存/瓦片：`SuCacheBuilder3D.dll`、`SuToolkit3DTiles.dll`
+  - 数据转换：`com.supermap.data.conversion.jar`
+  - 空间分析：`com.supermap.analyst.spatialanalyst.jar`
+  - 地形分析：`com.supermap.analyst.terrainanalyst.jar`
+  - 许可管理：`com.supermap.licensemanager.jar`
+- 已确认样例数据存在：
+  - `sampleData/3D/CBDDataset/CBD.smwu`
+  - `sampleData/3D/CBDDataset/CBD.udb`
+  - `sampleData/3D/CBDDataset/CBD.udd`
+  - `sampleData/WebMap/China100/China100.smwu`
+  - `sampleData/WebMap/China100/China100.udbx`
+- 已实际启动一次 `SuperMap iDesktopX.exe`：
+  - 主进程已创建。
+  - 后续拉起 `javaw.exe` 和 SuperMap License Center 进程。
+  - 说明启动链路已进入许可/运行阶段。
+- 用户已提供 iDesktopX 主界面截图：
+  - 标题栏显示 `SuperMap iDesktopX 2025`。
+  - 工作空间管理器中已加载 `CBD` 工作空间。
+  - 左侧数据源树显示 `CBD` 数据源。
+  - 右下角显示“本地试用许可 剩余时间：90天”。
+  - 本次截图满足 `M1-01 安装 iDesktopX 2025` 的运行验收口径。
+- 用户已提供 iDesktopX 三维场景截图：
+  - `CBD` 场景标签页已打开。
+  - 三维建筑、道路网和地形图层已渲染显示。
+  - 左侧场景树显示 `CBD`、`CBD_日照分析`、`CBD_天际线_360°` 等场景条目。
+  - 右下角继续显示“本地试用许可 剩余时间：90天”。
+  - 本次截图满足 iDesktopX 样例三维场景显示验收口径。
+- 新增核验文档：
+  - `docs/supermap_integration/08_idesktopx_local_verification.md`
+- 新增可复查脚本：
+  - `scripts/check_supermap_idesktopx.ps1`
+- 仍未完成：
+  - 将 iDesktopX 主界面和许可状态截图保存为正式文件。
+  - 将 iDesktopX 三维场景截图保存为正式文件。
+  - 保存三维场景或工作空间输出，用于后续 iServer 发布。
 
 ### 2026-06-08 比赛交付材料补齐
 
@@ -310,16 +723,416 @@
   - `pytest` 未运行：当前环境未安装 `pytest` 命令。
   - 增强 smoke 已执行到服务层并通过，但 FastAPI API 契约部分阻塞：当前 Python 环境缺少 `fastapi`。
 
+### 2026-06-08 iClient3D 前端承载层实现
+
+- 前端 iClient3D 承载层已实现：
+  - 新增 `frontend/src/services/supermap3d.js`，负责动态加载 `SuperMap3D.js` 和 `widgets.css`、检测 WebGL2、创建 Viewer、执行 `scene.open(sceneUrl)`、绘制 mock 三维实体和销毁清理。
+  - 重建 `frontend/src/components/SuperMapScene.vue`，使用 `shallowRef` 保存 Viewer 和 SDK 对象，避免被 Vue 深层响应式劫持。
+  - `SuperMapScene.vue` 已支持 `VITE_SCENE_PROVIDER=supermap`、`VITE_SUPERMAP_SDK_BASE`、`VITE_SUPERMAP_SCENE_URL`、`VITE_SUPERMAP_CONTEXT_TYPE`。
+  - 当没有 `sceneUrl` 时，可在空三维球上绘制 mock 航线、起终点、风险区、临时风险区、视觉瓦片、视觉候选区和当前无人机点。
+  - 当 SDK 加载、WebGL2 或 Viewer 初始化失败时，自动回退到 `MockMissionMap.vue`。
+  - `App.vue` 已读取 `/api/supermap/config` 并传入 `SuperMapScene.vue`，后续 iServer 服务 URL 可只填配置。
+- 最小验证和准备脚本：
+  - 新增 `frontend/public/supermap-minimal.html`，不依赖 Vue、后端或 iServer，可验证 SDK/CSS 加载、WebGL2、`new SuperMap3D.Viewer(...)`、实体绘制和可选 `scene.open(sceneUrl)`。
+  - 新增 `scripts/prepare_iclient3d_public.ps1`，可将本机 SDK 必要资源复制到 `frontend/public/vendor/supermap3d/`。
+  - `.gitignore` 已忽略 `frontend/public/vendor/supermap3d/`，避免提交大体积 SDK。
+- 团队文档：
+  - 新增 `docs/supermap_integration/07_iclient3d_frontend_runtime.md`，包含 SDK 准备、最小验证页、可替换 `scene.open(sceneUrl)` 接口、项目可用 API、Vue 性能注意事项和排错表。
+  - 更新 `docs/supermap_integration/README.md`、`docs/deploy_guide.md`、`docs/source_code_structure.md`。
+- 验证情况：
+  - `npm run build` 通过。
+  - `node --check frontend/src/services/api.js` 通过。
+  - `node --check frontend/src/services/supermap3d.js` 通过。
+  - `scripts/check_supermap_iclient3d.ps1` 通过，本机 SDK 包结构和示例接口仍完整。
+  - `pytest backend/tests` 在 `supermap_nav` 环境中通过：4 passed，1 warning。
+  - `scripts/check_backend_smoke_full.ps1 -PythonExe 'E:\anaconda\Scripts\conda.exe' -PythonArgs @('run','-n','supermap_nav','python')` 通过。
+  - 尚未执行浏览器打开 `supermap-minimal.html`，因此许可状态、真实 WebGL 渲染截图和 `scene.open` 真实服务仍未验收。
+
+### 2026-06-08 iDesktopX demo 数据导入包
+
+- 确认 `demo_data/task_demo.json` 可按 UTF-8 正确解析；PowerShell 默认编码读取会导致乱码和 JSON 解析误报，因此导出脚本显式指定 UTF-8。
+- 新增 `scripts/export_demo_geojson.ps1`：
+  - 显式使用 UTF-8 读取 `task_demo.json`，避免 PowerShell 默认编码导致的 JSON 解析误报。
+  - 输出 `demo_data/gis_export/`。
+  - 生成 8 个可导入 iDesktopX 的 GeoJSON 文件：`task_area.geojson`、`risk_zone.geojson`、`obstacle.geojson`、`vision_tile.geojson`、`start_target.geojson`、`routes_preview.geojson`、`vision_image_center.geojson`、`uav_position.geojson`。
+  - 同步生成 `demo_data/gis_export/README.md`，记录导入顺序、坐标口径和样式建议。
+- 新增 `docs/supermap_integration/09_idesktopx_demo_data_import.md`，作为团队在 iDesktopX 中导入 demo 数据、设置样式和保存工作空间的操作说明。
+- 更新 `docs/supermap_integration/01_idesktopx_workflow.md` 和 `docs/supermap_integration/README.md`，把 demo GeoJSON 导入包纳入 SuperMap 接入流程。
+- 验证情况：
+  - `task_demo.json` 使用 UTF-8 解析通过。
+  - 8 个 GeoJSON 文件全部可解析。
+  - 要素数量：任务区 1、风险区 2、障碍物 2、视觉瓦片 5、起终点 2、预览航线 3、视觉中心点 3、无人机位置 1。
+- 严格口径：
+  - 可以说“iDesktopX 可导入的 demo GIS 数据包已生成”。
+  - 不能说“真实 iServer 服务已发布”。
+
+### 2026-06-09 非材料侧工程验收补强
+
+- 新增 `backend/tests/test_supermap_contracts.py`：
+  - 覆盖 `/api/supermap/config` 和 `/api/supermap/services` 契约。
+  - 覆盖请求校验错误的统一响应格式。
+- 新增 `scripts/check_project_runtime.ps1`：
+  - 重新导出并解析 `demo_data/gis_export/` GeoJSON。
+  - 检查 `frontend/public/vendor/supermap3d/Build/SuperMap3D` 静态 SDK 关键资源。
+  - 检查 `supermap-minimal.html` 包含 SDK 加载、WebGL2、Viewer 和 `scene.open` 关键标记。
+  - 执行前端 JS 语法检查和 `npm run build`。
+  - 执行后端 `pytest backend/tests` 和增强 smoke。
+- 优化 `scripts/start_backend.ps1`：
+  - 优先使用 `E:\anaconda\envs\supermap_nav\python.exe -m uvicorn` 启动后端。
+  - Conda wrapper 仅作为兜底路径，减少后台启动和 PATH 环境差异带来的不稳定。
+- 验证情况：
+  - `scripts/check_project_runtime.ps1` 通过。
+  - 后端测试扩展为 6 项：6 passed，1 warning。
+  - `scripts/check_supermap_iclient3d.ps1` 通过。
+  - `scripts/check_supermap_idesktopx.ps1` 通过。
+  - `scripts/start_backend.ps1 -Port 8000` 可进入 uvicorn 常驻服务。
+  - `scripts/start_frontend.ps1 -Port 5173` 可进入 Vite dev server，地址为 `http://localhost:5173/`。
+- 仍未越过的门禁：
+  - 未进行浏览器截图归档。
+  - iServer 未发布真实三维服务。
+  - 未取得真实 `sceneUrl`。
+
+### 2026-06-09 从官方 3D-CBD 切换到项目 demo 服务的目标明确
+
+- 当前已验证链路：
+  - `iServer 内置样例 3D-CBD -> 前端 iClient3D 加载成功`。
+- 该链路只能说明 SuperMap 运行链路可用，不能代表项目自建数据服务已完成。
+- 下一阶段目标链路：
+  - `demo_data/gis_export -> iDesktopX 制作 low_altitude_demo.smwu -> iServer 发布 map/data/3D 服务 -> 前端加载 low_altitude_demo 服务`。
+- 新增配置模板：
+  - `config/supermap_services.low_altitude_demo.example.json`
+  - 目标服务名包括 `map-low_altitude_demo`、`data-low_altitude_demo`、`3D-low_altitude_demo`。
+- 新增工作空间目标说明：
+  - `supermap_file_root/README.md`
+  - `supermap_file_root/demo_workspace/README.md`
+  - 目标工作空间路径：`E:\supermap_project\supermap_file_root\demo_workspace\low_altitude_demo.smwu`。
+- 新增发布前检查脚本：
+  - `scripts/check_low_altitude_demo_publish_ready.ps1`
+  - 当前检查结果：GeoJSON 数据包齐全，目标配置已指向 `low_altitude_demo`；`low_altitude_demo.smwu` 尚未保存，项目服务尚未发布。
+- 口径更新：
+  - 可以说“官方 `3D-CBD` 样例三维链路已跑通”。
+  - 可以说“项目自建 demo 服务的输入数据、目标路径和配置模板已准备”。
+  - 不能说“项目自建 SuperMap 服务已完成”，直到 `low_altitude_demo.smwu` 发布并完成前端截图。
+
 ## 下一步建议
 
-优先进入 M2 浏览器闭环验收和 M1 SuperMap 实接：
+优先进入 M1 项目自建服务发布和 M6 交付材料制作：
 
-1. 启动后端并访问 `/api/health`。
-2. 启动前端并打开工作台页面。
-3. 使用当前 mock 场景完成一次从任务加载到报告生成的演示彩排。
-4. 截图记录工作台、航线规划、风险评分、动态重规划、视觉匹配和报告页面。
-5. SuperMap 软件安装完成后，按 `docs/supermap_integration/README.md` 发布 iServer 服务。
-6. 在 `config/supermap_services.local.json` 和 `demo_data/task_demo.json` 的 `layers[].service_url` 填入真实服务地址。
-7. 在 `SuperMapScene.vue` 中接入真实 iClient3D 场景并截图验收。
-8. 将通过项升级到 `Runtime Verified` 或 `SuperMap Verified`。
-9. 用真实截图制作 PPT 文件并录制演示视频。
+1. 将本次 iServer、iClient3D 最小验证页和项目工作台截图正式保存到 `docs/delivery/screenshots/`。
+2. 在 iDesktopX 中导入 `demo_data/gis_export/`，保存项目 demo 工作空间。
+3. 通过 iServer 发布项目自建三维服务和数据服务，记录真实服务 URL。
+4. 将 `config/supermap_services.local.json` 从 `3D-CBD` 样例 URL 切换为项目自建服务 URL。
+5. 按截图清单补齐规划、风险校验、仿真、重规划、视觉匹配和报告页面截图。
+6. 用真实截图制作 PPT 文件并录制演示视频。
+
+### 2026-06-09 iDesktopX demo GeoJSON 导入修复
+
+- 当前 GUI 状态：用户已在 iDesktopX 中成功导入 6 个图层，`risk_zone.geojson` 与 `vision_tile.geojson` 首次导入失败。
+- 原因定位：这两个文件的 `Polygon` 坐标层级少一层，形式为 `[[lon, lat], ...]`，而标准 GeoJSON Polygon 应为 `[[[lon, lat], ...]]`。
+- 已完成修复：
+  - 修复 `scripts/export_demo_geojson.ps1`，避免后续重新导出时再次生成错误 Polygon。
+  - 重新生成 `demo_data/gis_export/` 下 8 个 GeoJSON 文件。
+  - 校验通过：`risk_zone.geojson` 含 2 个面，`vision_tile.geojson` 含 5 个面，均为标准 Polygon 坐标层级。
+- 下一步操作：保留 iDesktopX 中已成功导入的 6 个图层，仅重新导入 `risk_zone.geojson` 和 `vision_tile.geojson`；全部成功后保存工作空间到 `E:\supermap_project\supermap_file_root\demo_workspace\low_altitude_demo.smwu`。
+### 2026-06-09 low_altitude_demo 工作空间保存完成
+
+- iDesktopX demo 数据导入已完成，目标工作空间文件已存在：`E:\supermap_project\supermap_file_root\demo_workspace\low_altitude_demo.smwu`。
+- 目标数据源文件已存在：`E:\supermap_project\supermap_file_root\demo_workspace\low_altitude_demo.udbx`。
+- 已执行 `scripts/check_low_altitude_demo_publish_ready.ps1`，结果为 `[PASS] Project workspace file exists`。
+- 下一门禁：在 iServer 中发布项目自建服务，优先发布 `map-low_altitude_demo` 与 `data-low_altitude_demo`；如已制作三维场景，再发布 `3D-low_altitude_demo` 并取得真实 `sceneUrl`。
+### 2026-06-09 low_altitude_demo map/data 服务发布完成
+
+- 用户已在 iServer 发布 `map-low_altitude_demo/rest` 与 `data-low_altitude_demo/rest`。
+- 命令行验收：两个服务根地址均返回 HTTP 200。
+- `data-low_altitude_demo/rest/data/datasources.json` 可见 `low_altitude_demo` 数据源。
+- `data-low_altitude_demo/rest/data/datasources/low_altitude_demo/datasets.json` 返回 8 个数据集：`obstacle_ZP`、`routes_preview_ZL`、`start_target_ZP`、`task_area_R`、`uav_position_ZP`、`vision_image_center_ZP`、`risk_zone_R`、`vision_tile_R`。
+- `map-low_altitude_demo/rest/maps.json` 返回空数组，说明服务已发布但工作空间内尚未保存地图对象；当前状态记为 `published_no_maps`，不能宣传为“项目地图服务已完整出图”。
+- 已更新 `config/supermap_services.local.json`：数据服务为 `verified`，地图服务为 `published_no_maps`，三维服务仍使用官方 `3D-CBD` 作为已验证底座。
+- 下一门禁：在 iDesktopX 中把 8 个数据集制作并保存为地图对象，或继续发布/制作项目自建三维场景 `3D-low_altitude_demo`。
+### 2026-06-09 SuperMap 配置热读取修正
+
+- 发现运行中的后端 `/api/supermap/services` 仍返回旧的 `3D-CBD` map/data 空配置，原因是 `backend/app/services/supermap_config_service.py` 对配置文件做了进程内缓存。
+- 已移除该缓存逻辑，后续接口请求会重新读取 `config/supermap_services.local.json`，便于现场切换 iServer 服务地址。
+- 验证结果：`pytest backend/tests` 通过，`scripts/check_low_altitude_demo_publish_ready.ps1` 通过。
+- 注意：已运行的后端进程需要重启一次才能加载这次代码修改。
+### 2026-06-09 low_altitude_demo 地图服务完整验收
+
+- 用户已在 iDesktopX 中将 8 个项目数据集加入地图 `low_altitude_demo_map`，并保存工作空间。
+- REST 验收通过：`http://localhost:8090/iserver/services/map-low_altitude_demo/rest/maps/low_altitude_demo_map.json` 返回 WGS84 / EPSG:4326 地图元数据，`bounds` 为 `left=116.1, bottom=39.1, right=116.235, top=39.215`。
+- 图层验收通过：`layers.json` 中可见 8 个业务图层，包含 `task_area_R`、`risk_zone_R`、`obstacle_ZP`、`vision_tile_R`、`start_target_ZP`、`routes_preview_ZL`、`vision_image_center_ZP`、`uav_position_ZP`。
+- 已更新 `config/supermap_services.local.json`：`services.map.status=verified`，并补充 `resource_url` 与 `metadata_url`。
+- 已复跑 `scripts/check_low_altitude_demo_publish_ready.ps1`：map/data 服务均为 `verified`，地图服务拥有 1 个地图资源，数据服务 8 个数据集齐全。
+- 当前严格口径：项目自建 SuperMap map/data 服务已完成发布与 REST 验收；项目自建三维场景 `3D-low_altitude_demo` 尚未发布，前端三维底座仍使用官方 `3D-CBD`。
+
+### 2026-06-09 前端接入项目自建 SuperMap 服务状态
+
+- 新增前端组件 `frontend/src/components/SuperMapServicePanel.vue`，用于展示 `/api/supermap/config` 中的 iServer 版本、scene/map/data 服务状态以及 8 个数据集绑定情况。
+- `TaskSidebar.vue` 已接入该状态卡，`App.vue` 已将 `supermapConfig` 传入侧边栏。
+- 当前后端接口 `/api/supermap/services` 返回：`scene=verified`、`map=verified`、`data=verified`、`spatial_analysis=optional`。
+- 当前严格口径：前端已能读取并展示项目自建 `map-low_altitude_demo` 与 `data-low_altitude_demo` 的 verified 状态；三维底座仍是官方 `3D-CBD`。
+- 验证：`npm run build` 通过；`scripts/check_low_altitude_demo_publish_ready.ps1` 通过。
+### 2026-06-09 SuperMap 自动化接口路线确认
+
+- 已确认本项目不需要把所有步骤都压在 iDesktopX GUI 上完成。
+- 本机 iDesktopX 2025 自带 Python 与 iObjectSpy，可作为类似 ArcPy 的自动化接口使用。
+- 当前已脚本化链路：
+  - `demo_data/gis_export` GeoJSON 校验。
+  - 自动创建 `.smwu` 工作空间。
+  - 自动创建 `.udbx` 数据源。
+  - 自动导入 8 个项目数据集。
+  - 自动创建地图对象 `low_altitude_demo_map`。
+  - 自动输出 `build_summary.json`。
+- 当前自动化脚本：
+  - `scripts/build_low_altitude_workspace.ps1`
+  - `scripts/build_low_altitude_workspace.py`
+- 新增自动化接口说明文档：
+  - `docs/supermap_integration/10_iobjectspy_automation_plan.md`
+- 严格口径：
+  - 项目自建 `map-low_altitude_demo` 与 `data-low_altitude_demo` 已完成发布和 REST 验收。
+  - 官方样例 `3D-CBD` 仅作为三维链路验证底座。
+  - 项目自建 `3D-low_altitude_demo` 尚未发布。
+  - 下一步优先调研 iServer 管理 REST API 是否能自动发布服务，GUI 作为兜底。
+
+### 2026-06-09 iServer 发布自动化路线补强
+
+- 已重新执行验收脚本：
+  - `scripts/check_low_altitude_demo_publish_ready.ps1` 通过。
+  - `scripts/check_supermap_delivery_gate.ps1` 通过。
+- 已确认后端 `/api/supermap/services` 返回最新配置：
+  - `scene=verified`
+  - `map=verified`
+  - `data=verified`
+- 已确认 iServer REST：
+  - `map-low_altitude_demo/rest/maps.json` 可访问，包含 `low_altitude_demo_map`。
+  - `low_altitude_demo_map.json` 可访问，EPSG 为 `4326`。
+  - `low_altitude_demo_map/layers.json` 可访问，包含 8 个业务图层。
+  - `data-low_altitude_demo` 数据集列表可访问，包含 8 个业务数据集。
+  - `3D-CBD` 官方样例场景列表可访问。
+- 新增 iServer 发布配置片段生成脚本：
+  - `scripts/export_iserver_low_altitude_service_config.ps1`
+- 新增 map/data 自动化总控脚本：
+  - `scripts/run_low_altitude_map_data_pipeline.ps1`
+  - 默认串起 `导出 GeoJSON -> 自动生成 demo_workspace_auto -> 生成 iServer 配置片段 -> 渲染项目地图预览 -> REST 门禁验收`。
+  - 默认不覆盖当前已发布的正式工作空间。
+- 新增 iServer 发布自动化路线文档：
+  - `docs/supermap_integration/11_iserver_publish_automation_route.md`
+- 当前技术判断：
+  - REST/Admin API 仍继续优先调研。
+  - 已发布服务的落盘配置位于 iServer `WEB-INF/iserver-services.xml`。
+  - XML 配置片段生成可作为稳定兜底路线，但当前不直接覆盖 iServer 安装目录。
+
+### 2026-06-09 map/data 自动化总控流水线跑通
+
+- 已执行：
+  - `powershell -ExecutionPolicy Bypass -File E:\supermap_project\scripts\run_low_altitude_map_data_pipeline.ps1 -OverwriteAutoWorkspace`
+- 流水线已串起：
+  - 导出 `demo_data/gis_export` GeoJSON。
+  - 调用 iDesktopX 自带 Python/iObjectSpy 自动生成工作空间。
+  - 生成 iServer map/data 服务配置草案。
+  - 执行项目发布就绪检查。
+  - 执行 SuperMap REST 交付门禁。
+- 自动工作空间输出：
+  - `E:\supermap_project\supermap_file_root\demo_workspace_auto\low_altitude_demo.smwu`
+  - `E:\supermap_project\supermap_file_root\demo_workspace_auto\low_altitude_demo.udbx`
+  - `E:\supermap_project\supermap_file_root\demo_workspace_auto\build_summary.json`
+- 自动构建摘要：
+  - 数据集数量：8
+  - 地图名：`low_altitude_demo_map`
+  - 地图图层数量：8
+  - bounds：`(116.1, 39.1, 116.235, 39.215)`
+- 流水线摘要：
+  - `docs/delivery/low_altitude_map_data_pipeline_summary.json`
+- 运行备注：
+  - iObjectSpy 仍提示 `numpy` warning，该 warning 属于机器学习扩展模块，不影响当前 GIS 工作空间生成。
+  - 当前流水线不覆盖已发布的正式工作空间，不直接修改 iServer 安装目录。
+
+### 2026-06-09 项目地图预览截图脚本化
+
+- 新增 iObjectSpy 地图预览脚本：
+  - `scripts/render_low_altitude_map_preview.ps1`
+  - `scripts/render_low_altitude_map_preview.py`
+- 已成功从正式工作空间渲染：
+  - `docs/delivery/screenshots/low_altitude_demo_map_iobjectspy_preview.png`
+  - `docs/delivery/screenshots/low_altitude_demo_map_iobjectspy_preview.json`
+- 渲染摘要：
+  - 工作空间：`E:\supermap_project\supermap_file_root\demo_workspace\low_altitude_demo.smwu`
+  - 地图名：`low_altitude_demo_map`
+  - 图层数：8
+  - bounds：`(116.1, 39.1, 116.235, 39.215)`
+- 证据口径：
+  - 该截图可证明项目地图对象可由 SuperMap/iObjectSpy 打开并渲染 8 个业务图层。
+  - 该截图不是 iDesktopX GUI 截图；如 PPT 明确要求展示 iDesktopX 界面，仍建议补一张 GUI 图层截图。
+- 新增截图证据登记：
+  - `docs/delivery/screenshot_evidence_registry.md`
+
+### 2026-06-09 3D-low_altitude_demo 门禁脚本化
+
+- 已复核 `3D-low_altitude_demo` 当前状态：
+  - `http://localhost:8090/iserver/services/3D-low_altitude_demo/rest/realspace/scenes.json` 返回 HTTP 404。
+  - `config/supermap_services.local.json` 仍将 scene 指向官方样例 `3D-CBD`。
+- 已确认 iObjectSpy 当前公开 Python API：
+  - 支持二维工作空间、地图和预览渲染。
+  - `threeddesigner` 提供三维建模/拉伸函数。
+  - 未发现直接创建/保存三维场景的高层接口。
+- 新增 3D 门禁检查脚本：
+  - `scripts/check_low_altitude_3d_gate.ps1`
+- 新增 iServer 3D 服务配置预演脚本：
+  - `scripts/stage_iserver_3d_low_altitude_config.ps1`
+  - 只生成 staged XML，不修改 iServer 安装目录。
+- 新增 iServer 3D 配置受控应用/回滚脚本：
+  - `scripts/apply_iserver_3d_low_altitude_config.ps1`
+  - 默认 dry-run。
+  - 只有显式 `-Apply` 才会覆盖 iServer 配置。
+  - 支持 `-RollbackLatest` 回滚最近备份。
+- 新增 3D 门禁文档：
+  - `docs/supermap_integration/12_3d_low_altitude_demo_gate.md`
+- 严格口径：
+  - 当前已完成下一门禁的检查和预演自动化。
+  - `3D-low_altitude_demo` 仍未发布，不能标为 verified。
+
+### 2026-06-09 SuperMap 实时接口与浏览器验收补强
+
+- 后端新增实时 SuperMap 状态接口：
+  - `GET /api/supermap/status`
+  - 会基于 `config/supermap_services.local.json` 主动探测 iServer REST。
+  - 当前可返回 scene/map/data 的 `runtime_status`、`checked_url`、HTTP 状态、地图 bounds、EPSG、数据集数量和 8 个业务图层可访问状态。
+- 后端 `/api/supermap/services` 已兼容保留原字段，并新增实时探测字段：
+  - `runtime_status`
+  - `reachable`
+  - `checked_url`
+  - `http_status`
+  - `message`
+- 前端 SuperMap Services 面板已接入实时状态：
+  - 显示 `REST gate: 8 layers verified`。
+  - scene/map/data 显示 runtime verified。
+  - 8 个业务图层显示 verified。
+- 新增自动验收脚本：
+  - `scripts/run_supermap_browser_acceptance.ps1`
+  - 临时启动后端，检查前端/iServer，执行 REST 交付门禁，调用截图脚本保存正式截图。
+- 新增后端稳定启动辅助脚本：
+  - `scripts/start_backend_detached.ps1`
+- 截图脚本已补强：
+  - `scripts/capture_delivery_screenshots.ps1`
+  - 截图前备份旧图，成功后替换；失败时恢复旧图，避免旧截图被误当作新证据。
+- 已完成正式验收：
+  - `scripts/run_supermap_browser_acceptance.ps1` 通过。
+  - `backend/tests` 通过：6 passed，1 个 TestClient deprecation warning。
+  - `npm run build` 通过。
+- 当前正式截图已更新：
+  - `docs/delivery/screenshots/frontend_supermap_workspace.png`
+  - `docs/delivery/screenshots/iserver_map_low_altitude_demo_map.png`
+  - `docs/delivery/screenshots/iserver_map_low_altitude_demo_map_json.png`
+  - `docs/delivery/screenshots/iserver_data_low_altitude_demo_datasets.png`
+  - `docs/delivery/screenshots/iserver_3d_cbd_scenes.png`
+- 重要限制：
+  - 无头浏览器截图中 WebGL2 不可用时会展示 SuperMap 回退图，但服务状态与业务叠加有效。
+  - 真实 3D-CBD 桌面浏览器渲染仍以人工浏览器截图为准。
+
+### 2026-06-09 3D-low_altitude_demo 受控 XML 实验与回滚
+
+- 已修复 staged 3D XML 生成逻辑：
+  - 旧版脚本在 active XML 已存在 `3D-low_altitude_demo` 时不会替换旧 provider。
+  - 现已改为先移除旧 3D component/provider，再插入新版本。
+  - staged provider 已包含 `<output>./output</output>`。
+- 已收紧应用脚本校验：
+  - `scripts/apply_iserver_3d_low_altitude_config.ps1` 会检查 staged XML 中 `UGCRealspaceProviderSetting.output` 是否存在。
+- 已执行一次受控应用和 iServer 重启实验：
+  - map/data 服务保持 HTTP 200。
+  - `3D-low_altitude_demo/rest/realspace/scenes.json` 仍为 HTTP 404。
+  - iServer 日志显示 `low_altitude_demo.smwu` 中包含 `0` 个三维场景。
+- 已回滚 active iServer 配置到干净 map/data 基线：
+  - 使用备份：`docs/supermap_integration/generated/iserver_config_backups/iserver-services.20260609-105604.xml`
+  - 回滚后 active XML 不含 `3D-low_altitude_demo`。
+  - 回滚后 map/data 仍为 HTTP 200。
+- 严格结论：
+  - 接口和 XML 路线已经压测到边界。
+  - 下一步必须先在 iDesktopX 中为 `low_altitude_demo.smwu` 创建并保存真实三维场景，再重新发布/验收 `3D-low_altitude_demo`。
+
+### 2026-06-09 3D-low_altitude_demo 脚本化发布完成
+
+- 已确认 iObjects Java API 可直接写入工作空间三维场景：
+  - `Workspace.getScenes()`
+  - `Scene.toXML()`
+  - `Scenes.add(name, xml)`
+- 新增 Java 探针/构建源码：
+  - `scripts/CreateLowAltitudeSceneProbe.java`
+- 新增项目三维工作空间构建脚本：
+  - `scripts/build_low_altitude_3d_workspace.ps1`
+- 已生成项目自建三维工作空间：
+  - `supermap_file_root/demo_workspace_3d_auto/low_altitude_demo.smwu`
+  - `supermap_file_root/demo_workspace_3d_auto/low_altitude_demo.udbx`
+  - `supermap_file_root/demo_workspace_3d_auto/build_3d_scene_summary.txt`
+- 构建摘要：
+  - `before_scene_count=0`
+  - `added_layers=8`
+  - `after_scene_count=1`
+  - `after_scene_index=0`
+  - scene 名称：`low_altitude_demo`
+- 已生成并应用指向 `demo_workspace_3d_auto` 的 iServer 3D 配置：
+  - `3D-low_altitude_demo`
+  - `${fileManagerWorkDir}/demo_workspace_3d_auto/low_altitude_demo.smwu`
+- 已验收 iServer REST：
+  - `http://localhost:8090/iserver/services/3D-low_altitude_demo/rest/realspace/scenes.json`
+  - 返回 HTTP 200，包含 `low_altitude_demo`。
+- 已更新前端 SuperMap 配置：
+  - `config/supermap_services.local.json`
+  - scene 从官方 `3D-CBD` 切换为项目自建 `3D-low_altitude_demo`。
+- 已升级验收脚本：
+  - `scripts/check_supermap_delivery_gate.ps1` 不再硬编码 `3D-CBD`，改为验证当前后端配置中的 scene 服务。
+  - `scripts/capture_delivery_screenshots.ps1` 新增 `iserver_3d_low_altitude_demo_scenes.png`。
+  - `scripts/run_supermap_browser_acceptance.ps1` 支持指定前端 URL/端口，启动前端时从后端配置读取 sceneUrl。
+- 已完成最终自动验收：
+  - `scripts/check_low_altitude_3d_gate.ps1` 通过。
+  - `scripts/run_supermap_browser_acceptance.ps1 -FrontendUrl http://localhost:5174 -FrontendPort 5174` 通过。
+  - `backend/tests` 通过：6 passed。
+  - `npm run build` 通过。
+- 已更新正式截图：
+  - `docs/delivery/screenshots/frontend_supermap_workspace.png`
+  - `docs/delivery/screenshots/iserver_3d_low_altitude_demo_scenes.png`
+- 当前严格口径：
+  - 项目已完成 `导入 GeoJSON -> 生成地图 -> 保存 smwu -> 验收 REST -> 前端读取真实 map/data -> 发布项目自建 3D-low_altitude_demo` 的接口级闭环。
+  - 当前三维场景是脚本生成的最小项目场景，包含 8 个业务图层；不能包装成精细建模或真实倾斜摄影效果。
+
+### 2026-06-09 最终流水线复核
+
+- 已再次执行根流水线：
+  - `scripts/run_low_altitude_map_data_pipeline.ps1 -OverwriteAutoWorkspace`
+- 验证结果：
+  - GeoJSON 导出通过。
+  - iObjectSpy 自动生成 `demo_workspace_auto` 通过。
+  - iServer 配置草案生成通过。
+  - iObjectSpy 地图预览渲染通过。
+  - 发布就绪检查通过。
+  - SuperMap REST 交付门禁通过。
+  - 当前配置 scene 为 `3D-low_altitude_demo`，门禁检查 HTTP 200。
+- 运行注意：
+  - 在 Codex 沙箱中，iObjectSpy 从 iDesktopX 安装根目录启动时会写 `iobjectspy.log`，需要提升权限运行。
+  - 普通用户在本机 PowerShell 直接运行通常不受 Codex 沙箱限制。
+  - `numpy` warning 仍存在，只影响 iObjectSpy 机器学习扩展，不影响当前 GIS 工作空间、地图和三维场景生成。
+
+### 2026-06-09 视觉匹配演示可信度增强
+
+- 已完成视觉前端增强：
+  - `InspectorPanel.vue` 新增视觉输入图占位小窗，展示样例编号、路径、分辨率、相机高度和场景标签。
+  - 新增 Top 1 / Top 2 / Top 3 候选切换，重新调用 `POST /api/vision/match` 并同步地图候选区。
+  - 候选详情新增置信度条、匹配点、内点比例、偏移量、状态标签和解释原因。
+  - `algorithm_trace` 改为中文流程时间线展示。
+  - 新增瓦片索引调试信息，显示候选瓦片数量、来源和预计算特征总数。
+  - `App.vue` 将视觉匹配结果写入底部事件日志，低置信结果显示“视觉匹配需要复核”。
+- 已完成视觉后端增强：
+  - `vision_service.py` 引入 `VisionProvider` 协议和 `PrecomputedVisionProvider`，保留 `DinoRetrieverProvider`、`LocalFeatureProvider`、`RansacVerifier` 接入占位。
+  - 新增 `build_vision_summary`，汇总输入图数量、最高置信候选、平均匹配点、几何验证状态和复核数量。
+  - 新增 `build_vision_event`，生成可并入任务事件日志的视觉匹配事件。
+  - `reports.py` 把视觉事件并入报告事件列表，并返回 `vision_summary`。
+  - `schemas.py` 新增 `VisionSummary`。
+- 已完成 demo 数据增强：
+  - 新增 `demo_uav_004` 低置信度样例，用于展示烟雾遮挡/纹理弱导致的人工复核。
+  - `match_demo_004` 最高置信度为 0.46，状态为 `needs_review`。
+- 已完成文档同步：
+  - `docs/vision_matching_framework.md` 补充输入图小窗、Top-K、低置信复核、事件日志、报告摘要、瓦片调试和 provider 抽象。
+  - `docs/project_management/09_interfaces_and_data_contracts.md` 新增 `VisionSummary`，报告接口说明补充视觉摘要。
+  - `docs/project_management/10_acceptance_checklist.md` 更新 M5 视觉验收条目。
+- 验证情况：
+  - `E:\anaconda\envs\supermap_nav\python.exe -m pytest backend/tests` 通过：6 passed。
+  - `scripts/check_backend_smoke_full.ps1 -PythonExe E:\anaconda\envs\supermap_nav\python.exe` 通过。
+  - `npm run build` 通过。

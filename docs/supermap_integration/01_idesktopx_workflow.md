@@ -1,5 +1,32 @@
 # iDesktopX 操作流程
 
+## 0. 当前 demo 数据包
+
+在 iDesktopX 已安装并能打开样例三维场景后，可以先使用本仓库导出的 demo GeoJSON 数据包制作任务区工作空间：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\export_demo_geojson.ps1
+```
+
+输出目录：
+
+```text
+demo_data/gis_export/
+```
+
+建议导入顺序：
+
+1. `task_area.geojson`
+2. `risk_zone.geojson`
+3. `obstacle.geojson`
+4. `vision_tile.geojson`
+5. `start_target.geojson`
+6. `routes_preview.geojson`
+7. `vision_image_center.geojson`
+8. `uav_position.geojson`
+
+坐标系统一按 WGS84 经纬度处理。详细字段、样式和验收截图要求见 `09_idesktopx_demo_data_import.md`。
+
 ## 1. 目标
 
 使用 SuperMap iDesktopX 2025 完成任务区域 GIS 数据整理、图层规范化、三维场景制作和工作空间保存，为 iServer 发布服务做准备。
@@ -141,4 +168,3 @@
 | 影像过大 | 裁剪任务区域或生成金字塔 |
 | 风险区不明显 | 调整面样式、透明度和边界线 |
 | 前端加载慢 | 缩小区域、降低模型复杂度、优先使用样例数据 |
-

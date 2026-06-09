@@ -6,19 +6,19 @@
 
 | 编号 | 截图 | 用途 | 状态 |
 |---|---|---|---|
-| S-01 | iDesktopX 工作空间和任务区域图层 | 证明数据制作 | Todo |
-| S-02 | iDesktopX 三维场景 | 展示三维 GIS 底座 | Todo |
-| S-03 | iServer 管理页面 | 证明服务发布 | Todo |
-| S-04 | iServer 三维服务详情页 | 证明三维服务 URL | Todo |
-| S-05 | iServer 数据服务详情页 | 证明风险区/障碍物服务 | Todo |
+| S-01 | iDesktopX 工作空间和任务区域图层 | 证明数据制作 | Partial：已有 iObjectSpy 地图预览，仍建议补 GUI 截图 |
+| S-02 | iDesktopX 项目三维场景 | 展示项目自建三维 GIS 底座 | Doing：3D-low_altitude_demo 制作中 |
+| S-03 | iServer map/data 服务页面 | 证明项目服务发布 | Done：map/data REST 截图已归档 |
+| S-04 | iServer 项目三维服务详情页 | 证明项目自建三维服务 URL | Todo：待 3D-low_altitude_demo 发布 |
+| S-05 | iServer 数据服务详情页 | 证明风险区/障碍物等 8 个业务数据集 | Done：data datasets 截图已归档 |
 
 ## 2. 系统工作台截图
 
 | 编号 | 截图 | 用途 | 状态 |
 |---|---|---|---|
-| S-06 | 前端工作台全景 | PPT 首页/系统总览 | Todo |
+| S-06 | 前端工作台全景 | PPT 首页/系统总览 | Done：`frontend_supermap_workspace.png` |
 | S-07 | 任务和图层面板 | 展示任务配置 | Todo |
-| S-08 | 任务区域、风险区、障碍物 | 展示空间环境 | Todo |
+| S-08 | 任务区域、风险区、障碍物 | 展示空间环境 | Partial：前端工作台全景可覆盖，仍建议补局部特写 |
 | S-09 | 三条候选航线 | 展示航线规划 | Todo |
 | S-10 | 航线评分面板 | 展示可解释评分 | Todo |
 | S-11 | 高程剖面 | 展示地形约束 | Todo |
@@ -57,10 +57,9 @@ screenshots/S-15_replanning_compare.png
 | PPT 页 | 推荐截图 |
 |---|---|
 | 第 1 页 | S-06 或 S-02 |
-| 第 5 页 | S-01、S-03、S-04 |
+| 第 5 页 | S-01、S-03、S-05；S-04 等项目自建 3D 发布后补入 |
 | 第 6 页 | S-09 |
 | 第 7 页 | S-10、S-11、S-12 |
 | 第 8 页 | S-14、S-15 |
 | 第 9 页 | S-16、S-17、S-18 |
 | 第 10 页 | S-19 或项目目录 |
-

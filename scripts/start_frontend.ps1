@@ -5,7 +5,12 @@ param(
 $ErrorActionPreference = "Stop"
 $ProjectRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
 $FrontendDir = Join-Path $ProjectRoot "frontend"
+$LocalVite = Join-Path $FrontendDir "node_modules\.bin\vite.cmd"
 
 Set-Location $FrontendDir
-npm run dev -- --port $Port
+if (Test-Path -LiteralPath $LocalVite) {
+  & $LocalVite --host 0.0.0.0 --port $Port
+  exit $LASTEXITCODE
+}
 
+npm run dev -- --port $Port

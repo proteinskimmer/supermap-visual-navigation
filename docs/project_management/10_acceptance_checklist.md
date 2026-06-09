@@ -1,5 +1,32 @@
 # 阶段验收与最终提交清单
 
+## 2026-06-09 监督复核状态
+
+当前已通过并可作为阶段证据：
+
+- [x] iDesktopX 2025 本机安装、许可状态和 `CBD` 样例三维场景截图已归档。
+- [x] iServer 2025U1A 本机安装、8090 端口、管理页、服务列表和帮助页已验收。
+- [x] iClient3D SDK、`supermap-minimal.html`、WebGL2、Viewer 创建和官方 `3D-CBD` 的 `scene.open(sceneUrl)` 已截图验收。
+- [x] 前端项目工作台已在 SuperMap 三维场景上叠加候选航线、风险区、视觉候选区、起终点等业务图形。
+- [x] `low_altitude_demo.smwu` 工作空间已保存。
+- [x] 项目自建 `map-low_altitude_demo` 地图服务已发布并返回 `low_altitude_demo_map`。
+- [x] 项目自建 `data-low_altitude_demo` 数据服务已发布 8 个业务数据集。
+- [x] 项目自建 `3D-low_altitude_demo` 三维服务已发布，`scenes.json` 可访问并包含 `low_altitude_demo` 场景标记。
+- [x] 前端/后端 SuperMap 配置已切换为项目自建 scene/map/data 服务，`/api/supermap/services` 三项状态为 `verified`。
+- [x] `scripts/check_low_altitude_demo_publish_ready.ps1` 通过。
+- [x] `scripts/check_low_altitude_3d_gate.ps1` 通过。
+- [x] `scripts/check_supermap_delivery_gate.ps1` 通过。
+- [x] `scripts/check_project_runtime.ps1` 通过，包含前端 build、后端测试和增强 smoke。
+- [x] `scripts/check_supermap_goal_evidence.ps1 -Strict` 通过，SuperMap 目标证据完整。
+- [x] `scripts/prepare_submission_package.ps1` 通过，已生成 `release/low_altitude_demo_submission/` 阶段证据包，版本为 `v0.3-supermap-verified`。
+- [x] `scripts/check_git_artifact_policy.ps1` 通过，已建立源码/证据文档入 Git、release/本地二进制/临时产物不入 Git 的归属策略。
+
+当前仍未通过，禁止在材料中写成已完成：
+
+- [ ] 完整演示闭环截图尚未按清单命名和说明。
+- [ ] PPT、演示视频和最终比赛提交包尚未完成；当前 release 只能作为阶段证据包和答辩材料整理基线。
+- [ ] 视觉输入仍是演示占位图，不是真实航拍图。
+
 ## M1 环境与 SuperMap 底座验收
 
 - [ ] iDesktopX 2025 安装完成。
@@ -45,12 +72,18 @@
 ## M5 视觉匹配验收
 
 - [x] 至少准备 3 张示例输入图元数据。
+- [x] 至少准备 1 张低置信度/需人工复核样例。
 - [ ] 至少准备 3 张真实示例输入图文件。
 - [x] 每张图有候选匹配区域。
 - [x] 结果包含置信度。
 - [x] 结果包含匹配点数量或可解释指标。
+- [x] 前端可以显示输入图占位小窗。
 - [ ] 前端可以显示真实输入图。
+- [x] 前端可以切换 Top 1、Top 2、Top 3 候选。
 - [x] 前端可以在 mock 三维/二维场景高亮候选区域。
+- [x] 视觉匹配事件可以写入底部事件日志。
+- [x] 任务报告包含视觉匹配摘要。
+- [x] 后端保留 provider 抽象接入点。
 - [ ] 前端在安装依赖后完成真实运行验收。
 - [x] 答辩口径明确：视觉定位辅助，不是飞控控制。
 

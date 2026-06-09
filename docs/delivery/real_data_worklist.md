@@ -2,6 +2,18 @@
 
 本清单用于从 mock 数据过渡到真实 SuperMap GIS 数据。真实数据不必一次到位，优先满足可演示、可解释、可发布。
 
+详细下发给组员的数据采集任务书见：
+
+```text
+docs/project_management/14_real_data_collection_guide.md
+```
+
+组员提交目录建议为：
+
+```text
+data_sources/低空巡检示范区_YYYYMMDD/
+```
+
 ## 1. 任务区域选择标准
 
 优先选择满足以下条件的区域：
@@ -130,4 +142,3 @@ config/supermap_services.local.json
 - 前端能加载或至少记录服务 URL。
 - 航线、风险区、障碍物位置一致。
 - 数据来源和用途能在答辩中说明。
-

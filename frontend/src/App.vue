@@ -21,6 +21,10 @@ const visionResult = ref(null);
 const visionImages = ref([]);
 const visionTiles = ref([]);
 const selectedVisionImageId = ref("demo_uav_001");
+const visionTopK = ref(3);
+const supermapConfig = ref(null);
+const supermapStatus = ref(null);
+const supermapRefreshing = ref(false);
 const reportResult = ref(null);
 const loading = ref("初始化");
 const actionError = ref("");
@@ -44,6 +48,16 @@ const events = computed(() => {
   const extra = [];
   if (temporaryRisk.value?.event) extra.push(temporaryRisk.value.event);
   if (replannedRoute.value?.event) extra.push(replannedRoute.value.event);
+  if (visionResult.value && bestVisionCandidate.value) {
+    const confidence = Math.round(bestVisionCandidate.value.confidence * 100);
+    extra.push({
+      time_s: selectedVisionImage.value?.capture_time_s || 0,
+      type: "vision_match",
+      title: bestVisionCandidate.value.confidence < 0.5 ? "视觉匹配需要复核" : "视觉匹配完成",
+      description: `最优候选 ${bestVisionCandidate.value.tile_id}，置信度 ${confidence}%，匹配点 ${bestVisionCandidate.value.matched_points}。`,
+      position: bestVisionCandidate.value.center,
+    });
+  }
   return [...base, ...extra].sort((a, b) => a.time_s - b.time_s);
 });
 
@@ -103,9 +117,16 @@ async function initialize() {
       return;
     }
     const taskId = tasks.value[0].id;
-    const [detail, layerList] = await Promise.all([api.taskDetail(taskId), api.layers()]);
+    const [detail, layerList, supermap, supermapRuntime] = await Promise.all([
+      api.taskDetail(taskId),
+      api.layers(),
+      api.supermapConfig().catch(() => null),
+      api.supermapStatus().catch(() => null),
+    ]);
     taskDetail.value = detail;
     layers.value = layerList;
+    supermapConfig.value = supermap;
+    supermapStatus.value = supermapRuntime;
     await loadVisionFrameworkData(taskId);
     await planRoutes();
     await runVisionMatch();
@@ -239,7 +260,7 @@ async function runVisionMatch() {
     visionResult.value = await api.visionMatch({
       task_id: selectedTask.value?.id || "task_001",
       image_id: selectedVisionImageId.value,
-      top_k: 3,
+      top_k: visionTopK.value,
       algorithm_mode: "precomputed",
     });
   });
@@ -247,6 +268,11 @@ async function runVisionMatch() {
 
 async function selectVisionImage(imageId) {
   selectedVisionImageId.value = imageId;
+  await runVisionMatch();
+}
+
+async function updateVisionTopK(topK) {
+  visionTopK.value = topK;
   await runVisionMatch();
 }
 
@@ -259,6 +285,19 @@ async function loadReport() {
     reportResult.value = await api.report(selectedTask.value.id);
     activeView.value = "report";
   });
+}
+
+async function refreshSuperMapStatus() {
+  await runAction("检测 SuperMap 服务", async () => {
+    supermapRefreshing.value = true;
+    const [supermap, supermapRuntime] = await Promise.all([
+      api.supermapConfig().catch(() => supermapConfig.value),
+      api.supermapStatus(),
+    ]);
+    supermapConfig.value = supermap;
+    supermapStatus.value = supermapRuntime;
+  });
+  supermapRefreshing.value = false;
 }
 
 onMounted(initialize);
@@ -298,6 +337,9 @@ onBeforeUnmount(() => {
       <TaskSidebar
         :tasks="tasks"
         :layers="layers"
+        :supermap-config="supermapConfig"
+        :supermap-status="supermapStatus"
+        :supermap-refreshing="supermapRefreshing"
         :vision-images="visionImages"
         :selected-vision-image-id="selectedVisionImageId"
         :selected-task="selectedTask"
@@ -314,6 +356,7 @@ onBeforeUnmount(() => {
         @reset-simulation="resetSimulation"
         @open-report="loadReport"
         @select-vision-image="selectVisionImage"
+        @refresh-supermap="refreshSuperMapStatus"
       />
 
       <section class="map-stage">
@@ -335,6 +378,7 @@ onBeforeUnmount(() => {
           :vision-result="visionResult"
           :vision-tiles="visionTiles"
           :current-point="currentPoint"
+          :supermap-config="supermapConfig"
         />
         <EmptyState v-else title="任务区域未加载" message="等待后端任务详情和图层配置。" />
       </section>
@@ -346,7 +390,11 @@ onBeforeUnmount(() => {
         :vision-result="visionResult"
         :selected-vision-image="selectedVisionImage"
         :best-vision-candidate="bestVisionCandidate"
+        :vision-tiles="visionTiles"
+        :vision-top-k="visionTopK"
         @select-route="selectRoute"
+        @update-vision-top-k="updateVisionTopK"
+        @run-vision-match="runVisionMatch"
       />
     </section>
 

@@ -149,6 +149,21 @@
       },
       "scene_tags": ["launch-area", "field", "road"],
       "expected_center": [116.1325, 39.1365, 118.0]
+    },
+    {
+      "id": "demo_uav_004",
+      "task_id": "task_001",
+      "name": "烟雾遮挡低置信视角 04",
+      "query_image": "/demo/uav_view_004.jpg",
+      "capture_time_s": 168,
+      "resolution": [1280, 720],
+      "camera": {
+        "fov_deg": 70,
+        "height_m": 128,
+        "pitch_deg": -40
+      },
+      "scene_tags": ["smoke", "vegetation", "low-texture"],
+      "expected_center": [116.1885, 39.1740, 128.0]
     }
   ],
   "vision_tile_index": [
@@ -413,6 +428,71 @@
           "offset_m": [122.0, 88.0],
           "status": "rejected",
           "reason": "纹理召回但几何一致性未通过"
+        }
+      ]
+    },
+    {
+      "match_id": "match_demo_004",
+      "task_id": "task_001",
+      "image_id": "demo_uav_004",
+      "query_image": "/demo/uav_view_004.jpg",
+      "provider": "precomputed_demo",
+      "status": "needs_review",
+      "algorithm_trace": [
+        "image_normalize",
+        "tile_retrieve_top3",
+        "local_feature_match",
+        "ransac_verify",
+        "manual_review_required"
+      ],
+      "candidates": [
+        {
+          "tile_id": "tile_034",
+          "confidence": 0.46,
+          "matched_points": 42,
+          "inlier_ratio": 0.29,
+          "bbox": [
+            [116.1670, 39.1560],
+            [116.1840, 39.1560],
+            [116.1840, 39.1710],
+            [116.1670, 39.1710]
+          ],
+          "center": [116.1755, 39.1635, 125.0],
+          "offset_m": [-31.8, -24.1],
+          "status": "needs_review",
+          "reason": "烟雾遮挡导致道路边缘不完整，最高置信度低于复核阈值"
+        },
+        {
+          "tile_id": "tile_041",
+          "confidence": 0.39,
+          "matched_points": 34,
+          "inlier_ratio": 0.22,
+          "bbox": [
+            [116.1970, 39.1775],
+            [116.2140, 39.1775],
+            [116.2140, 39.1925],
+            [116.1970, 39.1925]
+          ],
+          "center": [116.2055, 39.1850, 132.0],
+          "offset_m": [51.5, 30.2],
+          "status": "rejected",
+          "reason": "建筑纹理被遮挡后几何一致性不足"
+        },
+        {
+          "tile_id": "tile_052",
+          "confidence": 0.33,
+          "matched_points": 27,
+          "inlier_ratio": 0.18,
+          "bbox": [
+            [116.2120, 39.1945],
+            [116.2290, 39.1945],
+            [116.2290, 39.2095],
+            [116.2120, 39.2095]
+          ],
+          "center": [116.2205, 39.2020, 130.0],
+          "offset_m": [79.0, 62.4],
+          "status": "rejected",
+          "reason": "粗检索召回但局部特征匹配点过少"
         }
       ]
     }

@@ -1,0 +1,52 @@
+{
+    "type":  "FeatureCollection",
+    "name":  "obstacle",
+    "crs":  {
+                "type":  "name",
+                "properties":  {
+                                   "name":  "urn:ogc:def:crs:OGC:1.3:CRS84"
+                               }
+            },
+    "features":  [
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              116.1320,
+                                                              39.1600,
+                                                              185.0
+                                                          ],
+                                          "type":  "Point"
+                                      },
+                         "properties":  {
+                                            "id":  "obs_tower_001",
+                                            "name":  "通信塔",
+                                            "altitude_m":  185.0,
+                                            "source":  "task_demo_json",
+                                            "height_m":  65,
+                                            "buffer_m":  80,
+                                            "obstacle_type":  "tower"
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              116.2040,
+                                                              39.1310,
+                                                              160.0
+                                                          ],
+                                          "type":  "Point"
+                                      },
+                         "properties":  {
+                                            "id":  "obs_building_001",
+                                            "name":  "高层建筑",
+                                            "altitude_m":  160.0,
+                                            "source":  "task_demo_json",
+                                            "height_m":  52,
+                                            "buffer_m":  60,
+                                            "obstacle_type":  "building"
+                                        }
+                     }
+                 ]
+}

@@ -1,5 +1,6 @@
 param(
-  [string]$PythonExe = "python"
+  [string]$PythonExe = "python",
+  [string[]]$PythonArgs = @()
 )
 
 $ErrorActionPreference = "Stop"
@@ -100,10 +101,12 @@ print("[api] FastAPI contract ok")
 print("[smoke] full backend smoke passed")
 '@
 
-$TempScript = Join-Path ([System.IO.Path]::GetTempPath()) "supermap_backend_smoke_full.py"
+$TempDir = Join-Path $ProjectRoot ".tmp"
+$TempScript = Join-Path $TempDir "supermap_backend_smoke_full.py"
 try {
+  New-Item -ItemType Directory -Force -Path $TempDir | Out-Null
   Set-Content -LiteralPath $TempScript -Value $SmokeCode -Encoding UTF8
-  & $PythonExe $TempScript
+  & $PythonExe @PythonArgs $TempScript
   if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
   }

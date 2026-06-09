@@ -1,0 +1,9 @@
+﻿{
+    "generated_at":  "2026-06-09T11:53:02",
+    "source_xml":  "E:\\supermap_software\\supermap-iserver-2025u1a-windows-x64-all\\webapps\\iserver\\WEB-INF\\iserver-services.xml",
+    "staged_xml":  "E:\\supermap_project\\docs\\supermap_integration\\generated\\iserver-services.with-3D-low_altitude_demo.staged.xml",
+    "scene_service_name":  "3D-low_altitude_demo",
+    "workspace_path_in_iserver":  "${fileManagerWorkDir}/demo_workspace_3d_auto/low_altitude_demo.smwu",
+    "strict_status":  "staged only; not applied to iServer. Applying requires backup, controlled merge, restart, and REST gate.",
+    "next_gate":  "Run scripts/check_low_altitude_3d_gate.ps1 after controlled publish."
+}

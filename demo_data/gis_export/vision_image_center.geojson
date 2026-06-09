@@ -1,0 +1,100 @@
+{
+    "type":  "FeatureCollection",
+    "name":  "vision_image_center",
+    "crs":  {
+                "type":  "name",
+                "properties":  {
+                                   "name":  "urn:ogc:def:crs:OGC:1.3:CRS84"
+                               }
+            },
+    "features":  [
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              116.1755,
+                                                              39.1635,
+                                                              125.0
+                                                          ],
+                                          "type":  "Point"
+                                      },
+                         "properties":  {
+                                            "source":  "vision_expected_center",
+                                            "query_image":  "/demo/uav_view_001.jpg",
+                                            "id":  "demo_uav_001",
+                                            "pitch_deg":  -38,
+                                            "altitude_m":  125.0,
+                                            "name":  "河谷巡检视角 01",
+                                            "task_id":  "task_001",
+                                            "fov_deg":  74,
+                                            "capture_time_s":  74
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              116.2055,
+                                                              39.1850,
+                                                              132.0
+                                                          ],
+                                          "type":  "Point"
+                                      },
+                         "properties":  {
+                                            "source":  "vision_expected_center",
+                                            "query_image":  "/demo/uav_view_002.jpg",
+                                            "id":  "demo_uav_002",
+                                            "pitch_deg":  -42,
+                                            "altitude_m":  132.0,
+                                            "name":  "居民区边缘视角 02",
+                                            "task_id":  "task_001",
+                                            "fov_deg":  68,
+                                            "capture_time_s":  126
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              116.1325,
+                                                              39.1365,
+                                                              118.0
+                                                          ],
+                                          "type":  "Point"
+                                      },
+                         "properties":  {
+                                            "source":  "vision_expected_center",
+                                            "query_image":  "/demo/uav_view_003.jpg",
+                                            "id":  "demo_uav_003",
+                                            "pitch_deg":  -35,
+                                            "altitude_m":  118.0,
+                                            "name":  "起飞区回看视角 03",
+                                            "task_id":  "task_001",
+                                            "fov_deg":  72,
+                                            "capture_time_s":  38
+                                        }
+                     },
+                     {
+                         "type":  "Feature",
+                         "geometry":  {
+                                          "coordinates":  [
+                                                              116.1885,
+                                                              39.1740,
+                                                              128.0
+                                                          ],
+                                          "type":  "Point"
+                                      },
+                         "properties":  {
+                                            "source":  "vision_expected_center",
+                                            "query_image":  "/demo/uav_view_004.jpg",
+                                            "id":  "demo_uav_004",
+                                            "pitch_deg":  -40,
+                                            "altitude_m":  128.0,
+                                            "name":  "烟雾遮挡低置信视角 04",
+                                            "task_id":  "task_001",
+                                            "fov_deg":  70,
+                                            "capture_time_s":  168
+                                        }
+                     }
+                 ]
+}

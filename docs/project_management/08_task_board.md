@@ -133,3 +133,21 @@
 4. `R5-03` 和 `R5-05` 风险/重规划接入融合位置与事件流。
 5. `R6` 真实或半真实数据替换。
 6. `R7` 截图、PPT、视频、彩排。
+
+## R8 v0.5 真实视觉定位开发
+
+v0.5 从 `v0.4` 标签继续开发，目标是把“预计算代理视觉定位”升级为“真实匹配 provider + 合成视图 + 可量化误差评估”的视觉自主导航原型。
+
+| ID | 任务 | 负责人 | 状态 | 依赖 | 验收标准 |
+|---|---|---|---|---|---|
+| R8-01 | 建立 v0.5 开发计划 | 统筹 | Done | v0.4 | `docs/project_management/17_v05_development_plan.md` 已创建 |
+| R8-02 | 检查 OpenCV 环境 | 后端/视觉 | Runtime Verified | v0.4 | `supermap_nav` 当前无法导入 `cv2`，已记录为 v0.5 依赖缺口 |
+| R8-03 | 新增视觉 matcher provider 抽象 | 后端/视觉 | Runtime Verified | R8-02 | `precomputed_proxy` 兼容现有 v0.4；`opencv_orb/opencv_sift/external_deep_matcher` 已可通过 provider 状态和 unavailable 响应表达 |
+| R8-04 | 实现 OpenCV ORB 最小匹配 | 视觉/后端 | Todo | R8-03 | 输出关键点数、匹配点数、内点率、偏移估计和失败原因 |
+| R8-05 | 接入 SIFT 或可选深度 matcher provider | 视觉 | Todo | R8-03/R8-04 | 若环境支持，提供 `opencv_sift`；LoFTR/LightGlue 仅作为外部接口预留 |
+| R8-06 | 生成 v0.5 合成视图 | GIS/视觉 | Todo | R6 | 基于正射影像裁剪、航向旋转、视场近似生成候选视图 |
+| R8-07 | DEM/建筑参与合成视图增强 | GIS/视觉 | Todo | R8-06 | DEM/建筑高度至少进入 metadata 和可视化解释，时间允许再做投影近似 |
+| R8-08 | 真实匹配结果进入导航融合 | 后端 | Todo | R8-04 | `visual_position` 可由真实 matcher 输出驱动，失败时降级 v0.4 proxy |
+| R8-09 | 前端显示匹配证据 | 前端 | Todo | R8-04/R8-08 | 显示 UAV 图、合成视图、匹配证据图、provider、置信度和误差半径 |
+| R8-10 | 定位误差与轨迹偏差报告 | 后端/材料 | Todo | R8-08 | 报告包含平均误差、最大误差、复核帧、provider 成功/失败统计 |
+| R8-11 | v0.5 验收脚本 | 后端/前端 | Todo | R8-08/R8-09 | 一键验证 matcher、导航、build、DOM/截图和报告字段 |

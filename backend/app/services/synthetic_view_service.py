@@ -9,6 +9,13 @@ from fastapi import HTTPException
 
 from app.services.data_store import get_demo_data, get_task
 from app.services.geometry import lonlat_to_xy, point_in_polygon, xy_to_lonlat
+from app.services.vision_matcher_provider import (
+    is_precomputed_matcher,
+    is_supported_matcher,
+    normalize_matcher_mode,
+    provider_name,
+    unavailable_reason,
+)
 from app.services.vision_service import get_match_result, list_query_images, list_tile_index
 
 
@@ -73,10 +80,17 @@ def localize_with_synthetic_views(
     route_prior_pose: dict | None = None,
     top_k_tiles: int = 3,
     image_override: dict | None = None,
+    matcher_mode: str = "synthetic_v04",
 ) -> dict:
     task = _task_or_404(task_id)
     origin = _origin(task)
     response = build_synthetic_view_response(task_id, image_id, initial_pose, route_prior_pose, top_k_tiles, image_override)
+    normalized_matcher = normalize_matcher_mode(matcher_mode)
+    if not is_supported_matcher(normalized_matcher):
+        raise HTTPException(status_code=400, detail=f"unsupported matcher mode: {matcher_mode}")
+    if not is_precomputed_matcher(normalized_matcher):
+        return _unavailable_real_matcher_localization(task_id, image_id, response, normalized_matcher)
+
     match_result = _match_result_from_synthetic_views(response) if image_override else get_match_result(task_id, image_id, top_k_tiles)
     view_by_tile = {view["tile_id"]: view for view in response["synthetic_views"]}
     matches = []
@@ -348,6 +362,31 @@ def _localization_failure_reason(best: dict | None) -> str:
     if best["confidence"] < 0.5:
         return best.get("failure_reason") or "best synthetic-view match confidence is below threshold"
     return ""
+
+
+def _unavailable_real_matcher_localization(task_id: str, image_id: str, response: dict, matcher_mode: str) -> dict:
+    reason = unavailable_reason(matcher_mode)
+    return {
+        "localization_id": f"loc_{image_id}_{matcher_mode}_v05_unavailable",
+        "task_id": task_id,
+        "image_id": image_id,
+        "query_image": response["query_image"],
+        "provider": f"{provider_name(matcher_mode)}_unavailable",
+        "status": "failed",
+        "initial_pose": response["initial_pose"],
+        "route_prior_pose": response["route_prior_pose"],
+        "best_estimated_pose": None,
+        "confidence": 0,
+        "error_radius_m": 999,
+        "matched_points": 0,
+        "inlier_ratio": 0,
+        "correction_vector_m": [0.0, 0.0, 0.0],
+        "synthetic_views": response["synthetic_views"],
+        "matches": [],
+        "navigation_effect": "real matcher provider is unavailable; navigation must keep the v0.4 proxy or wait for review",
+        "failure_reason": reason,
+        "pipeline": [*PIPELINE, f"{matcher_mode}_provider_unavailable"],
+    }
 
 
 def _view_for_match(localization: dict, match: dict | None) -> dict | None:

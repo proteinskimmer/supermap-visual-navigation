@@ -1,0 +1,182 @@
+# v0.5 开发计划：真实视觉定位与可量化导航闭环
+
+版本基线：`v0.4` 标签，提交 `d282278`。
+
+v0.5 的目标不是继续把仿真动画做复杂，而是把 v0.4 的“合成视图/预计算代理链路”升级为可解释、可替换、可量化的真实视觉自主导航原型。
+
+## 1. v0.5 总目标
+
+v0.5 必须实现以下闭环：
+
+```text
+UAV 图像帧
+-> 候选区域粗检索
+-> DEM/正射影像/建筑数据生成候选合成视图
+-> 真实图像匹配或特征匹配
+-> 位姿/位置估计
+-> 误差半径与置信度评估
+-> 后端融合导航状态
+-> 三维连续飞行与参考/实际轨迹对比
+-> 报告输出定位质量证据
+```
+
+## 2. v0.5 不做什么
+
+- 不接真实飞控。
+- 不宣称真实无人机自主执行。
+- 不把单纯航线动画包装成视觉导航。
+- 不把预计算代理结果继续作为最终技术成果。
+- 不为了追求深度学习模型而破坏演示稳定性。
+
+## 3. 关键交付物
+
+| 编号 | 交付物 | 负责人 | 验收标准 |
+|---|---|---|---|
+| V5-01 | 真实视觉匹配 provider 接口 | 后端/视觉 | `matcher_mode` 可在 `precomputed_proxy`、`opencv_orb`、`opencv_sift`、`external_deep_matcher` 间切换 |
+| V5-02 | OpenCV ORB/SIFT 最小可用实现 | 视觉 | 至少能对 1 张 UAV 图与候选瓦片/合成视图输出匹配点、内点率、单应/仿射估计 |
+| V5-03 | 合成视图生成器 v0.5 | GIS/视觉 | 从正射影像、DEM、建筑高度和假设相机姿态生成候选视图图像或近似投影视图 |
+| V5-04 | 位置估计与误差模型 | 后端/视觉 | 输出 `estimated_pose`、`error_radius_m`、`confidence`、`failure_reason` |
+| V5-05 | 真实/半真实 UAV 帧数据集 | 视觉/数据 | 至少 6 帧，覆盖高置信、正常、偏差、低纹理、遮挡/变化、低置信复核 |
+| V5-06 | 轨迹误差评估 | 后端/前端 | 报告平均误差、最大误差、低置信帧数量、复核触发次数 |
+| V5-07 | 前端匹配证据面板 | 前端 | 展示真实图像、合成视图、匹配连线/关键点、置信度、误差半径 |
+| V5-08 | 演示模式降级策略 | 统筹/后端/前端 | 真实匹配失败时自动回退 v0.4 代理，但界面明确标注 provider |
+| V5-09 | v0.5 验收脚本 | 后端/前端 | 一键检查 matcher、导航、build、DOM/截图、报告字段 |
+| V5-10 | 答辩口径更新 | 材料/统筹 | 明确 v0.5 已具备真实匹配原型，仍是软件仿真验证平台 |
+
+## 4. 技术路线
+
+### 4.1 匹配 provider 分层
+
+后端保留统一接口：
+
+```text
+POST /api/vision/localize
+```
+
+新增或规范字段：
+
+```json
+{
+  "matcher_mode": "opencv_orb | opencv_sift | external_deep_matcher | precomputed_proxy",
+  "render_mode": "ortho_tile | dem_ortho_projected | dem_ortho_building_view",
+  "fallback_allowed": true
+}
+```
+
+响应必须保留 v0.4 字段，不破坏前端：
+
+```text
+best_estimated_pose
+confidence
+error_radius_m
+correction_vector_m
+matches[]
+synthetic_views[]
+provider
+failure_reason
+```
+
+### 4.2 真实匹配最小实现
+
+优先路线：
+
+1. OpenCV ORB：轻量、可解释、易部署。
+2. OpenCV SIFT：效果可能更稳，但需确认当前 OpenCV 包是否支持。
+3. LoFTR/LightGlue：作为外部 provider 预留，除非环境和时间允许，不作为 v0.5 必须项。
+
+最低验收：
+
+- 读入 UAV 图像和候选瓦片/合成视图。
+- 提取关键点和描述子。
+- KNN 或 BFMatcher 匹配。
+- Ratio test 过滤。
+- RANSAC 估计单应或仿射。
+- 输出内点率、匹配点数量、估计偏移。
+- 将偏移转换为地图坐标修正。
+
+### 4.3 合成视图生成
+
+v0.5 分两级：
+
+| 等级 | 内容 | 验收 |
+|---|---|---|
+| v0.5a | 正射影像瓦片 + 航向旋转 + 视场裁剪 | 能生成与 UAV 视角近似一致的候选视图 |
+| v0.5b | DEM 高程 + 建筑高度参与投影/遮挡近似 | 视图能体现地形起伏和建筑体块影响 |
+
+v0.5a 必须完成；v0.5b 视时间推进。
+
+## 5. 数据需求
+
+最低数据：
+
+- UAV 图像帧：6 张以上。
+- 每张图需要：
+  - `image_id`
+  - 拍摄时间 `capture_time_s`
+  - 近似经纬度/高度/航向/俯仰/横滚
+  - 图像来源说明
+  - 是否用于验收
+- 正射影像：当前 Luojia 正射影像可继续使用。
+- DEM：当前 Luojia DEM 可继续使用。
+- 建筑：当前建筑面/高度可继续使用。
+
+建议目录：
+
+```text
+data_sources/luojia_mountain/uav_frames/
+frontend/public/demo/uav_frames/
+demo_data/generated/v05_match_evidence/
+```
+
+## 6. v0.5 阶段节奏
+
+### v0.5a：真实匹配最小闭环
+
+- 加 `opencv_orb` provider。
+- 对现有瓦片或生成视图做真实特征匹配。
+- 结果接入 `visual_position`。
+- 前端显示匹配证据。
+- 允许失败回退 v0.4 proxy。
+
+验收门禁：
+
+```powershell
+python -m pytest backend/tests
+npm run build
+powershell -ExecutionPolicy Bypass -File scripts/check_backend_smoke_full.ps1
+```
+
+### v0.5b：DEM/正射影像合成视图增强
+
+- 生成带相机视场、航向、倾角的候选合成视图。
+- 使用 DEM 修正局部尺度和高度影响。
+- 建筑高度参与可视化或遮挡近似。
+- 对比 v0.4 瓦片代理和 v0.5 合成视图结果。
+
+### v0.5c：可量化报告
+
+- 生成定位误差统计。
+- 生成轨迹偏差统计。
+- 报告输出 provider、置信度、误差半径、复核帧。
+- 为答辩提供“为什么这是视觉自主导航”的证据链。
+
+## 7. 风险与兜底
+
+| 风险 | 影响 | 兜底 |
+|---|---|---|
+| UAV 图像和正射影像差异大 | 匹配点少，定位不稳 | 保留 v0.4 proxy，界面标注 provider |
+| OpenCV 环境未安装 | 后端 matcher 不可用 | provider 返回 `unavailable`，不影响导航主链路 |
+| DEM 投影视图复杂度过高 | 进度延迟 | v0.5a 先用旋转裁剪视图，v0.5b 再增强 |
+| 匹配结果抖动 | 轨迹不丝滑 | 继续由后端融合限速和前端插值承担平滑 |
+| 深度模型部署困难 | 时间不可控 | LoFTR/LightGlue 只做接口预留，不作为必须交付 |
+
+## 8. 当前下一步
+
+1. 检查当前 Python 环境是否已有 `opencv-python`。
+2. 新增 `vision_matcher_provider.py`，实现 provider 抽象。
+3. 先写 `precomputed_proxy` provider 适配现有 v0.4，保证行为不变。
+4. 再加 `opencv_orb` provider。
+5. 为 1 张 Luojia UAV 帧生成匹配证据图。
+6. 将真实匹配结果接入 `localize_with_synthetic_views` 的输出结构。
+7. 更新前端视觉证据面板。
+

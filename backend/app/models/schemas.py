@@ -303,7 +303,14 @@ class SyntheticViewMatch(BaseModel):
 
 
 class VisualLocalizationRequest(SyntheticViewRequest):
-    matcher_mode: Literal["synthetic_v04", "precomputed"] = "synthetic_v04"
+    matcher_mode: Literal[
+        "synthetic_v04",
+        "precomputed",
+        "precomputed_proxy",
+        "opencv_orb",
+        "opencv_sift",
+        "external_deep_matcher",
+    ] = "synthetic_v04"
 
 
 class VisualLocalizationResult(BaseModel):

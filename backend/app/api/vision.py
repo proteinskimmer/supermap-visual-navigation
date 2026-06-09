@@ -17,6 +17,7 @@ from app.services.synthetic_view_service import (
     get_localization,
     localize_with_synthetic_views,
 )
+from app.services.vision_matcher_provider import matcher_runtime_status
 from app.services.vision_service import (
     get_match_by_id,
     get_match_result,
@@ -35,6 +36,11 @@ def vision_images(task_id: str = Query(default="task_001")):
 @router.get("/vision/tiles", response_model=ApiResponse[list[VisionTile]])
 def vision_tiles(task_id: str = Query(default="task_001")):
     return ok(list_tile_index(task_id))
+
+
+@router.get("/vision/matchers")
+def vision_matchers():
+    return ok(matcher_runtime_status())
 
 
 @router.post("/vision/match", response_model=ApiResponse[VisionMatchResult])
@@ -73,8 +79,6 @@ def vision_synthetic_views(payload: SyntheticViewRequest):
 
 @router.post("/vision/localize", response_model=ApiResponse[VisualLocalizationResult])
 def vision_localize(payload: VisualLocalizationRequest):
-    if payload.matcher_mode not in {"synthetic_v04", "precomputed"}:
-        raise HTTPException(status_code=400, detail=f"unsupported matcher mode: {payload.matcher_mode}")
     return ok(
         localize_with_synthetic_views(
             task_id=payload.task_id,
@@ -82,6 +86,7 @@ def vision_localize(payload: VisualLocalizationRequest):
             initial_pose=payload.initial_pose.model_dump() if payload.initial_pose else None,
             route_prior_pose=payload.route_prior_pose.model_dump() if payload.route_prior_pose else None,
             top_k_tiles=payload.top_k_tiles,
+            matcher_mode=payload.matcher_mode,
         )
     )
 

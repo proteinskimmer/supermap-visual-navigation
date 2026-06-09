@@ -154,6 +154,32 @@ def test_synthetic_view_localization_contract():
     assert localization["matches"][0]["view_id"] == views["synthetic_views"][0]["view_id"]
 
 
+def test_v05_matcher_provider_status_and_unavailable_contract():
+    image = unwrap(client.get("/api/vision/images?task_id=task_001"))[0]
+    matchers = unwrap(client.get("/api/vision/matchers"))
+    assert matchers["precomputed_proxy"]["status"] == "available"
+    assert "opencv_orb" in matchers
+
+    localization = unwrap(
+        client.post(
+            "/api/vision/localize",
+            json={
+                "task_id": "task_001",
+                "image_id": image["id"],
+                "top_k_tiles": 2,
+                "matcher_mode": "opencv_orb",
+            },
+        )
+    )
+    assert localization["provider"] == "opencv_orb_unavailable"
+    assert localization["status"] == "failed"
+    assert localization["confidence"] == 0
+    assert localization["matched_points"] == 0
+    assert localization["matches"] == []
+    assert localization["synthetic_views"]
+    assert "OpenCV" in localization["failure_reason"] or "reserved for v0.5" in localization["failure_reason"]
+
+
 def test_risk_zone_edit_save_and_validation_contract(tmp_path, monkeypatch):
     temp_demo_data = tmp_path / "task_demo.json"
     temp_demo_data.write_text(data_store.DEMO_DATA_PATH.read_text(encoding="utf-8"), encoding="utf-8")

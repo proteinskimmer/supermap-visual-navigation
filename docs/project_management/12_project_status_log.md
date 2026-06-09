@@ -2036,3 +2036,58 @@
 - Strict status:
   - This is still a v0.4 synthetic-view/proxy visual localization demo.
   - Real ORB/SIFT/LoFTR/LightGlue matching and true camera-rendered synthetic views remain v0.5 work.
+
+### 2026-06-09 v0.4 Git archive and v0.5 development branch
+
+- Git archive:
+  - Current v0.4 baseline was committed as `d282278`.
+  - Commit message: `Archive visual navigation v0.4 baseline`.
+  - Annotated tag created: `v0.4`.
+- v0.4 archive scope:
+  - Luojia Mountain DEM/orthophoto/building simulation base.
+  - SuperMap/iClient3D local viewer integration and fallback gates.
+  - Synthetic-view v0.4 proxy localization APIs.
+  - Backend visual autonomous navigation timeline.
+  - Smooth fused trajectory playback and reference-vs-actual trajectory comparison.
+  - Runtime evidence screenshots and gate scripts.
+- v0.5 branch:
+  - Created branch `codex/v0.5-development` from `v0.4`.
+  - New v0.5 planning document added:
+    - `docs/project_management/17_v05_development_plan.md`.
+  - Task board now includes `R8 v0.5` tasks.
+- v0.5 development goal:
+  - Upgrade from precomputed proxy localization to a provider-based real matching prototype.
+  - First target provider: OpenCV ORB.
+  - Optional provider: OpenCV SIFT if available.
+  - Deep matchers such as LoFTR/LightGlue remain external-provider candidates, not mandatory v0.5 blockers.
+- Immediate next step:
+  - Check whether the `supermap_nav` Python environment can import `cv2`.
+  - Add a matcher provider abstraction while keeping the v0.4 `precomputed_proxy` behavior stable.
+
+### 2026-06-09 v0.5 matcher provider scaffold
+
+- Environment check:
+  - Python executable: `E:\anaconda\envs\supermap_nav\python.exe`.
+  - `cv2_available`: `False`.
+  - Conclusion: OpenCV ORB/SIFT cannot run yet in the current `supermap_nav` environment.
+- Implementation:
+  - Added `backend/app/services/vision_matcher_provider.py`.
+  - Added provider status support for:
+    - `precomputed_proxy`;
+    - `opencv_orb`;
+    - `opencv_sift`;
+    - `external_deep_matcher`.
+  - Extended `VisualLocalizationRequest.matcher_mode` to accept v0.5 provider modes.
+  - Added `GET /api/vision/matchers`.
+  - Updated `POST /api/vision/localize` so:
+    - default `synthetic_v04` behavior remains v0.4-compatible;
+    - `opencv_orb` returns a structured unavailable localization result when OpenCV is missing;
+    - the response still contains synthetic-view candidates for frontend context.
+- Verification:
+  - `backend/tests` passed: `11 passed`.
+  - `frontend npm run build` passed.
+  - `scripts/check_backend_smoke_full.ps1` passed.
+- Strict status:
+  - v0.5 has started at the provider-architecture level.
+  - Real ORB/SIFT matching is not implemented yet because OpenCV is not installed in the active environment.
+  - Next engineering step is to decide whether to install `opencv-python` into `supermap_nav` or vendor a lightweight matcher dependency path.

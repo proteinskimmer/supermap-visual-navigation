@@ -87,6 +87,7 @@ const taskDetailForDisplay = computed(() => {
     risk_zones: riskEditDraft.value || taskDetail.value.risk_zones || [],
   };
 });
+const effectiveTask = computed(() => taskDetailForDisplay.value?.task || selectedTask.value);
 const currentRouteForDisplay = computed(() => replannedRoute.value?.route || selectedRoute.value);
 const visibleSceneRoutes = computed(() =>
   routes.value.filter((route) => showShortestRoute.value || route.mode !== "shortest")
@@ -447,16 +448,17 @@ async function loadVisionFrameworkData(taskId) {
   selectedVisionImageId.value = images[0]?.id || "demo_uav_001";
 }
 
-async function planRoutes() {
-  if (!selectedTask.value) return;
+async function planRoutes(taskOverride = null) {
+  const task = taskOverride?.id ? taskOverride : effectiveTask.value;
+  if (!task) return;
   await runAction("规划航线", async () => {
     clearPreparedNavigation();
     resetSimulation();
     reportResult.value = null;
     const planned = await api.planRoutes({
-      task_id: selectedTask.value.id,
-      start: selectedTask.value.start,
-      target: selectedTask.value.target,
+      task_id: task.id,
+      start: task.start,
+      target: task.target,
       modes: ["shortest", "safest", "balanced"],
     });
     routes.value = planned;
@@ -476,6 +478,12 @@ async function analyzeSelectedRoute() {
 
 function previewTaskEndpoints(endpoints) {
   endpointEditDraft.value = endpoints;
+  clearPreparedNavigation();
+  resetSimulation();
+  routes.value = [];
+  selectedRoute.value = null;
+  riskAnalysis.value = null;
+  reportResult.value = null;
 }
 
 async function reloadTaskEndpoints() {
@@ -503,7 +511,7 @@ async function saveTaskEndpoints(endpoints) {
     visualLocalization.value = null;
     visionMatchCache.value = {};
     visualLocalizationCache.value = {};
-    await planRoutes();
+    await planRoutes(saved.task);
     await loadVisionFrameworkData(saved.task.id);
     void runVisionMatch({ silent: true });
   } catch (err) {

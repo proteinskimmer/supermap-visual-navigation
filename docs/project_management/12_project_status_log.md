@@ -2428,3 +2428,20 @@
 - Strict status:
   - Tianditu imagery is still a large-area 3D display background.
   - It is not used as visual autonomous navigation matching input.
+
+### 2026-06-14 Endpoint edit route invalidation fix
+
+- User feedback:
+  - After changing the mission start point, route planning still appeared to use the old start/target.
+- Diagnosis:
+  - The scene preview used the endpoint edit draft, so markers could move immediately.
+  - The route planning action still read `selectedTask.start` and `selectedTask.target`, which stayed at the last saved task values until the editor save completed.
+  - Old route graphics also stayed visible during endpoint editing, making the route look valid after the endpoints had changed.
+- Fix:
+  - Added an effective task source for planning that prefers the current endpoint draft.
+  - Route planning now sends the effective start/target to `/api/routes/plan`.
+  - Saving endpoints explicitly replans with the saved task returned by the backend.
+  - Editing endpoint drafts now clears stale routes, route risk analysis, prepared navigation sessions, simulation state, and report state.
+- Verification:
+  - `npm run build` passed.
+  - Direct `/api/routes/plan` check with a changed start/target returned a route whose first and last points match the submitted coordinates.

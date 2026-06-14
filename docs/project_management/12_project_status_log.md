@@ -2409,3 +2409,22 @@
   - Click the regional 3D view button and verify satellite imagery appears around the Luojia task area.
   - Save screenshot `docs/delivery/screenshots/r9_tianditu_imagery_regional_3d_context.png`.
   - Rerun the v0.5/R9 gate after visual confirmation.
+
+### 2026-06-14 R9 Tianditu basemap display fix
+
+- User feedback:
+  - The Tianditu URL/key probe passed, but the online imagery did not visibly appear in the regional 3D scene.
+- Diagnosis:
+  - The online basemap was installed as a globe imagery layer, while the project also draws a local regional terrain primitive around Luojia.
+  - The local regional terrain primitive could visually cover or dominate the globe imagery, so URL availability did not guarantee visible regional imagery.
+- Fix:
+  - Reduced the local regional terrain color material opacity.
+  - Added a regional online imagery tile overlay generated from the configured URL-template provider.
+  - Added debug state fields for online regional imagery tile count and zoom level.
+  - Added a frontend status line for visible online regional imagery tile evidence.
+- Verification:
+  - `npm run build` passed.
+  - Running backend endpoint `http://localhost:8000/api/supermap/config` returns `online_basemap.status=configured` and `provider=url_template`.
+- Strict status:
+  - Tianditu imagery is still a large-area 3D display background.
+  - It is not used as visual autonomous navigation matching input.

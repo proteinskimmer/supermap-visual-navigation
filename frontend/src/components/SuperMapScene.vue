@@ -346,6 +346,9 @@ function refreshDebugState() {
         <small v-if="debugState">
           在线底图：{{ debugState.onlineBasemapStatus }} / 在线地形：{{ debugState.onlineTerrainStatus }}
         </small>
+        <small v-if="debugState?.onlineRegionalImageryInstalled">
+          在线区域影像瓦片：{{ debugState.onlineRegionalImageryTiles }} 张 / z{{ debugState.onlineRegionalImageryZoom }}
+        </small>
         <small v-if="debugState?.terrainInstalled">
           高程地形网格：{{ debugState.terrainVertices }} 个顶点 / {{ debugState.terrainTriangles }} 个三角面
         </small>

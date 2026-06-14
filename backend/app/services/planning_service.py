@@ -1,10 +1,11 @@
 from heapq import heappop, heappush
-from math import sqrt
+from math import ceil, sqrt
 
 from app.services.geometry import (
     distance_m,
     lonlat_to_xy,
     point_in_polygon,
+    point_to_segment_distance_m,
     polyline_distance_m,
     xy_to_lonlat,
 )
@@ -51,6 +52,7 @@ def _plan_single_route(task: dict, risk_zones: list[dict], mode: str) -> dict:
     if route_points:
         route_points[0] = _normalize_point(task["start"])
         route_points[-1] = _normalize_point(task["target"])
+    route_points = _smooth_visible_route(route_points, risk_zones, origin)
     route_points = _simplify_collinear(route_points)
     distance = polyline_distance_m(route_points, origin)
     score = max(35, 96 - int(distance / 1000) * 2 - _route_risk_penalty(route_points, risk_zones, origin))
@@ -79,11 +81,12 @@ def _build_grid(task: dict, origin: list[float]) -> dict:
     xy_points = [lonlat_to_xy(point, origin) for point in ring]
     max_x = max(point[0] for point in xy_points)
     max_y = max(point[1] for point in xy_points)
-    cell_m = 260.0
+    span = max(max_x, max_y)
+    cell_m = max(65.0, min(110.0, span / 16.0))
     return {
         "cell_m": cell_m,
-        "cols": max(4, int(max_x / cell_m) + 1),
-        "rows": max(4, int(max_y / cell_m) + 1),
+        "cols": max(6, int(ceil(max_x / cell_m)) + 1),
+        "rows": max(6, int(ceil(max_y / cell_m)) + 1),
     }
 
 
@@ -125,7 +128,8 @@ def _astar(
         for next_cell in _neighbors(current, grid):
             next_point = _cell_to_point(next_cell, grid, origin, task["start"][2])
             move_cost = _grid_distance(current, next_cell)
-            risk_cost = _cell_risk_cost(next_point, risk_zones)
+            current_point = _cell_to_point(current, grid, origin, task["start"][2])
+            risk_cost = _segment_risk_cost(current_point, next_point, risk_zones, origin)
             bias_cost = _mode_bias_cost(next_cell, grid, mode)
             turn_cost = _turn_cost(current, next_cell, came_from.get(current), mode)
             new_cost = (
@@ -166,12 +170,75 @@ def _grid_distance(a: tuple[int, int], b: tuple[int, int]) -> float:
     return sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
 
 
-def _cell_risk_cost(point: list[float], risk_zones: list[dict]) -> float:
+def _cell_risk_cost(point: list[float], risk_zones: list[dict], origin: list[float]) -> float:
     cost = 0.0
     for zone in risk_zones:
-        if zone.get("active", True) and point_in_polygon(point, zone["polygon"]):
+        if zone.get("active", True) and _point_in_zone_or_buffer(point, zone, origin):
             cost += zone.get("level", 3) * 12
     return cost
+
+
+def _segment_risk_cost(start: list[float], end: list[float], risk_zones: list[dict], origin: list[float]) -> float:
+    cost = 0.0
+    samples = 6
+    for index in range(samples + 1):
+        ratio = index / samples
+        point = [
+            start[0] + (end[0] - start[0]) * ratio,
+            start[1] + (end[1] - start[1]) * ratio,
+            start[2] + (end[2] - start[2]) * ratio,
+        ]
+        cost += _cell_risk_cost(point, risk_zones, origin)
+    return cost
+
+
+def _smooth_visible_route(points: list[list[float]], risk_zones: list[dict], origin: list[float]) -> list[list[float]]:
+    if len(points) <= 2:
+        return points
+    smoothed = [points[0]]
+    index = 0
+    while index < len(points) - 1:
+        next_index = len(points) - 1
+        while next_index > index + 1:
+            if _segment_is_clear(points[index], points[next_index], risk_zones, origin):
+                break
+            next_index -= 1
+        smoothed.append(points[next_index])
+        index = next_index
+    return smoothed
+
+
+def _segment_is_clear(start: list[float], end: list[float], risk_zones: list[dict], origin: list[float]) -> bool:
+    segment_m = max(1.0, distance_m(start, end, origin))
+    samples = max(3, int(ceil(segment_m / 45.0)))
+    for index in range(1, samples):
+        ratio = index / samples
+        point = [
+            start[0] + (end[0] - start[0]) * ratio,
+            start[1] + (end[1] - start[1]) * ratio,
+            start[2] + (end[2] - start[2]) * ratio,
+        ]
+        for zone in risk_zones:
+            if zone.get("active", True) and _point_in_zone_or_buffer(point, zone, origin):
+                return False
+    return True
+
+
+def _point_in_zone_or_buffer(point: list[float], zone: dict, origin: list[float]) -> bool:
+    polygon = zone.get("polygon", [])
+    if not polygon:
+        return False
+    if point_in_polygon(point, polygon):
+        return True
+    buffer_m = float(zone.get("buffer_m", 0) or 0)
+    if buffer_m <= 0:
+        return False
+    ring = polygon[:-1] if polygon[0] == polygon[-1] else polygon
+    for index, start in enumerate(ring):
+        end = ring[(index + 1) % len(ring)]
+        if point_to_segment_distance_m(point, start, end, origin) <= buffer_m:
+            return True
+    return False
 
 
 def _route_risk_penalty(points: list[list[float]], risk_zones: list[dict], origin: list[float]) -> int:

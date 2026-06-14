@@ -2445,3 +2445,29 @@
 - Verification:
   - `npm run build` passed.
   - Direct `/api/routes/plan` check with a changed start/target returned a route whose first and last points match the submitted coordinates.
+
+### 2026-06-14 Endpoint route quality and active vision-frame refresh fix
+
+- User feedback:
+  - After changing the mission start/target, the generated route still did not meet the expected route behavior.
+  - The right-side visual matching frame information did not refresh with the current navigation/frame state.
+- Planning diagnosis:
+  - The route planner used a coarse 260m grid, which was too sparse for the Luojia task area.
+  - Risk zones were only checked by polygon interior; configured `buffer_m` safety margins were not part of planning cost or line-of-sight smoothing.
+- Planning fix:
+  - Changed route grid resolution to an adaptive small-area grid, about 65-110m per cell.
+  - Added segment-level risk sampling during A* expansion.
+  - Added route line-of-sight smoothing that keeps shortcuts only when they avoid active risk zones and their buffers.
+  - Route endpoints remain exact user-provided coordinates after smoothing.
+- Vision/UI diagnosis:
+  - Visual matching caches were keyed only by task/image/topK, so endpoint/route changes could reuse stale visual results.
+  - The right-side visual frame display preferred the manual selected image over the active navigation frame, so playback could show stale frame metadata.
+- Vision/UI fix:
+  - Added route signature into the visual match/localization cache key.
+  - Invalidated pending visual requests, cached matches, cached localization, and current visual results when route endpoints or route planning change.
+  - Right-side visual frame display now prioritizes `navigationState.visual_frame` from the active navigation timeline.
+  - Route planning triggers an async visual refresh for the current route signature.
+- Verification:
+  - `npm run build` passed.
+  - `E:\anaconda\envs\supermap_nav\python.exe -m pytest backend/tests/test_mock_api.py -q` passed: `10 passed`.
+  - Changed endpoint sample returned exact first/last route points and a 4-point route around the risk buffer.

@@ -94,9 +94,24 @@ const visibleSceneRoutes = computed(() =>
 );
 const isPlaying = computed(() => Boolean(playFrame.value));
 const activeVisionImageId = computed(() => navigationState.value?.active_frame_id || selectedVisionImageId.value);
+const activeNavigationVisionImage = computed(() => {
+  const frame = navigationState.value?.visual_frame;
+  if (!frame?.image_id) return null;
+  return {
+    id: frame.image_id,
+    name: frame.name,
+    query_image: frame.query_image,
+    capture_time_s: frame.capture_time_s,
+    source: "navigation_timeline",
+    frame_trigger: "visual_fusion",
+    source_tile_id: frame.tile_id,
+    camera: { height_m: navigationState.value?.visual_position?.altitude_m },
+  };
+});
 const selectedVisionImage = computed(() =>
-  visionImages.value.find((image) => image.id === selectedVisionImageId.value) ||
+  activeNavigationVisionImage.value ||
   visionImages.value.find((image) => image.id === activeVisionImageId.value) ||
+  visionImages.value.find((image) => image.id === selectedVisionImageId.value) ||
   null
 );
 const bestVisionCandidate = computed(() => {
@@ -454,6 +469,7 @@ async function planRoutes(taskOverride = null) {
   await runAction("规划航线", async () => {
     clearPreparedNavigation();
     resetSimulation();
+    invalidateVisionState();
     reportResult.value = null;
     const planned = await api.planRoutes({
       task_id: task.id,
@@ -465,6 +481,7 @@ async function planRoutes(taskOverride = null) {
     selectedRoute.value = planned.find((route) => route.mode === "balanced") || planned[0] || null;
     await analyzeSelectedRoute();
     scheduleNavigationPreparation();
+    void runVisionMatch({ silent: true });
   });
 }
 
@@ -480,6 +497,7 @@ function previewTaskEndpoints(endpoints) {
   endpointEditDraft.value = endpoints;
   clearPreparedNavigation();
   resetSimulation();
+  invalidateVisionState();
   routes.value = [];
   selectedRoute.value = null;
   riskAnalysis.value = null;
@@ -507,10 +525,7 @@ async function saveTaskEndpoints(endpoints) {
     endpointEditDraft.value = null;
     temporaryRisk.value = null;
     replannedRoute.value = null;
-    visionResult.value = null;
-    visualLocalization.value = null;
-    visionMatchCache.value = {};
-    visualLocalizationCache.value = {};
+    invalidateVisionState();
     await planRoutes(saved.task);
     await loadVisionFrameworkData(saved.task.id);
     void runVisionMatch({ silent: true });
@@ -785,8 +800,32 @@ async function triggerTemporaryRisk() {
   });
 }
 
+function invalidateVisionState() {
+  visionRequestToken += 1;
+  pendingVisionMatchRequests.clear();
+  pendingVisualLocalizationRequests.clear();
+  visionResult.value = null;
+  visualLocalization.value = null;
+  visionMatchCache.value = {};
+  visualLocalizationCache.value = {};
+}
+
+function routeSignature() {
+  const route = currentRouteForDisplay.value;
+  if (!route?.points?.length) {
+    const task = effectiveTask.value;
+    return [
+      task?.start?.join(",") || "",
+      task?.target?.join(",") || "",
+    ].join(">");
+  }
+  const first = route.points[0]?.join(",") || "";
+  const last = route.points[route.points.length - 1]?.join(",") || "";
+  return `${route.id}|${first}>${last}|${route.points.length}|${route.distance_m}`;
+}
+
 function visionCacheKey(imageId) {
-  return `${selectedTask.value?.id || "task_001"}|${imageId}|${visionTopK.value}`;
+  return `${selectedTask.value?.id || "task_001"}|${routeSignature()}|${imageId}|${visionTopK.value}`;
 }
 
 function applyImmediateVisionMatch(imageId) {
@@ -849,8 +888,9 @@ function tileGridDistance(tile, row, col) {
 
 async function runVisionMatch(options = {}) {
   const execute = async () => {
-    const imageId = visionImages.value.some((image) => image.id === selectedVisionImageId.value)
-      ? selectedVisionImageId.value
+    const requestedImageId = activeVisionImageId.value || selectedVisionImageId.value;
+    const imageId = visionImages.value.some((image) => image.id === requestedImageId) || activeNavigationVisionImage.value?.id === requestedImageId
+      ? requestedImageId
       : visionImages.value[0]?.id || "demo_uav_001";
     selectedVisionImageId.value = imageId;
     applyImmediateVisionMatch(imageId);

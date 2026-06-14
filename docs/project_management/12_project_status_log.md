@@ -2373,3 +2373,23 @@
   - R9 now provides a locally connected regional 3D context.
   - It is still not a verified online high-precision regional dataset.
   - Visual navigation remains locked to local Luojia high-precision data.
+
+### 2026-06-14 R9 online imagery basemap integration plan
+
+- User decision:
+  - The user will try to obtain a valid online imagery/map service URL.
+  - The project side should prepare the plan, configuration contract, acceptance gate, and strict wording first.
+- Planning document:
+  - Added `docs/supermap_integration/10_online_imagery_basemap_plan.md`.
+- Architecture boundary:
+  - Online imagery/terrain is only the dynamic large-area 3D display background.
+  - Local Luojia DEM, orthophoto, buildings, UAV frames, and ORB evidence remain the authoritative visual autonomous navigation data source.
+  - Online basemap must not be claimed as high-precision visual navigation input unless separately verified.
+- URL information to collect:
+  - provider name, service type, full URL or tile template, token/key, coverage, CRS/tiling scheme, image type, license, CORS/browser access, max zoom, and attribution.
+- Pending acceptance after URL is available:
+  - update `config/supermap_services.local.json`;
+  - verify `online_basemap` installs in the browser;
+  - confirm the regional 3D context connects with the local Luojia scene;
+  - save screenshot `docs/delivery/screenshots/r9_online_imagery_regional_3d_context.png`;
+  - rerun the v0.5/R9 gate.

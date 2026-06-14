@@ -1,4 +1,11 @@
-from app.services.geometry import distance_m, point_in_polygon, point_to_segment_distance_m, polyline_distance_m
+from app.services.geometry import (
+    distance_m,
+    point_in_polygon,
+    point_to_segment_distance_m,
+    polyline_distance_m,
+    segment_intersects_polygon,
+    segment_to_polygon_distance_m,
+)
 
 
 def analyze_route(task: dict, route: dict, risk_zones: list[dict], obstacles: list[dict]) -> dict:
@@ -6,22 +13,28 @@ def analyze_route(task: dict, route: dict, risk_zones: list[dict], obstacles: li
     segments = []
     score = 100
 
-    for index, point in enumerate(route["points"]):
+    for segment_index in range(len(route["points"]) - 1):
+        start = route["points"][segment_index]
+        end = route["points"][segment_index + 1]
         for zone in risk_zones:
-            if zone.get("active", True) and point_in_polygon(point, zone["polygon"]):
-                deduct = zone.get("level", 3) * 6
-                score -= deduct
-                segments.append(
-                    {
-                        "segment_id": f"risk_zone_{index}_{zone['id']}",
-                        "start_index": max(0, index - 1),
-                        "end_index": min(len(route["points"]) - 1, index + 1),
-                        "risk_type": zone["type"],
-                        "risk_level": "high" if zone.get("level", 3) >= 4 else "medium",
-                        "reason": f"航线经过或贴近{zone['name']}",
-                        "deduct_score": deduct,
-                    }
-                )
+            if not zone.get("active", True):
+                continue
+            hit_type = _risk_segment_hit_type(start, end, zone, origin)
+            if not hit_type:
+                continue
+            deduct = zone.get("level", 3) * (10 if hit_type == "inside" else 6)
+            score -= deduct
+            segments.append(
+                {
+                    "segment_id": f"risk_zone_{segment_index}_{zone['id']}",
+                    "start_index": segment_index,
+                    "end_index": segment_index + 1,
+                    "risk_type": zone["type"],
+                    "risk_level": "high" if zone.get("level", 3) >= 4 else "medium",
+                    "reason": f"航线{'穿越' if hit_type == 'inside' else '贴近'}{zone['name']}及安全缓冲区",
+                    "deduct_score": deduct,
+                }
+            )
 
     for segment_index in range(len(route["points"]) - 1):
         start = route["points"][segment_index]
@@ -87,8 +100,8 @@ def build_simulation_events(route: dict) -> list[dict]:
         {
             "time_s": max(30, route["estimated_time_s"] // 3),
             "type": "vision_match",
-            "title": "视觉定位辅助",
-            "description": "无人机视角图像已匹配到候选地理区域。",
+            "title": "视觉定位观测",
+            "description": "无人机视觉图像已匹配到候选地理区域。",
             "position": middle,
         },
         {
@@ -110,6 +123,20 @@ def temporary_risk_polygon(current_position: list[float]) -> list[list[float]]:
         [lon - 0.006, lat + 0.009],
         [lon - 0.006, lat - 0.004],
     ]
+
+
+def _risk_segment_hit_type(start: list[float], end: list[float], zone: dict, origin: list[float]) -> str:
+    polygon = zone.get("polygon", [])
+    if not polygon:
+        return ""
+    if point_in_polygon(start, polygon) or point_in_polygon(end, polygon):
+        return "inside"
+    if segment_intersects_polygon(start, end, polygon, origin):
+        return "inside"
+    buffer_m = float(zone.get("buffer_m", 0) or 0)
+    if buffer_m > 0 and segment_to_polygon_distance_m(start, end, polygon, origin) <= buffer_m:
+        return "buffer"
+    return ""
 
 
 def _build_elevation_profile(points: list[list[float]], origin: list[float]) -> list[dict]:

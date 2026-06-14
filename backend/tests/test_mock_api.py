@@ -47,6 +47,18 @@ def test_route_plan_and_risk_analysis_contract():
     assert 0 <= risk["score"] <= 100
     assert risk["profile"]
     assert "stats" in risk
+    for route in routes:
+        route_risk = unwrap(client.post("/api/risks/analyze", json={"task_id": task["id"], "route": route}))
+        unsafe_types = {segment["risk_type"] for segment in route_risk["segments"]}
+        assert "fire" not in unsafe_types
+        assert "landslide" not in unsafe_types
+
+    direct_route = {
+        **routes[0],
+        "points": [[114.3605, 30.5375, 128.0], [114.3685, 30.5402, 130.0]],
+    }
+    direct_risk = unwrap(client.post("/api/risks/analyze", json={"task_id": task["id"], "route": direct_route}))
+    assert {"fire", "landslide"}.issubset({segment["risk_type"] for segment in direct_risk["segments"]})
 
 
 def test_simulation_replan_and_report_contract():

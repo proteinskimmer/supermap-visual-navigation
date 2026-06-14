@@ -2492,3 +2492,24 @@
   - `npm run build` passed after a standalone rerun.
   - Targeted backend tests passed: `2 passed`.
   - Changed endpoint sample generated 31 visual timeline frames; first visual frame was `auto_uav_001`, confidence `0.78`, status `localized`.
+
+### 2026-06-14 Route safety and smooth navigation correction
+
+- User feedback:
+  - Edited start/target route could still pass unsafe areas.
+  - Map/control points appeared red, suggesting low confidence or unsafe state.
+- Diagnosis:
+  - Planning used risk zones mostly as soft cost, so a route could still cross high-risk polygons/buffers when the geometric shortcut was cheap.
+  - Risk analysis only checked whether route vertices were inside risk polygons; it could miss a segment crossing a polygon or buffer.
+  - Obstacle buffers were checked by risk analysis but were not part of route planning.
+  - After stricter avoidance, route bends became sharper and the visual-navigation timeline exceeded the smoothness gate.
+- Fix:
+  - Added segment-to-polygon intersection and segment-to-polygon distance helpers.
+  - Planning now treats active high-risk/no-fly/fire/landslide zones and their buffers as hard restrictions, with obstacle buffers included in A* and smoothing checks.
+  - Risk analysis now reports segment-level polygon crossings and buffer proximity instead of only point-in-polygon hits.
+  - Route scoring now includes obstacle-buffer penalties.
+  - Navigation timeline sampling changed from 3s to 2s, with stronger curve smoothing and terminal fusion still speed-limited.
+- Verification:
+  - Default `shortest/safest/balanced` routes avoid `fire` and `landslide` risk segments.
+  - Direct edited-line sample `[114.3605,30.5375] -> [114.3685,30.5402]` is correctly flagged for `fire`, `landslide`, and obstacle proximity.
+  - Edited-route visual navigation sample returns 37+ visual observations with confidence range `0.78-0.88`, so visual match points should not render red due to low confidence.

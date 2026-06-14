@@ -7,6 +7,8 @@ from app.services.geometry import (
     point_in_polygon,
     point_to_segment_distance_m,
     polyline_distance_m,
+    segment_intersects_polygon,
+    segment_to_polygon_distance_m,
     xy_to_lonlat,
 )
 
@@ -18,10 +20,10 @@ MODE_WEIGHTS = {
 }
 
 
-def plan_routes(task: dict, risk_zones: list[dict], modes: list[str] | None = None) -> list[dict]:
+def plan_routes(task: dict, risk_zones: list[dict], modes: list[str] | None = None, obstacles: list[dict] | None = None) -> list[dict]:
     selected_modes = modes or ["shortest", "safest", "balanced"]
     return [
-        _plan_single_route(task, risk_zones, mode)
+        _plan_single_route(task, risk_zones, mode, obstacles or [])
         for mode in selected_modes
         if mode in MODE_WEIGHTS
     ]
@@ -32,30 +34,31 @@ def replan_route(
     risk_zones: list[dict],
     current_position: list[float],
     target: list[float],
+    obstacles: list[dict] | None = None,
 ) -> dict:
     patched_task = dict(task)
     patched_task["start"] = current_position
     patched_task["target"] = target
-    route = _plan_single_route(patched_task, risk_zones, "balanced")
+    route = _plan_single_route(patched_task, risk_zones, "balanced", obstacles or [])
     route["id"] = "route_replanned_001"
     route["name"] = "动态重规划航线"
     return route
 
 
-def _plan_single_route(task: dict, risk_zones: list[dict], mode: str) -> dict:
+def _plan_single_route(task: dict, risk_zones: list[dict], mode: str, obstacles: list[dict]) -> dict:
     origin = _area_origin(task["area"])
     grid = _build_grid(task, origin)
     start_cell = _point_to_cell(task["start"], grid, origin)
     target_cell = _point_to_cell(task["target"], grid, origin)
-    path = _astar(start_cell, target_cell, grid, task, risk_zones, mode, origin)
+    path = _astar(start_cell, target_cell, grid, task, risk_zones, obstacles, mode, origin)
     route_points = [_cell_to_point(cell, grid, origin, _interpolate_height(task, i, len(path))) for i, cell in enumerate(path)]
     if route_points:
         route_points[0] = _normalize_point(task["start"])
         route_points[-1] = _normalize_point(task["target"])
-    route_points = _smooth_visible_route(route_points, risk_zones, origin)
+    route_points = _smooth_visible_route(route_points, risk_zones, obstacles, origin)
     route_points = _simplify_collinear(route_points)
     distance = polyline_distance_m(route_points, origin)
-    score = max(35, 96 - int(distance / 1000) * 2 - _route_risk_penalty(route_points, risk_zones, origin))
+    score = max(35, 96 - int(distance / 1000) * 2 - _route_risk_penalty(route_points, risk_zones, obstacles, origin))
     turn_count = _turn_count(route_points)
     return {
         "id": f"route_{mode}_001",
@@ -114,6 +117,7 @@ def _astar(
     grid: dict,
     task: dict,
     risk_zones: list[dict],
+    obstacles: list[dict],
     mode: str,
     origin: list[float],
 ) -> list[tuple[int, int]]:
@@ -129,6 +133,12 @@ def _astar(
             next_point = _cell_to_point(next_cell, grid, origin, task["start"][2])
             move_cost = _grid_distance(current, next_cell)
             current_point = _cell_to_point(current, grid, origin, task["start"][2])
+            if (
+                current != start
+                and next_cell != target
+                and _segment_is_restricted(current_point, next_point, risk_zones, obstacles, origin)
+            ):
+                continue
             risk_cost = _segment_risk_cost(current_point, next_point, risk_zones, origin)
             bias_cost = _mode_bias_cost(next_cell, grid, mode)
             turn_cost = _turn_cost(current, next_cell, came_from.get(current), mode)
@@ -180,6 +190,9 @@ def _cell_risk_cost(point: list[float], risk_zones: list[dict], origin: list[flo
 
 def _segment_risk_cost(start: list[float], end: list[float], risk_zones: list[dict], origin: list[float]) -> float:
     cost = 0.0
+    for zone in risk_zones:
+        if zone.get("active", True) and _segment_hits_zone_or_buffer(start, end, zone, origin):
+            cost += zone.get("level", 3) * 100
     samples = 6
     for index in range(samples + 1):
         ratio = index / samples
@@ -192,7 +205,7 @@ def _segment_risk_cost(start: list[float], end: list[float], risk_zones: list[di
     return cost
 
 
-def _smooth_visible_route(points: list[list[float]], risk_zones: list[dict], origin: list[float]) -> list[list[float]]:
+def _smooth_visible_route(points: list[list[float]], risk_zones: list[dict], obstacles: list[dict], origin: list[float]) -> list[list[float]]:
     if len(points) <= 2:
         return points
     smoothed = [points[0]]
@@ -200,7 +213,7 @@ def _smooth_visible_route(points: list[list[float]], risk_zones: list[dict], ori
     while index < len(points) - 1:
         next_index = len(points) - 1
         while next_index > index + 1:
-            if _segment_is_clear(points[index], points[next_index], risk_zones, origin):
+            if _segment_is_clear(points[index], points[next_index], risk_zones, obstacles, origin):
                 break
             next_index -= 1
         smoothed.append(points[next_index])
@@ -208,20 +221,45 @@ def _smooth_visible_route(points: list[list[float]], risk_zones: list[dict], ori
     return smoothed
 
 
-def _segment_is_clear(start: list[float], end: list[float], risk_zones: list[dict], origin: list[float]) -> bool:
-    segment_m = max(1.0, distance_m(start, end, origin))
-    samples = max(3, int(ceil(segment_m / 45.0)))
-    for index in range(1, samples):
-        ratio = index / samples
-        point = [
-            start[0] + (end[0] - start[0]) * ratio,
-            start[1] + (end[1] - start[1]) * ratio,
-            start[2] + (end[2] - start[2]) * ratio,
-        ]
-        for zone in risk_zones:
-            if zone.get("active", True) and _point_in_zone_or_buffer(point, zone, origin):
-                return False
+def _segment_is_clear(start: list[float], end: list[float], risk_zones: list[dict], obstacles: list[dict], origin: list[float]) -> bool:
+    for zone in risk_zones:
+        if zone.get("active", True) and _segment_hits_zone_or_buffer(start, end, zone, origin):
+            return False
+    for obstacle in obstacles:
+        if _segment_hits_obstacle_buffer(start, end, obstacle, origin):
+            return False
     return True
+
+
+def _segment_is_restricted(start: list[float], end: list[float], risk_zones: list[dict], obstacles: list[dict], origin: list[float]) -> bool:
+    restricted_zone = any(
+        zone.get("active", True)
+        and _is_hard_restricted_zone(zone)
+        and _segment_hits_zone_or_buffer(start, end, zone, origin)
+        for zone in risk_zones
+    )
+    return restricted_zone or any(_segment_hits_obstacle_buffer(start, end, obstacle, origin) for obstacle in obstacles)
+
+
+def _segment_hits_zone_or_buffer(start: list[float], end: list[float], zone: dict, origin: list[float]) -> bool:
+    polygon = zone.get("polygon", [])
+    if not polygon:
+        return False
+    if segment_intersects_polygon(start, end, polygon, origin):
+        return True
+    buffer_m = float(zone.get("buffer_m", 0) or 0)
+    return buffer_m > 0 and segment_to_polygon_distance_m(start, end, polygon, origin) <= buffer_m
+
+
+def _is_hard_restricted_zone(zone: dict) -> bool:
+    return zone.get("type") in {"no_fly", "fire", "landslide"} or zone.get("level", 0) >= 4
+
+
+def _segment_hits_obstacle_buffer(start: list[float], end: list[float], obstacle: dict, origin: list[float]) -> bool:
+    buffer_m = float(obstacle.get("buffer_m", 0) or 0)
+    if buffer_m <= 0:
+        return False
+    return point_to_segment_distance_m(obstacle["position"], start, end, origin) <= buffer_m
 
 
 def _point_in_zone_or_buffer(point: list[float], zone: dict, origin: list[float]) -> bool:
@@ -241,12 +279,18 @@ def _point_in_zone_or_buffer(point: list[float], zone: dict, origin: list[float]
     return False
 
 
-def _route_risk_penalty(points: list[list[float]], risk_zones: list[dict], origin: list[float]) -> int:
+def _route_risk_penalty(points: list[list[float]], risk_zones: list[dict], obstacles: list[dict], origin: list[float]) -> int:
     penalty = 0
-    for point in points:
+    for index, point in enumerate(points):
         for zone in risk_zones:
-            if point_in_polygon(point, zone["polygon"]):
+            if _point_in_zone_or_buffer(point, zone, origin):
                 penalty += zone.get("level", 3) * 4
+            if index < len(points) - 1 and _segment_hits_zone_or_buffer(point, points[index + 1], zone, origin):
+                penalty += zone.get("level", 3) * 8
+        if index < len(points) - 1:
+            for obstacle in obstacles:
+                if _segment_hits_obstacle_buffer(point, points[index + 1], obstacle, origin):
+                    penalty += 12
     return penalty
 
 

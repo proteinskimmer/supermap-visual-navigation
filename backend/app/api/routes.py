@@ -19,7 +19,7 @@ def routes_plan(payload: RoutePlanRequest):
         task["start"] = payload.start
     if payload.target:
         task["target"] = payload.target
-    return ok(plan_routes(task, data["risk_zones"], payload.modes))
+    return ok(plan_routes(task, data["risk_zones"], payload.modes, data["obstacles"]))
 
 
 @router.post("/routes/replan", response_model=ApiResponse[ReplanData])
@@ -30,7 +30,7 @@ def routes_replan(payload: ReplanRequest):
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     risk_zones = data["risk_zones"] + [risk.model_dump() for risk in payload.temporary_risks]
-    route = replan_route(task, risk_zones, payload.current_position, payload.target or task["target"])
+    route = replan_route(task, risk_zones, payload.current_position, payload.target or task["target"], data["obstacles"])
     return ok(
         {
             "route": route,

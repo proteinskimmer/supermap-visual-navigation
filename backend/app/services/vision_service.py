@@ -30,7 +30,7 @@ class PrecomputedVisionProvider:
         task = data.get("task", {})
         if task.get("id") != task_id:
             return []
-        route = plan_routes(task, data.get("risk_zones", []), ["balanced"])[0]
+        route = plan_routes(task, data.get("risk_zones", []), ["balanced"], data.get("obstacles", []))[0]
         auto_images = build_auto_vision_images(task, route, self.list_tile_index(task_id))
         return auto_images or [
             image
@@ -201,7 +201,7 @@ def _synthetic_match_from_auto_frame(task_id: str, image_id: str, top_k: int | N
     task = data.get("task", {})
     if task.get("id") != task_id:
         return None
-    route = plan_routes(task, data.get("risk_zones", []), ["balanced"])[0]
+    route = plan_routes(task, data.get("risk_zones", []), ["balanced"], data.get("obstacles", []))[0]
     tiles = [tile for tile in data.get("vision_tile_index", []) if tile.get("task_id") == task_id]
     images = build_auto_vision_images(task, route, tiles)
     image = next((item for item in images if item["id"] == image_id), None)

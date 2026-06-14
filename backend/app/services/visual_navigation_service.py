@@ -12,7 +12,7 @@ from app.services.vision_matcher_provider import is_precomputed_matcher, normali
 
 
 _sessions: dict[str, dict] = {}
-NAVIGATION_FRAME_STEP_S = 3
+NAVIGATION_FRAME_STEP_S = 2
 
 
 def start_navigation_session(task_id: str, route: dict, mode: str = "autonomous", matcher_mode: str = "synthetic_v04") -> dict:
@@ -67,7 +67,7 @@ def replan_from_navigation_state(session_id: str, time_s: int, temporary_risks: 
     data = get_demo_data()
     current_position = _pose_to_point(state["fused_position"])
     risks = data["risk_zones"] + temporary_risks
-    route = replan_route(task, risks, current_position, task["target"])
+    route = replan_route(task, risks, current_position, task["target"], data.get("obstacles", []))
     event = {
         "time_s": state["time_s"],
         "type": "replan",
@@ -250,6 +250,8 @@ def _build_state_frame(
     visual_frame = active_fix["visual_frame"] if active_fix else None
     navigation_mode = _navigation_mode(active_fix, requested_mode)
     fused_point = _fused_point(reference_point, active_fix, time_s, navigation_mode, previous_frame, origin)
+    if time_s >= duration - NAVIGATION_FRAME_STEP_S * 2:
+        fused_point = _terminal_fused_point(reference_point, previous_frame, time_s, origin)
     deviation = distance_m(reference_point, _pose_to_point(visual_position), origin) if visual_position else 0.0
     telemetry = _telemetry(
         time_s=time_s,
@@ -433,16 +435,16 @@ def _fused_point(
     previous_point = _pose_to_point(previous_frame["fused_position"])
     delta_t = max(1, time_s - previous_frame["time_s"])
     if observation_weight <= 0.001 or navigation_mode == "review":
-        alpha = 1.0
+        alpha = 0.72
         max_speed_mps = 10.0
     elif navigation_mode == "autonomous":
-        alpha = 1.0
+        alpha = 0.72
         max_speed_mps = 10.0
     elif navigation_mode == "assisted":
-        alpha = 1.0
+        alpha = 0.58
         max_speed_mps = 10.0
     else:
-        alpha = 1.0
+        alpha = 0.72
         max_speed_mps = 18.0
 
     smoothed = [
@@ -451,6 +453,19 @@ def _fused_point(
         round(_lerp(previous_point[2], target_point[2], alpha), 1),
     ]
     return _limit_step(previous_point, smoothed, max_speed_mps * delta_t, origin)
+
+
+def _terminal_fused_point(
+    reference_point: list[float],
+    previous_frame: dict | None,
+    time_s: int,
+    origin: list[float],
+) -> list[float]:
+    if not previous_frame:
+        return reference_point
+    previous_point = _pose_to_point(previous_frame["fused_position"])
+    delta_t = max(1, time_s - previous_frame["time_s"])
+    return _limit_step(previous_point, reference_point, 10.0 * delta_t, origin)
 
 
 def _freshness_weight(elapsed_s: int) -> float:
@@ -544,11 +559,11 @@ def _smooth_route_path(points: list[list[float]], origin: list[float]) -> list[l
     if len(points) <= 2:
         return [_normalize_point(point) for point in points]
     path = [_normalize_point(point) for point in points]
-    for _ in range(2):
+    for _ in range(6):
         refined = [path[0]]
         for start, end in zip(path, path[1:]):
-            refined.append(_lerp_point_meters(start, end, 0.28, origin))
-            refined.append(_lerp_point_meters(start, end, 0.72, origin))
+            refined.append(_lerp_point_meters(start, end, 0.35, origin))
+            refined.append(_lerp_point_meters(start, end, 0.65, origin))
         refined.append(path[-1])
         path = refined
     path[0] = _normalize_point(points[0])

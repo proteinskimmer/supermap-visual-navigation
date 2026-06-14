@@ -19,7 +19,7 @@ def report(task_id: str):
         task = get_task(task_id)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
-    route = plan_routes(task, data["risk_zones"], ["balanced"])[0]
+    route = plan_routes(task, data["risk_zones"], ["balanced"], data["obstacles"])[0]
     risk = analyze_route(task, route, data["risk_zones"], data["obstacles"])
     vision_images = list_query_images(task_id)
     first_image = vision_images[0] if vision_images else {"id": "demo_uav_001", "capture_time_s": 0}

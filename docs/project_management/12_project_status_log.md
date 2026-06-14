@@ -2513,3 +2513,53 @@
   - Default `shortest/safest/balanced` routes avoid `fire` and `landslide` risk segments.
   - Direct edited-line sample `[114.3605,30.5375] -> [114.3685,30.5402]` is correctly flagged for `fire`, `landslide`, and obstacle proximity.
   - Edited-route visual navigation sample returns 37+ visual observations with confidence range `0.78-0.88`, so visual match points should not render red due to low confidence.
+
+### 2026-06-14 Terrain-draped online imagery and current-frame vision display fix
+
+- User feedback:
+  - Online/network imagery looked like a flat sheet and did not visually follow terrain.
+  - The matching tile shown in the scene did not align with the current route/frame.
+  - The scene showed too many red/green points that looked like route control points, while the right sidebar did not list their details.
+- Diagnosis:
+  - Online regional imagery was rendered as rectangle entities at one fixed height, so it could not follow the local/regional terrain surface.
+  - The scene visual result could fall back to stale global match data instead of the current navigation timeline frame.
+  - The scene displayed all historical visual observations up to the current time; the right sidebar only represented the active/current frame, creating a mismatch.
+- Fix:
+  - Changed online regional imagery preview from fixed-height rectangles to terrain-draped image mesh tiles. Each tile is sampled as a 9x9 grid and raised by the regional terrain height model.
+  - Kept a flat-rectangle fallback for SDK environments that cannot create geometry primitives.
+  - Added primitive cleanup for terrain-draped online imagery to prevent stale overlay accumulation.
+  - Changed map visual observation display to the current navigation frame only.
+  - Forced scene vision candidate highlighting to use the selected/current navigation visual frame when available.
+  - Added a right-sidebar current visual observation card with current frame id, time, matched tile, and confidence.
+- Verification:
+  - `npm run build` passed.
+  - Debug state now reports `onlineRegionalImageryMode`, expected to be `terrain-draped-mesh` when geometry primitives are available.
+- Remaining note:
+  - Online imagery is still a 2D imagery source; the 3D effect comes from draping it over the local/regional terrain surface. The visual-navigation main validation area remains the local high-precision Luojia DEM/orthophoto/building dataset.
+
+### 2026-06-14 One-click deployment preparation
+
+- User feedback:
+  - Manual installation on another computer was too cumbersome.
+- Fix:
+  - Added `INSTALL_DEMO.bat` as the target computer's first-run installer entry.
+  - Added `scripts/install_demo_one_click.ps1` to prepare the conda environment, frontend dependencies, frontend build, iClient3D static resources, and SuperMap path checks.
+  - Updated `START_DEMO.bat` and `STOP_DEMO.bat` to resolve the project root from the batch file location instead of hardcoding `E:\supermap_project`.
+  - Added `docs/deploy_one_click.md` with the simplified deployment workflow, no-network mode, and custom SuperMap path examples.
+- Remaining manual gate:
+  - A brand-new computer may still require first-time iServer admin confirmation and service publication, because service registry, file root, account, and license are local to that machine.
+
+### 2026-06-14 Git checkpoint v0.6
+
+- Checkpoint scope:
+  - Terrain-draped online regional imagery preview.
+  - Current-frame-only visual observation display and right-side observation details.
+  - Route-bound scene visual candidate highlighting.
+  - One-click deployment preparation for another Windows computer.
+  - Current edited demo risk-zone data.
+- Verification before checkpoint:
+  - `npm run build` passed.
+  - `scripts/install_demo_one_click.ps1` PowerShell syntax check passed.
+- Artifact policy:
+  - Source code, deployment scripts, project docs, and demo JSON are included in the checkpoint.
+  - Runtime-generated UAV frame image cache is left outside this checkpoint to avoid bloating Git history.

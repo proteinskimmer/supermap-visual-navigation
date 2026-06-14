@@ -2012,6 +2012,33 @@ small {
   font-weight: 700;
 }
 
+.visual-observation-card {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.visual-observation-card span {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  padding: 8px;
+  background: rgba(7, 18, 29, 0.58);
+  border: 1px solid rgba(92, 214, 255, 0.14);
+  border-radius: 6px;
+  color: #9fb9c8;
+  font-size: 12px;
+}
+
+.visual-observation-card strong {
+  overflow: hidden;
+  color: #eafaff;
+  font-size: 13px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .synthetic-compare {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -2655,6 +2682,7 @@ small {
 .telemetry-grid span,
 .kpi-row span,
 .match-card,
+.visual-observation-card span,
 .console-list article {
   background: #f6f9fb;
   border-color: #d9e4ec;
@@ -2662,7 +2690,8 @@ small {
 
 .telemetry-grid strong,
 .kpi-row strong,
-.match-card strong {
+.match-card strong,
+.visual-observation-card strong {
   color: #183149;
 }
 

@@ -168,35 +168,34 @@ const referencePoint = computed(() => poseToPoint(navigationState.value?.referen
 const actualFlightTrail = computed(() => navigationTrail("fused_position"));
 const referenceFlightTrail = computed(() => navigationTrail("reference_position"));
 const visualMatchPoints = computed(() => {
-  if (!navigationTimeline.value.length) return [];
-  const seen = new Set();
-  return navigationTimeline.value
-    .filter((frame) => frame.time_s <= elapsedSeconds.value && frame.visual_position)
-    .map((frame) => {
-      const visual = frame.visual_position;
-      const visualFrame = frame.visual_frame || {};
-      return {
-        id: `${Math.round((frame.time_s || 0) * 10)}-${visual.match_id || visual.image_id || visual.tile_id}`,
-        point: poseToPoint(frame.reference_position) || poseToPoint(visual),
-        visualPoint: poseToPoint(visual),
-        confidence: visual.confidence || 0,
-        matchedPoints: visualFrame.matched_points || 0,
-        inlierRatio: visualFrame.inlier_ratio || 0,
-        timeS: frame.time_s,
-        imageId: visual.image_id || frame.active_frame_id || "",
-      };
-    })
-    .filter((match) => {
-      if (!match.point || seen.has(match.id)) return false;
-      seen.add(match.id);
-      return true;
-    });
+  const frame = navigationState.value;
+  const visual = frame?.visual_position;
+  if (!visual) return [];
+  const visualFrame = frame.visual_frame || {};
+  return [
+    {
+      id: `${Math.round((frame.time_s || 0) * 10)}-${visual.match_id || visual.image_id || visual.tile_id}`,
+      point: poseToPoint(frame.reference_position) || poseToPoint(visual),
+      visualPoint: poseToPoint(visual),
+      confidence: visual.confidence || 0,
+      matchedPoints: visualFrame.matched_points || 0,
+      inlierRatio: visualFrame.inlier_ratio || 0,
+      timeS: frame.time_s,
+      imageId: visual.image_id || frame.active_frame_id || "",
+      tileId: visual.tile_id || visualFrame.tile_id || "",
+    },
+  ];
 });
 const activeVisualControlPoint = computed(() => {
   if (!activeVisionImageId.value) return null;
   return [...visualMatchPoints.value].reverse().find((match) => match.imageId === activeVisionImageId.value) || null;
 });
+const currentVisualObservation = computed(() => visualMatchPoints.value[0] || null);
 const sceneVisionResult = computed(() => {
+  const image = selectedVisionImage.value;
+  if (image?.visual_frame) {
+    return buildNavigationFrameMatch(image);
+  }
   if (simulation.value && !activeVisualControlPoint.value) return null;
   return visionResult.value;
 });
@@ -1464,6 +1463,12 @@ watch(activeVisionImageId, async (imageId, previousImageId) => {
             <div class="confidence-bar">
               <span :style="{ width: confidencePercent(bestVisionCandidate.confidence) }"></span>
             </div>
+          </div>
+          <div v-if="currentVisualObservation" class="visual-observation-card">
+            <span>当前帧<strong>{{ currentVisualObservation.imageId || "-" }}</strong></span>
+            <span>时刻<strong>{{ Math.round(currentVisualObservation.timeS || 0) }} 秒</strong></span>
+            <span>匹配瓦片<strong>{{ currentVisualObservation.tileId || bestVisionCandidate?.tile_id || "-" }}</strong></span>
+            <span>置信度<strong>{{ confidencePercent(currentVisualObservation.confidence) }}</strong></span>
           </div>
           <div v-if="visualLocalization" class="synthetic-compare">
             <figure>

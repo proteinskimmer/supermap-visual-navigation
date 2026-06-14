@@ -1,5 +1,6 @@
 @echo off
 setlocal
-cd /d E:\supermap_project
-powershell -NoProfile -ExecutionPolicy Bypass -File E:\supermap_project\scripts\stop_demo_one_click.ps1
+set "PROJECT_ROOT=%~dp0"
+cd /d "%PROJECT_ROOT%"
+powershell -NoProfile -ExecutionPolicy Bypass -File "%PROJECT_ROOT%scripts\stop_demo_one_click.ps1" -ProjectRoot "%PROJECT_ROOT%"
 pause

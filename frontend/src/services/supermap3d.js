@@ -121,6 +121,7 @@ export async function openScene(viewer, sceneUrl) {
 
 export function clearDemoEntities(viewer) {
   if (!viewer?.entities) return;
+  clearOnlineRegionalImageryPrimitives(viewer);
   const entities = viewer.entities.values || [];
   [...entities]
     .filter((entity) => {
@@ -481,14 +482,69 @@ function drawRegionalTerrainContext(viewer, SuperMap3D, terrain, supermapConfig 
 function drawOnlineRegionalImageryTiles(viewer, SuperMap3D, supermapConfig, bounds) {
   const service = supermapConfig?.services?.online_basemap;
   const urlTemplate = service?.url || "";
-  if (!viewer?.entities || !SuperMap3D?.Rectangle || !urlTemplate.includes("{z}")) {
+  if (!viewer?.scene?.primitives || !urlTemplate.includes("{z}")) {
     return;
   }
+  clearOnlineRegionalImageryPrimitives(viewer);
   clearDemoEntitiesByPrefix(viewer, "demo-online-regional-imagery");
+  if (!SuperMap3D.Geometry || !SuperMap3D.Primitive || !SuperMap3D.MaterialAppearance) {
+    drawFlatOnlineRegionalImageryTiles(viewer, SuperMap3D, service, urlTemplate, bounds);
+    return;
+  }
   const zoom = Math.min(
     service.regional_preview_level ?? 13,
     service.maximum_level ?? 18,
   );
+  const westNorth = lonLatToWebMercatorTile(bounds.west, bounds.north, zoom);
+  const eastSouth = lonLatToWebMercatorTile(bounds.east, bounds.south, zoom);
+  const minX = Math.min(westNorth.x, eastSouth.x);
+  const maxX = Math.max(westNorth.x, eastSouth.x);
+  const minY = Math.min(westNorth.y, eastSouth.y);
+  const maxY = Math.max(westNorth.y, eastSouth.y);
+  const maxTiles = service.regional_preview_max_tiles ?? 36;
+  const primitives = [];
+  let added = 0;
+
+  for (let x = minX; x <= maxX; x += 1) {
+    for (let y = minY; y <= maxY; y += 1) {
+      if (added >= maxTiles) break;
+      const tileBounds = webMercatorTileBounds(x, y, zoom);
+      const clippedBounds = {
+        west: Math.max(bounds.west, tileBounds.west),
+        south: Math.max(bounds.south, tileBounds.south),
+        east: Math.min(bounds.east, tileBounds.east),
+        north: Math.min(bounds.north, tileBounds.north),
+      };
+      const primitive = addTerrainDrapedImageTile(
+        viewer,
+        SuperMap3D,
+        clippedBounds,
+        urlTemplate
+          .replaceAll("{z}", String(zoom))
+          .replaceAll("{x}", String(x))
+          .replaceAll("{y}", String(y)),
+        bounds,
+        service.regional_preview_alpha ?? 0.92,
+      );
+      if (primitive) primitives.push(primitive);
+      added += 1;
+    }
+  }
+
+  viewer.__onlineRegionalTileOverlay = {
+    installed: added > 0,
+    source: urlTemplate,
+    provider: service.provider || service.type || "url_template",
+    zoom,
+    tileCount: added,
+    mode: "terrain-draped-mesh",
+    primitives,
+  };
+}
+
+function drawFlatOnlineRegionalImageryTiles(viewer, SuperMap3D, service, urlTemplate, bounds) {
+  if (!viewer?.entities || !SuperMap3D?.Rectangle) return;
+  const zoom = Math.min(service.regional_preview_level ?? 13, service.maximum_level ?? 18);
   const westNorth = lonLatToWebMercatorTile(bounds.west, bounds.north, zoom);
   const eastSouth = lonLatToWebMercatorTile(bounds.east, bounds.south, zoom);
   const minX = Math.min(westNorth.x, eastSouth.x);
@@ -514,10 +570,7 @@ function drawOnlineRegionalImageryTiles(viewer, SuperMap3D, supermapConfig, boun
           coordinates: rectangle,
           material: createImageMaterial(
             SuperMap3D,
-            urlTemplate
-              .replaceAll("{z}", String(zoom))
-              .replaceAll("{x}", String(x))
-              .replaceAll("{y}", String(y)),
+            urlTemplate.replaceAll("{z}", String(zoom)).replaceAll("{x}", String(x)).replaceAll("{y}", String(y)),
             service.regional_preview_alpha ?? 0.92,
           ),
           height: LUOJIA_REGIONAL_CONTEXT.baseHeight + 2,
@@ -537,7 +590,98 @@ function drawOnlineRegionalImageryTiles(viewer, SuperMap3D, supermapConfig, boun
     provider: service.provider || service.type || "url_template",
     zoom,
     tileCount: added,
+    mode: "flat-rectangle-fallback",
   };
+}
+
+function addTerrainDrapedImageTile(viewer, SuperMap3D, tileBounds, imageUrl, terrainBounds, alpha = 1) {
+  const cols = 9;
+  const rows = 9;
+  const positions = new Float64Array(cols * rows * 3);
+  const st = new Float32Array(cols * rows * 2);
+  const indices = [];
+  const heightOffset = 3.2;
+
+  for (let row = 0; row < rows; row += 1) {
+    const v = row / (rows - 1);
+    const lat = lerp(tileBounds.north, tileBounds.south, v);
+    for (let col = 0; col < cols; col += 1) {
+      const u = col / (cols - 1);
+      const lon = lerp(tileBounds.west, tileBounds.east, u);
+      const height = regionalTerrainHeight(lon, lat, terrainBounds) + heightOffset;
+      const cartesian = SuperMap3D.Cartesian3.fromDegrees(lon, lat, height);
+      const index = row * cols + col;
+      positions[index * 3] = cartesian.x;
+      positions[index * 3 + 1] = cartesian.y;
+      positions[index * 3 + 2] = cartesian.z;
+      st[index * 2] = u;
+      st[index * 2 + 1] = 1 - v;
+    }
+  }
+
+  for (let row = 0; row < rows - 1; row += 1) {
+    for (let col = 0; col < cols - 1; col += 1) {
+      const a = row * cols + col;
+      const b = a + 1;
+      const c = a + cols;
+      const d = c + 1;
+      indices.push(a, c, b, b, c, d);
+    }
+  }
+
+  try {
+    const geometry = new SuperMap3D.Geometry({
+      attributes: new SuperMap3D.GeometryAttributes({
+        position: new SuperMap3D.GeometryAttribute({
+          componentDatatype: SuperMap3D.ComponentDatatype.DOUBLE,
+          componentsPerAttribute: 3,
+          values: positions,
+        }),
+        st: new SuperMap3D.GeometryAttribute({
+          componentDatatype: SuperMap3D.ComponentDatatype.FLOAT,
+          componentsPerAttribute: 2,
+          values: st,
+        }),
+      }),
+      indices: new Uint16Array(indices),
+      primitiveType: SuperMap3D.PrimitiveType.TRIANGLES,
+      boundingSphere: SuperMap3D.BoundingSphere.fromVertices(positions),
+    });
+    const materialOptions = { image: imageUrl };
+    if (alpha < 1) {
+      materialOptions.color = colorWithAlpha(SuperMap3D, "WHITE", alpha);
+    }
+    const material = SuperMap3D.Material.fromType("Image", materialOptions);
+    const primitive = new SuperMap3D.Primitive({
+      geometryInstances: new SuperMap3D.GeometryInstance({ geometry }),
+      appearance: new SuperMap3D.MaterialAppearance({
+        material,
+        faceForward: true,
+        translucent: alpha < 1,
+        closed: false,
+      }),
+      asynchronous: false,
+    });
+    viewer.scene.primitives.add(primitive);
+    return primitive;
+  } catch (error) {
+    console.warn("Failed to drape online imagery tile on terrain", error);
+    return null;
+  }
+}
+
+function clearOnlineRegionalImageryPrimitives(viewer) {
+  const primitives = viewer?.__onlineRegionalTileOverlay?.primitives || [];
+  primitives.forEach((primitive) => {
+    try {
+      viewer.scene?.primitives?.remove?.(primitive);
+    } catch (error) {
+      console.warn("Failed to remove online regional imagery primitive", error);
+    }
+  });
+  if (viewer?.__onlineRegionalTileOverlay) {
+    viewer.__onlineRegionalTileOverlay.primitives = [];
+  }
 }
 
 function drawLuojiaTerrainSurface(viewer, SuperMap3D, terrain) {
@@ -675,6 +819,7 @@ export function getSuperMapDebugState(viewer, supermapConfig = null) {
     onlineRegionalImageryInstalled: Boolean(viewer?.__onlineRegionalTileOverlay?.installed),
     onlineRegionalImageryTiles: viewer?.__onlineRegionalTileOverlay?.tileCount || 0,
     onlineRegionalImageryZoom: viewer?.__onlineRegionalTileOverlay?.zoom || null,
+    onlineRegionalImageryMode: viewer?.__onlineRegionalTileOverlay?.mode || "",
     onlineTerrainInstalled: Boolean(viewer?.__onlineTerrain?.installed),
     onlineTerrainStatus: viewer?.__onlineTerrain?.status || "not_configured",
     onlineTerrainSource: viewer?.__onlineTerrain?.source || "",

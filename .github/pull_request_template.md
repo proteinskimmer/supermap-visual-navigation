@@ -1,19 +1,19 @@
-## Summary
+## 修改概述
 
 - 
 
-## Test / Verification
+## 测试与验证
 
-- [ ] Frontend build: `npm run build`
-- [ ] Backend tests: `python -m pytest backend/tests`
-- [ ] SuperMap evidence check, if relevant
-- [ ] UI screenshot attached, if relevant
+- [ ] 前端构建：`npm run build`
+- [ ] 后端测试：`python -m pytest backend/tests`
+- [ ] 如涉及 SuperMap，已运行或说明 SuperMap 证据检查
+- [ ] 如涉及 UI，已附截图或说明页面验收方式
 
-## Artifact Check
+## 文件与素材检查
 
-- [ ] No accidental generated image/video/cache files included
-- [ ] Large assets are documented or shared outside Git
+- [ ] 未误提交生成图片、视频或缓存文件
+- [ ] 大型素材已说明来源和共享方式，未直接混入源码提交
 
-## Notes
+## 备注
 
 - 

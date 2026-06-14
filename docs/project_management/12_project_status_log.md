@@ -2563,3 +2563,101 @@
 - Artifact policy:
   - Source code, deployment scripts, project docs, and demo JSON are included in the checkpoint.
   - Runtime-generated UAV frame image cache is left outside this checkpoint to avoid bloating Git history.
+
+### 2026-06-14 One-click script path normalization fix
+
+- User feedback:
+  - `STOP_DEMO.bat` failed in `scripts/stop_demo_one_click.ps1` with `Test-Path: 路径中具有非法字符`.
+- Diagnosis:
+  - The batch files used `%~dp0`, which includes a trailing backslash.
+  - Passing that value through quoted PowerShell arguments can produce malformed literal paths on some Windows command-line parsing paths.
+- Fix:
+  - Updated `INSTALL_DEMO.bat`, `START_DEMO.bat`, and `STOP_DEMO.bat` to resolve the project root with `for %%I in ("%~dp0.") do ...`, producing a clean absolute path without a trailing slash.
+  - Added `Resolve-ProjectRootPath` normalization in `scripts/install_demo_one_click.ps1`, `scripts/start_demo_one_click.ps1`, and `scripts/stop_demo_one_click.ps1`.
+  - The PowerShell scripts now trim accidental wrapping quotes and trailing slashes before building pid/log paths.
+- Verification:
+  - PowerShell parser check passed for install/start/stop one-click scripts.
+  - `stop_demo_one_click.ps1 -ProjectRoot 'E:\supermap_project\' -Ports 65534` passed without illegal-path errors.
+
+### 2026-06-14 Visual algorithm comparison panel refinement
+
+- User feedback:
+  - Different algorithm result display in the frontend was still confusing.
+  - The algorithm comparison should become a collapsible page/section.
+  - The displayed algorithm results should change with the right-side visual frame selection.
+- Fix:
+  - Added `visibleVisualLocalization`, so the right visual panel only displays localization data whose `image_id` matches the currently selected frame.
+  - Updated manual frame selection to call `runVisionMatch({ imageId })`, preventing playback-active frame state from overriding the user's clicked frame.
+  - Moved multi-provider algorithm results into a collapsible `算法对比` panel.
+  - Each provider card now shows status, confidence, inlier ratio, matched points, error radius, route-prior error, reprojection error, failure reason, and provider-specific evidence thumbnails when available.
+  - The currently selected provider is sorted to the top and visually highlighted.
+- Verification:
+  - `npm run build` passed.
+
+### 2026-06-14 Multi-frame image comparison binding fix
+
+- User feedback:
+  - Only the first visual frame showed image comparison.
+- Diagnosis:
+  - The frontend still prioritized `activeNavigationVisionImage` over the manually selected right-side frame.
+  - After selecting a later frame, the visible localization filter could compare the newly requested localization against the wrong active frame id and hide the result.
+  - Manual selection of navigation timeline frames also returned early before calling the remote OpenCV localization endpoint.
+- Fix:
+  - Added `manuallySelectedVisionImage` and made manual right-side frame selection take priority over the playback-active frame.
+  - `selectVisionImage(imageId)` now calls `runVisionMatch({ imageId, forceRemote: true })`.
+  - Navigation timeline frames skip the old precomputed `/vision/match` endpoint but still call `/vision/localize` for OpenCV multi-provider results.
+  - If remote localization fails, the current local frame comparison is preserved instead of being cleared.
+- Verification:
+  - `npm run build` passed.
+  - Direct backend service check for `auto_uav_002` returned `localized`, provider `opencv_auto`, selected provider `opencv_sift`, 4 provider result rows, and 12 matches.
+
+### 2026-06-14 GitHub team handoff setup
+
+- Repository:
+  - `https://github.com/proteinskimmer/supermap-visual-navigation`
+- Remote setup:
+  - Added `origin`.
+  - Pushed `codex/v0.5-development`.
+  - Pushed stable tags `v0.4`, `v0.5`, and `v0.6`.
+  - Created and pushed `main` and `develop` from the `v0.6` baseline.
+- Team collaboration docs added:
+  - `CONTRIBUTING.md`
+  - `docs/team_workflow.md`
+  - `docs/git_handoff.md`
+  - `.github/pull_request_template.md`
+- Notes:
+  - Current working tree still contains post-v0.6 uncommitted development and generated evidence artifacts. These should be sorted into source changes vs generated assets before the next shared checkpoint.
+
+### 2026-06-14 团队协作文档中文化
+
+- 用户要求：
+  - 项目文档统一使用中文。
+- 调整内容：
+  - 将 `CONTRIBUTING.md` 改为中文团队贡献规范。
+  - 将 `docs/team_workflow.md` 改为中文团队协作流程。
+  - 将 `docs/git_handoff.md` 改为中文 GitHub 接管说明。
+  - 将 `.github/pull_request_template.md` 改为中文 PR 模板。
+- 约定：
+  - 后续面向团队、答辩、交付和项目管理的文档默认使用中文；命令、路径、分支名和 API 字段保持原文。
+
+### 2026-06-14 Visual matcher deepening v0.5d
+
+- User feedback:
+  - Visual matching should be deepened with more algorithms.
+  - The main task is visual autonomous navigation, not visual-assisted navigation.
+  - Latitude/longitude must not be hardcoded; lighting and image simulation parameters should come from map/frame/tile data or request parameters.
+- Fix:
+  - Added OpenCV SIFT, AKAZE, and BRISK providers beside the existing ORB provider.
+  - Added `opencv_auto` as the default navigation matcher. It runs available OpenCV providers and selects the strongest single visual observation for navigation.
+  - Added route-prior consistency to the matcher score, so a high-inlier but geographically inconsistent feature match is downgraded instead of driving the UAV state.
+  - Extended visual localization output with selected provider, per-provider results, keypoint counts, raw match count, RANSAC reprojection error, route-prior error, score components, and evidence URLs.
+  - Kept `external_deep_matcher` as a planned adapter only; no LoFTR/LightGlue weights are downloaded in this step.
+  - Switched navigation/report/frontend default matcher mode to `opencv_auto`.
+  - Preserved v0.4 proxy fallback, but only as an explicit fallback when the real matcher is not navigation-grade.
+  - Updated the visual panel to show dynamic provider evidence and a compact expert comparison table.
+  - Included lighting options in the frontend localization cache key so exposure/shadow/haze/color-temperature changes regenerate localization evidence.
+- Verification:
+  - `python -m pytest backend/tests`: 12 passed.
+  - `npm run build`: passed.
+  - `powershell -ExecutionPolicy Bypass -File scripts/check_backend_smoke_full.ps1 -PythonExe E:\anaconda\envs\supermap_nav\python.exe`: passed.
+  - `python scripts/generate_v05_match_evidence.py --task-id task_001 --top-k-tiles 3 --limit 6`: passed, `provider=opencv_auto`, `localized_count=5`.

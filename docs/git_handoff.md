@@ -1,20 +1,20 @@
-# GitHub Handoff
+# GitHub 接管说明
 
-Repository:
+仓库地址：
 
 ```text
 https://github.com/proteinskimmer/supermap-visual-navigation
 ```
 
-## Branch Map
+## 分支说明
 
 ```text
-main                         stable baseline
-develop                      team integration branch
-codex/v0.5-development       Codex working branch with historical checkpoints
+main                         稳定演示基线
+develop                      团队集成分支
+codex/v0.5-development       Codex 历史工作分支
 ```
 
-Stable tags:
+稳定标签：
 
 ```text
 v0.4
@@ -22,7 +22,7 @@ v0.5
 v0.6
 ```
 
-## First Clone
+## 第一次克隆
 
 ```powershell
 git clone https://github.com/proteinskimmer/supermap-visual-navigation.git
@@ -30,27 +30,31 @@ cd supermap-visual-navigation
 git checkout develop
 ```
 
-Then follow:
+然后按部署说明准备环境：
 
 ```text
 docs/deploy_one_click.md
 ```
 
-## Important Local Files
+## 需要注意的本地文件
 
-Some files are local or generated and should not be assumed to exist after cloning:
+以下内容和本机环境或生成过程有关，克隆仓库后不一定直接存在：
 
-- SuperMap published service registry;
-- local iServer accounts/license state;
-- generated evidence image batches;
-- large raw GIS inputs;
-- `frontend/public/vendor/supermap3d` if the SDK was not copied.
+- SuperMap 已发布服务注册状态；
+- 本机 iServer 账号、许可和管理根目录；
+- 批量生成的视觉证据图片；
+- 大型原始 GIS 数据；
+- 如果未复制 SDK，`frontend/public/vendor/supermap3d` 也不会存在。
 
-Run `INSTALL_DEMO.bat` on a new machine to prepare dependencies and SDK resources.
+新电脑请先运行：
 
-## Before Taking Over
+```text
+INSTALL_DEMO.bat
+```
 
-Read:
+用于准备依赖和 iClient3D 静态资源。
+
+## 接管前应阅读
 
 ```text
 CONTRIBUTING.md
@@ -58,9 +62,11 @@ docs/team_workflow.md
 docs/project_management/12_project_status_log.md
 ```
 
-Then confirm the current demo state with:
+然后确认当前演示状态：
 
 ```powershell
+cd frontend
 npm run build
+cd ..
 E:\anaconda\envs\supermap_nav\python.exe -m pytest backend/tests
 ```

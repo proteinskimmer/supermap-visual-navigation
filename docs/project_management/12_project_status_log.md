@@ -2393,3 +2393,19 @@
   - confirm the regional 3D context connects with the local Luojia scene;
   - save screenshot `docs/delivery/screenshots/r9_online_imagery_regional_3d_context.png`;
   - rerun the v0.5/R9 gate.
+
+### 2026-06-14 R9 Tianditu API key received
+
+- User provided:
+  - A Tianditu browser application key from `https://cloudcenter.tianditu.gov.cn/center/development/myApp`.
+- Local configuration:
+  - Configured `services.online_basemap` in `config/supermap_services.local.json` as a Tianditu satellite imagery WMTS URL-template provider.
+  - The local config file is intentionally ignored by Git; the key must not be committed to the repository.
+- Scope:
+  - The Tianditu layer is a large-area regional 3D display background only.
+  - Luojia local DEM, orthophoto, buildings, UAV frames, and ORB evidence remain the visual autonomous navigation data source.
+- Pending verification:
+  - Start/reload the frontend and confirm `data-online-basemap-status="installed"`.
+  - Click the regional 3D view button and verify satellite imagery appears around the Luojia task area.
+  - Save screenshot `docs/delivery/screenshots/r9_tianditu_imagery_regional_3d_context.png`.
+  - Rerun the v0.5/R9 gate after visual confirmation.

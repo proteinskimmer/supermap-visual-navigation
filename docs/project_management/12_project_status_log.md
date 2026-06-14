@@ -2678,3 +2678,14 @@
   - `npm run build` 通过。
   - `E:\anaconda\envs\supermap_nav\python.exe -m pytest backend\tests -vv` 通过，12 passed，1 warning。
   - `scripts/install_demo_one_click.ps1`、`scripts/start_demo_one_click.ps1`、`scripts/stop_demo_one_click.ps1`、`scripts/check_supermap_goal_evidence.ps1` PowerShell 解析通过。
+
+### 2026-06-14 GitHub 首页 README 中文化
+
+- 用户反馈：
+  - GitHub 界面的 README 仍然是英文，不符合“项目文档统一使用中文”的要求。
+- 修正：
+  - 将根目录 `README.md` 改为中文项目首页。
+  - README 口径更新为当前 `v0.7` 状态，突出“低空视觉自主导航仿真系统”主线。
+  - 补充项目输入/处理/输出、当前能力、目录结构、快速部署、SuperMap 服务要求、项目管理入口和开发验证命令。
+- 注意：
+  - 第三方依赖目录 `frontend/node_modules` 内的 README 属于外部包文档，不纳入项目中文化范围。

@@ -24,7 +24,7 @@ router = APIRouter(tags=["navigation"])
 
 @router.post("/navigation/start", response_model=ApiResponse[NavigationSession])
 def navigation_start(payload: NavigationStartRequest):
-    return ok(start_navigation_session(payload.task_id, payload.route.model_dump(), payload.mode))
+    return ok(start_navigation_session(payload.task_id, payload.route.model_dump(), payload.mode, payload.matcher_mode))
 
 
 @router.get("/navigation/state", response_model=ApiResponse[NavigationStateFrame])
@@ -39,7 +39,7 @@ def navigation_timeline(session_id: str = Query(...)):
 
 @router.post("/navigation/localize", response_model=ApiResponse[NavigationVisualFrame])
 def navigation_localize(payload: NavigationLocalizeRequest):
-    return ok(localize_visual_frame(payload.task_id, payload.image_id))
+    return ok(localize_visual_frame(payload.task_id, payload.image_id, payload.matcher_mode))
 
 
 @router.post("/navigation/replan", response_model=ApiResponse[ReplanData])

@@ -8,7 +8,7 @@
 |---|---|
 | `ppt_outline.md` | PPT 答辩大纲、每页标题、讲述口径和配图建议 |
 | `project_book.md` | 项目书底稿，可用于申报书、项目说明书或答辩附件 |
-| `version_record.md` | 当前验收版本 `v0.3-supermap-verified` 的版本记录、证据和严格口径 |
+| `version_record.md` | 当前验收版本 `v0.5a-orb-navigation-verified` 的版本记录、证据和严格口径 |
 | `current_progress_brief.md` | 当前进展短说明，适合周报、群同步和 PPT 备注 |
 | `supermap_interface_goal_audit.md` | SuperMap 接口闭环目标逐项审计，区分已完成、替代证据和待补 GUI 截图 |
 | `defense_script.md` | 答辩讲稿和问答口径 |
@@ -19,7 +19,7 @@
 
 ## 使用顺序
 
-1. 先用 `current_progress_brief.md` 统一当前完成度和 3D 接入口径。
+1. 先用 `current_progress_brief.md` 统一当前完成度和视觉自主导航口径。
 2. 用 `project_book.md` 统一项目定位、建设内容和技术路线。
 3. 用 `ppt_outline.md` 搭出 PPT，并按 `screenshot_shotlist.md` 补图。
 4. 用 `demo_video_script.md` 录制演示视频。

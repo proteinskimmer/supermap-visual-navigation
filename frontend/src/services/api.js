@@ -1,4 +1,5 @@
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000/api";
+export const API_ORIGIN = new URL(API_BASE, window.location.origin).origin;
 
 async function request(path, options = {}) {
   const response = await fetch(`${API_BASE}${path}`, {
@@ -22,6 +23,11 @@ export const api = {
   health: () => request("/health"),
   tasks: () => request("/tasks"),
   taskDetail: (taskId) => request(`/tasks/${taskId}`),
+  updateTaskEndpoints: (taskId, start, target) =>
+    request(`/tasks/${encodeURIComponent(taskId)}/endpoints`, {
+      method: "PUT",
+      body: JSON.stringify({ start, target }),
+    }),
   riskZones: (taskId) => request(`/tasks/${encodeURIComponent(taskId)}/risk-zones`),
   updateRiskZones: (taskId, riskZones) =>
     request(`/tasks/${encodeURIComponent(taskId)}/risk-zones`, {

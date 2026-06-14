@@ -1,5 +1,20 @@
 const DEFAULT_SDK_BASE = "/vendor/supermap3d/Build/SuperMap3D";
 const CURRENT_POINT_PREFIX = "demo-current-uav";
+const CURRENT_UAV_MODEL_NAME = "demo-current-uav-model";
+const FLIGHT_PATH_MIN_HEIGHT = 192;
+const UAV_MODEL_MIN_HEIGHT = 212;
+const UAV_SHADOW_HEIGHT = 8;
+const UAV_MODEL_URL = "/demo/models/drone_animated.glb";
+const UAV_MODEL_SCALE = 0.16;
+const UAV_MODEL_MIN_PIXEL_SIZE = 58;
+const UAV_MODEL_MAXIMUM_SCALE = 80;
+const UAV_MODEL_HEADING_OFFSET = Math.PI / 2;
+const UAV_POSITION_SMOOTHING = 0.22;
+const UAV_HEADING_SMOOTHING = 0.18;
+const UAV_HEADING_DEADBAND_DEG = 3;
+const UAV_RENDER_SNAP_DISTANCE = 220;
+const TASK_MARKER_HEIGHT = 236;
+const TASK_MARKER_RING_HEIGHT = 10;
 const LUOJIA_STATIC_ORTHO = {
   url: "/demo/luojia_ortho_preview.jpg",
   // Bounds are transformed from the ortho TIFF world file in EPSG:4547.
@@ -97,7 +112,10 @@ export function clearDemoEntities(viewer) {
   if (!viewer?.entities) return;
   const entities = viewer.entities.values || [];
   [...entities]
-    .filter((entity) => entity?.properties?.supermapDemo === true || entity?.name?.startsWith("demo-"))
+    .filter((entity) => {
+      if (entity?.name === CURRENT_UAV_MODEL_NAME) return false;
+      return entity?.properties?.supermapDemo === true || entity?.name?.startsWith("demo-");
+    })
     .forEach((entity) => viewer.entities.remove(entity));
 }
 
@@ -126,6 +144,13 @@ export function drawDemoOverlay(viewer, SuperMap3D, data) {
   }
   drawRoutes(viewer, SuperMap3D, data.routes || [], data.selectedRoute, data.replannedRoute);
   drawTaskPoints(viewer, SuperMap3D, data.selectedTask);
+}
+
+export function updateVisionCandidates(viewer, SuperMap3D, candidates = []) {
+  if (!viewer || !SuperMap3D) return;
+  clearDemoEntitiesByPrefix(viewer, "demo-vision-candidate");
+  drawVisionCandidates(viewer, SuperMap3D, candidates);
+  viewer.scene?.requestRender?.();
 }
 
 export function syncSceneLayerVisibility(viewer, layers = [], supermapConfig = null) {
@@ -341,9 +366,15 @@ export function getSuperMapDebugState(viewer, supermapConfig = null) {
 
 export function updateCurrentPoint(viewer, SuperMap3D, currentPoint, trails = {}) {
   if (!viewer || !SuperMap3D) return;
-  clearDemoEntitiesByPrefix(viewer, CURRENT_POINT_PREFIX);
+  clearDemoEntitiesByPrefix(viewer, CURRENT_POINT_PREFIX, {
+    excludeNames: currentPoint ? [CURRENT_UAV_MODEL_NAME] : [],
+  });
+  if (!currentPoint) {
+    viewer.__uavRenderState = null;
+  }
   drawFlightTrailComparison(viewer, SuperMap3D, trails.referenceTrail || [], trails.actualTrail || []);
-  drawCurrentPoint(viewer, SuperMap3D, currentPoint);
+  drawVisualMatchPoints(viewer, SuperMap3D, trails.visualMatchPoints || []);
+  drawCurrentPoint(viewer, SuperMap3D, currentPoint, trails.actualTrail || [], trails.referenceTrail || []);
 }
 
 export function destroyViewer(viewer) {
@@ -356,11 +387,12 @@ export function destroyViewer(viewer) {
   }
 }
 
-function clearDemoEntitiesByPrefix(viewer, prefix) {
+function clearDemoEntitiesByPrefix(viewer, prefix, options = {}) {
   if (!viewer?.entities) return;
+  const excludeNames = new Set(options.excludeNames || []);
   const entities = viewer.entities.values || [];
   [...entities]
-    .filter((entity) => entity?.name?.startsWith(prefix))
+    .filter((entity) => entity?.name?.startsWith(prefix) && !excludeNames.has(entity.name))
     .forEach((entity) => viewer.entities.remove(entity));
 }
 
@@ -415,16 +447,16 @@ function drawDemoBuildings(viewer, SuperMap3D, task, obstacles) {
 
 function drawRoutes(viewer, SuperMap3D, routes, selectedRoute, replannedRoute) {
   routes.forEach((route) => {
-    const color = route.id === selectedRoute?.id ? colorWithAlpha(SuperMap3D, "ORANGERED", 0.95) : routeColor(SuperMap3D, route.mode);
+    const color = route.id === selectedRoute?.id ? colorWithAlpha(SuperMap3D, "ORANGE", 0.88) : routeColor(SuperMap3D, route.mode);
     const selected = route.id === selectedRoute?.id;
-    if (selected) {
-      addPolyline(viewer, SuperMap3D, `demo-route-${route.id}-halo`, route.points, colorWithAlpha(SuperMap3D, "WHITE", 0.42), 9);
-    }
-    addPolyline(viewer, SuperMap3D, `demo-route-${route.id}`, route.points, color, selected ? 4 : 2);
+    addPolyline(viewer, SuperMap3D, `demo-route-${route.id}`, route.points, color, selected ? 5 : 2, {
+      minHeight: FLIGHT_PATH_MIN_HEIGHT,
+    });
   });
   if (replannedRoute?.route) {
-    addPolyline(viewer, SuperMap3D, "demo-route-replanned-halo", replannedRoute.route.points, colorWithAlpha(SuperMap3D, "WHITE", 0.36), 10);
-    addPolyline(viewer, SuperMap3D, "demo-route-replanned", replannedRoute.route.points, colorWithAlpha(SuperMap3D, "PURPLE", 0.95), 4);
+    addPolyline(viewer, SuperMap3D, "demo-route-replanned", replannedRoute.route.points, colorWithAlpha(SuperMap3D, "PURPLE", 0.95), 4, {
+      minHeight: FLIGHT_PATH_MIN_HEIGHT + 4,
+    });
   }
 }
 
@@ -480,40 +512,88 @@ function drawVisionCandidates(viewer, SuperMap3D, candidates) {
   });
 }
 
-function drawTaskPoints(viewer, SuperMap3D, task) {
-  if (!task) return;
-  addPoint(viewer, SuperMap3D, "demo-start", task.start, colorWithAlpha(SuperMap3D, "LIME", 1), 12);
-  addPoint(viewer, SuperMap3D, "demo-target", task.target, colorWithAlpha(SuperMap3D, "RED", 1), 12);
+function drawVisualMatchPoints(viewer, SuperMap3D, matches) {
+  matches.forEach((match, index) => {
+    if (!match?.point) return;
+    const quality = matchQuality(match.confidence);
+    const point = elevateFlightPoint(match.point, FLIGHT_PATH_MIN_HEIGHT + 24);
+    const size = Math.min(18, 9 + Math.round((match.matchedPoints || 0) / 18));
+    addPoint(
+      viewer,
+      SuperMap3D,
+      `demo-current-uav-visual-match-${match.id || index}`,
+      [point[0], point[1], point[2] + 8],
+      colorWithAlpha(SuperMap3D, quality.color, 0.94),
+      size,
+      colorWithAlpha(SuperMap3D, "WHITE", 0.92)
+    );
+  });
 }
 
-function drawCurrentPoint(viewer, SuperMap3D, currentPoint) {
+function matchQuality(confidence = 0) {
+  if (confidence >= 0.75) return { label: "good", color: "LIME" };
+  if (confidence >= 0.5) return { label: "warn", color: "YELLOW" };
+  return { label: "bad", color: "RED" };
+}
+
+function drawTaskPoints(viewer, SuperMap3D, task) {
+  if (!task) return;
+  addTaskMarker(viewer, SuperMap3D, "demo-start", task.start, {
+    label: "起点",
+    detail: "任务出发",
+    colorName: "LIME",
+  });
+  addTaskMarker(viewer, SuperMap3D, "demo-target", task.target, {
+    label: "终点",
+    detail: "目标位置",
+    colorName: "RED",
+  });
+}
+
+function drawCurrentPoint(viewer, SuperMap3D, currentPoint, actualTrail = [], referenceTrail = []) {
   if (!currentPoint) return;
+  const targetPoint = elevateFlightPoint(currentPoint, UAV_MODEL_MIN_HEIGHT);
+  const headingTrail = referenceTrail?.length >= 2 ? referenceTrail : actualTrail;
+  const targetHeading = headingFromTrail(headingTrail, currentPoint);
+  const renderState = smoothUavRenderState(viewer, targetPoint, targetHeading);
+  const modelPoint = renderState.point;
+  const heading = renderState.heading;
+  const accentColor = colorWithAlpha(SuperMap3D, "CYAN", 0.62);
+
+  addVerticalLine(viewer, SuperMap3D, "demo-current-uav-altitude", modelPoint, colorWithAlpha(SuperMap3D, "CYAN", 0.44));
+  addPoint(viewer, SuperMap3D, "demo-current-uav-shadow", [modelPoint[0], modelPoint[1], UAV_SHADOW_HEIGHT], colorWithAlpha(SuperMap3D, "BLACK", 0.18), 24);
+  const modelAdded = addDroneModel(viewer, SuperMap3D, CURRENT_UAV_MODEL_NAME, modelPoint, heading);
+  if (!modelAdded) {
+    drawFallbackDroneSymbol(viewer, SuperMap3D, modelPoint, heading);
+  }
+  addPoint(viewer, SuperMap3D, "demo-current-uav-position-ring", modelPoint, colorWithAlpha(SuperMap3D, "CYAN", 0.12), 34, accentColor);
+}
+
+function drawFallbackDroneSymbol(viewer, SuperMap3D, modelPoint, heading) {
   const bodyColor = colorWithAlpha(SuperMap3D, "WHITE", 0.96);
   const accentColor = colorWithAlpha(SuperMap3D, "CYAN", 0.86);
   const darkColor = colorWithAlpha(SuperMap3D, "BLACK", 0.82);
   const armPoints = [
-    offsetMeters(currentPoint, -13, 0),
-    offsetMeters(currentPoint, 13, 0),
-    offsetMeters(currentPoint, 0, -13),
-    offsetMeters(currentPoint, 0, 13),
+    offsetByHeading(modelPoint, heading, 0, -16),
+    offsetByHeading(modelPoint, heading, 0, 16),
+    offsetByHeading(modelPoint, heading, -16, 0),
+    offsetByHeading(modelPoint, heading, 16, 0),
   ];
   const rotorPoints = [
-    offsetMeters(currentPoint, -13, -13),
-    offsetMeters(currentPoint, 13, -13),
-    offsetMeters(currentPoint, -13, 13),
-    offsetMeters(currentPoint, 13, 13),
+    offsetByHeading(modelPoint, heading, -16, -16),
+    offsetByHeading(modelPoint, heading, -16, 16),
+    offsetByHeading(modelPoint, heading, 16, -16),
+    offsetByHeading(modelPoint, heading, 16, 16),
   ];
 
-  addVerticalLine(viewer, SuperMap3D, "demo-current-uav-altitude", currentPoint, colorWithAlpha(SuperMap3D, "CYAN", 0.72));
-  addPoint(viewer, SuperMap3D, "demo-current-uav-shadow", [currentPoint[0], currentPoint[1], 4], colorWithAlpha(SuperMap3D, "BLACK", 0.28), 22);
-  addDroneBody(viewer, SuperMap3D, "demo-current-uav-body", currentPoint, bodyColor);
+  addDroneBody(viewer, SuperMap3D, "demo-current-uav-body", modelPoint, bodyColor, accentColor);
   addPolyline(viewer, SuperMap3D, "demo-current-uav-arm-east-west", [armPoints[0], armPoints[1]], accentColor, 5);
   addPolyline(viewer, SuperMap3D, "demo-current-uav-arm-north-south", [armPoints[2], armPoints[3]], accentColor, 5);
   rotorPoints.forEach((point, index) => {
+    addRotorDisc(viewer, SuperMap3D, `demo-current-uav-rotor-disc-${index}`, point, accentColor);
     addPoint(viewer, SuperMap3D, `demo-current-uav-rotor-${index}`, point, colorWithAlpha(SuperMap3D, "CYAN", 0.28), 28, accentColor);
     addPoint(viewer, SuperMap3D, `demo-current-uav-motor-${index}`, point, darkColor, 7, bodyColor);
   });
-  addPoint(viewer, SuperMap3D, "demo-current-uav-position-ring", currentPoint, colorWithAlpha(SuperMap3D, "CYAN", 0.18), 36, accentColor);
 }
 
 function drawFlightTrailComparison(viewer, SuperMap3D, referenceTrail, actualTrail) {
@@ -524,25 +604,19 @@ function drawFlightTrailComparison(viewer, SuperMap3D, referenceTrail, actualTra
       "demo-current-uav-reference-trail",
       referenceTrail,
       colorWithAlpha(SuperMap3D, "WHITE", 0.52),
-      3
+      3,
+      { minHeight: FLIGHT_PATH_MIN_HEIGHT + 2 }
     );
   }
   if (actualTrail?.length >= 2) {
     addPolyline(
       viewer,
       SuperMap3D,
-      "demo-current-uav-actual-trail-halo",
-      actualTrail,
-      colorWithAlpha(SuperMap3D, "BLACK", 0.42),
-      9
-    );
-    addPolyline(
-      viewer,
-      SuperMap3D,
       "demo-current-uav-actual-trail",
       actualTrail,
-      colorWithAlpha(SuperMap3D, "CYAN", 0.92),
-      5
+      colorWithAlpha(SuperMap3D, "ORANGE", 0.9),
+      4,
+      { minHeight: FLIGHT_PATH_MIN_HEIGHT + 6 }
     );
   }
 }
@@ -569,8 +643,145 @@ function addTower(viewer, SuperMap3D, name, point, height) {
   addPoint(viewer, SuperMap3D, `${name}-beacon`, [point[0], point[1], height + 8], colorWithAlpha(SuperMap3D, "ORANGE", 0.95), 10, colorWithAlpha(SuperMap3D, "WHITE", 0.9));
 }
 
-function addDroneBody(viewer, SuperMap3D, name, point, material) {
-  addPoint(viewer, SuperMap3D, name, point, material, 13, colorWithAlpha(SuperMap3D, "BLACK", 0.8));
+function addTaskMarker(viewer, SuperMap3D, name, point, options) {
+  if (!point) return;
+  const color = colorWithAlpha(SuperMap3D, options.colorName, 0.92);
+  const softColor = colorWithAlpha(SuperMap3D, options.colorName, 0.16);
+  const outlineColor = colorWithAlpha(SuperMap3D, "WHITE", 0.95);
+  const topPoint = [point[0], point[1], TASK_MARKER_HEIGHT];
+
+  addGroundRing(viewer, SuperMap3D, `${name}-ground-ring`, [point[0], point[1], TASK_MARKER_RING_HEIGHT], softColor, color);
+  addVerticalLine(viewer, SuperMap3D, `${name}-mast`, topPoint, colorWithAlpha(SuperMap3D, options.colorName, 0.78));
+  addPoint(viewer, SuperMap3D, `${name}-pin`, topPoint, color, 16, outlineColor);
+  addTextLabel(viewer, SuperMap3D, `${name}-label`, [point[0], point[1], TASK_MARKER_HEIGHT + 22], {
+    text: `${options.label}\n${options.detail}`,
+    fillColor: colorWithAlpha(SuperMap3D, "WHITE", 1),
+    outlineColor: colorWithAlpha(SuperMap3D, "BLACK", 0.72),
+    backgroundColor: colorWithAlpha(SuperMap3D, "BLACK", 0.72),
+    font: "600 15px Microsoft YaHei, sans-serif",
+    pixelOffsetY: -16,
+  });
+}
+
+function addDroneModel(viewer, SuperMap3D, name, point, headingDeg) {
+  try {
+    const position = SuperMap3D.Cartesian3.fromDegrees(point[0], point[1], point[2]);
+    const orientation = droneOrientation(SuperMap3D, position, headingDeg);
+    const existing = findEntityByName(viewer, name);
+    if (existing) {
+      existing.position = position;
+      if (orientation) {
+        existing.orientation = orientation;
+      }
+      existing.show = true;
+      return true;
+    }
+    const entity = {
+      id: name,
+      name,
+      properties: { supermapDemo: true },
+      position,
+      model: {
+        uri: UAV_MODEL_URL,
+        scale: UAV_MODEL_SCALE,
+        minimumPixelSize: UAV_MODEL_MIN_PIXEL_SIZE,
+        maximumScale: UAV_MODEL_MAXIMUM_SCALE,
+        runAnimations: true,
+        silhouetteColor: colorWithAlpha(SuperMap3D, "WHITE", 0.72),
+        silhouetteSize: 0.8,
+      },
+    };
+    if (orientation) {
+      entity.orientation = orientation;
+    }
+    viewer.entities.add(entity);
+    return true;
+  } catch (error) {
+    console.warn(`Failed to add drone model: ${name}`, error);
+    return false;
+  }
+}
+
+function findEntityByName(viewer, name) {
+  return viewer?.entities?.getById?.(name) || (viewer?.entities?.values || []).find((entity) => entity?.name === name) || null;
+}
+
+function smoothUavRenderState(viewer, targetPoint, targetHeading) {
+  const previous = viewer.__uavRenderState;
+  if (!previous || geographicDistanceMeters(previous.point, targetPoint) > UAV_RENDER_SNAP_DISTANCE) {
+    viewer.__uavRenderState = {
+      point: targetPoint,
+      heading: normalizeDegrees(targetHeading),
+    };
+    return viewer.__uavRenderState;
+  }
+
+  const point = [
+    lerp(previous.point[0], targetPoint[0], UAV_POSITION_SMOOTHING),
+    lerp(previous.point[1], targetPoint[1], UAV_POSITION_SMOOTHING),
+    lerp(previous.point[2], targetPoint[2], UAV_POSITION_SMOOTHING),
+  ];
+  const headingDelta = shortestAngleDelta(previous.heading, targetHeading);
+  const heading = Math.abs(headingDelta) < UAV_HEADING_DEADBAND_DEG
+    ? previous.heading
+    : normalizeDegrees(previous.heading + headingDelta * UAV_HEADING_SMOOTHING);
+  viewer.__uavRenderState = { point, heading };
+  return viewer.__uavRenderState;
+}
+
+function droneOrientation(SuperMap3D, position, headingDeg) {
+  try {
+    if (!SuperMap3D.Transforms?.headingPitchRollQuaternion || !SuperMap3D.HeadingPitchRoll) {
+      return null;
+    }
+    const heading = (headingDeg * Math.PI) / 180 + UAV_MODEL_HEADING_OFFSET;
+    return SuperMap3D.Transforms.headingPitchRollQuaternion(
+      position,
+      new SuperMap3D.HeadingPitchRoll(heading, 0, 0)
+    );
+  } catch (error) {
+    console.warn("Failed to calculate drone orientation", error);
+    return null;
+  }
+}
+
+function addDroneBody(viewer, SuperMap3D, name, point, material, outlineColor) {
+  try {
+    viewer.entities.add({
+      name,
+      properties: { supermapDemo: true },
+      position: SuperMap3D.Cartesian3.fromDegrees(point[0], point[1], point[2]),
+      ellipsoid: {
+        radii: new SuperMap3D.Cartesian3(8, 5, 2.6),
+        material,
+        outline: true,
+        outlineColor,
+      },
+    });
+  } catch (error) {
+    console.warn(`Failed to add drone body: ${name}`, error);
+    addPoint(viewer, SuperMap3D, name, point, material, 15, outlineColor);
+  }
+}
+
+function addRotorDisc(viewer, SuperMap3D, name, point, material) {
+  try {
+    viewer.entities.add({
+      name,
+      properties: { supermapDemo: true },
+      position: SuperMap3D.Cartesian3.fromDegrees(point[0], point[1], point[2] + 0.8),
+      ellipse: {
+        semiMajorAxis: 7,
+        semiMinorAxis: 7,
+        material: colorWithAlpha(SuperMap3D, "CYAN", 0.16),
+        outline: true,
+        outlineColor: material,
+        height: point[2] + 0.8,
+      },
+    });
+  } catch (error) {
+    console.warn(`Failed to add drone rotor disc: ${name}`, error);
+  }
 }
 
 function drawLuojiaBuildings(viewer, SuperMap3D, buildings, terrain = null) {
@@ -608,16 +819,20 @@ function sampleTerrainHeight(terrain, point) {
   return Number.isFinite(best) ? best : null;
 }
 
-function addPolyline(viewer, SuperMap3D, name, points, material, width = 3) {
+function addPolyline(viewer, SuperMap3D, name, points, material, width = 3, options = {}) {
   if (!points?.length) return;
   try {
     viewer.entities.add({
       name,
       properties: { supermapDemo: true },
       polyline: {
-        positions: points.map((point) => SuperMap3D.Cartesian3.fromDegrees(point[0], point[1], point[2] || 120)),
+        positions: points.map((point) => {
+          const renderPoint = options.minHeight ? elevateFlightPoint(point, options.minHeight) : point;
+          return SuperMap3D.Cartesian3.fromDegrees(renderPoint[0], renderPoint[1], renderPoint[2] || 120);
+        }),
         width,
         material,
+        depthFailMaterial: material,
         clampToGround: false,
       },
     });
@@ -659,6 +874,7 @@ function addPoint(viewer, SuperMap3D, name, point, color, pixelSize, outlineColo
         color,
         outlineColor,
         outlineWidth: outlineColor ? 2 : 0,
+        disableDepthTestDistance: Number.POSITIVE_INFINITY,
       },
     });
   } catch (error) {
@@ -666,8 +882,64 @@ function addPoint(viewer, SuperMap3D, name, point, color, pixelSize, outlineColo
   }
 }
 
+function addGroundRing(viewer, SuperMap3D, name, point, material, outlineColor) {
+  try {
+    viewer.entities.add({
+      name,
+      properties: { supermapDemo: true },
+      position: SuperMap3D.Cartesian3.fromDegrees(point[0], point[1], point[2] || TASK_MARKER_RING_HEIGHT),
+      ellipse: {
+        semiMajorAxis: 30,
+        semiMinorAxis: 30,
+        material,
+        outline: true,
+        outlineColor,
+        height: point[2] || TASK_MARKER_RING_HEIGHT,
+      },
+    });
+  } catch (error) {
+    console.warn(`Failed to add ground ring: ${name}`, error);
+  }
+}
+
+function addTextLabel(viewer, SuperMap3D, name, point, options) {
+  try {
+    viewer.entities.add({
+      name,
+      properties: { supermapDemo: true },
+      position: SuperMap3D.Cartesian3.fromDegrees(point[0], point[1], point[2] || TASK_MARKER_HEIGHT),
+      point: options.markerColor
+        ? {
+            pixelSize: 8,
+            color: options.markerColor,
+            outlineColor: colorWithAlpha(SuperMap3D, "WHITE", 0.95),
+            outlineWidth: 2,
+            disableDepthTestDistance: Number.POSITIVE_INFINITY,
+          }
+        : undefined,
+      label: {
+        text: options.text,
+        font: options.font || "500 13px Microsoft YaHei, sans-serif",
+        fillColor: options.fillColor || colorWithAlpha(SuperMap3D, "WHITE", 1),
+        outlineColor: options.outlineColor || colorWithAlpha(SuperMap3D, "BLACK", 0.72),
+        outlineWidth: 3,
+        style: SuperMap3D.LabelStyle?.FILL_AND_OUTLINE,
+        showBackground: true,
+        backgroundColor: options.backgroundColor || colorWithAlpha(SuperMap3D, "BLACK", 0.62),
+        backgroundPadding: SuperMap3D.Cartesian2 ? new SuperMap3D.Cartesian2(9, 6) : undefined,
+        pixelOffset: SuperMap3D.Cartesian2 ? new SuperMap3D.Cartesian2(0, options.pixelOffsetY || -10) : undefined,
+        verticalOrigin: SuperMap3D.VerticalOrigin?.BOTTOM,
+        horizontalOrigin: SuperMap3D.HorizontalOrigin?.CENTER,
+        disableDepthTestDistance: Number.POSITIVE_INFINITY,
+      },
+    });
+  } catch (error) {
+    console.warn(`Failed to add text label: ${name}`, error);
+  }
+}
+
 function addVerticalLine(viewer, SuperMap3D, name, point, material) {
-  const baseHeight = 50;
+  const baseHeight = UAV_SHADOW_HEIGHT;
   const topHeight = point[2] || 120;
   viewer.entities.add({
     name,
@@ -679,6 +951,7 @@ function addVerticalLine(viewer, SuperMap3D, name, point, material) {
       ],
       width: 2,
       material,
+      depthFailMaterial: material,
     },
   });
 }
@@ -722,6 +995,49 @@ function offsetMeters(point, eastMeters, northMeters) {
     point[1] + northMeters / metersPerDegreeLat,
     point[2] || 120,
   ];
+}
+
+function elevateFlightPoint(point, minHeight = FLIGHT_PATH_MIN_HEIGHT) {
+  if (!point) return point;
+  const height = Math.max(Number(point[2]) || 120, minHeight);
+  return [point[0], point[1], height];
+}
+
+function headingFromTrail(trail = [], fallbackPoint = null) {
+  const points = [...trail, fallbackPoint].filter(Boolean);
+  if (points.length < 2) return 45;
+  const current = points[points.length - 1];
+  const previous = [...points].reverse().find((point) => {
+    return Math.abs(point[0] - current[0]) > 0.000001 || Math.abs(point[1] - current[1]) > 0.000001;
+  });
+  if (!previous) return 45;
+  const lonMeters = (current[0] - previous[0]) * 111320 * Math.cos((current[1] * Math.PI) / 180);
+  const latMeters = (current[1] - previous[1]) * 111320;
+  return ((Math.atan2(lonMeters, latMeters) * 180) / Math.PI + 360) % 360;
+}
+
+function offsetByHeading(point, headingDeg, forwardMeters, rightMeters) {
+  const heading = (headingDeg * Math.PI) / 180;
+  const east = Math.sin(heading) * forwardMeters + Math.cos(heading) * rightMeters;
+  const north = Math.cos(heading) * forwardMeters - Math.sin(heading) * rightMeters;
+  return offsetMeters(point, east, north);
+}
+
+function geographicDistanceMeters(pointA, pointB) {
+  if (!pointA || !pointB) return Number.POSITIVE_INFINITY;
+  const avgLat = (((pointA[1] || 0) + (pointB[1] || 0)) / 2) * (Math.PI / 180);
+  const east = ((pointB[0] || 0) - (pointA[0] || 0)) * 111320 * Math.cos(avgLat);
+  const north = ((pointB[1] || 0) - (pointA[1] || 0)) * 111320;
+  const up = (pointB[2] || 0) - (pointA[2] || 0);
+  return Math.hypot(east, north, up);
+}
+
+function shortestAngleDelta(fromDeg, toDeg) {
+  return ((normalizeDegrees(toDeg) - normalizeDegrees(fromDeg) + 540) % 360) - 180;
+}
+
+function normalizeDegrees(degrees) {
+  return ((degrees % 360) + 360) % 360;
 }
 
 function rectangleAroundMeters(point, widthMeters, depthMeters) {

@@ -437,11 +437,19 @@
 {
   "task_id": "task_001",
   "route": {},
-  "mode": "autonomous"
+  "mode": "autonomous",
+  "matcher_mode": "opencv_orb"
 }
 ```
 
-返回：`NavigationSession`，包含 `session_id`、`duration_s`、`timeline` 和后端事件流。
+说明：
+
+- `mode` 支持 `autonomous`、`assisted`。
+- `matcher_mode` 默认 `synthetic_v04`，用于保留 v0.4 稳定链路。
+- v0.5a 主线演示使用 `opencv_orb`，ORB 成功时写入 `visual_position/fused_position`。
+- ORB 不可用、失败或未形成导航级位姿时，后端显式回退到 v0.4 `precomputed_proxy`。
+
+返回：`NavigationSession`，包含 `session_id`、`matcher_mode`、`duration_s`、`timeline` 和后端事件流。
 
 ### GET /api/navigation/state
 
@@ -587,7 +595,7 @@ session_id=nav_task_001_route_balanced_001
 
 返回：`VisualLocalizationResult`。
 
-当前 `matcher_mode` 支持 `synthetic_v04` 和 `precomputed`，真实 ORB/SIFT/LoFTR/LightGlue 接入后应保持返回结构不变。
+当前 `matcher_mode` 支持 `synthetic_v04`、`precomputed`、`precomputed_proxy`、`opencv_orb`、`opencv_sift`、`external_deep_matcher`。其中 `opencv_orb` 已作为 v0.5a 真实匹配 provider 接入，`opencv_sift` 和 `external_deep_matcher` 仍为预留/不可用 provider。
 
 ### GET /api/vision/localizations/{image_id}
 
@@ -635,7 +643,27 @@ task_id=task_001
 
 用途：获取任务报告。
 
-返回：任务摘要、航线、风险、事件、视觉匹配结果和 `VisionSummary` 视觉摘要。
+返回：任务摘要、航线、风险、事件、视觉匹配结果、`VisionSummary` 视觉摘要和 `navigation_quality` 导航质量统计。
+
+`navigation_quality` 当前字段：
+
+```text
+matcher_mode
+frame_count
+visual_observation_count
+provider_counts
+navigation_mode_counts
+location_source_counts
+fallback_count
+review_frame_count
+confidence.average/min/max/low_confidence_count/navigation_grade_count/autonomous_grade_count
+visual_error.average_m/max_m/average_error_radius_m/max_error_radius_m
+fused_trajectory.average_deviation_m/max_deviation_m/final_error_m/max_step_mps/smoothness_passed
+quality_grade
+summary
+```
+
+v0.5a 报告默认使用 `opencv_orb` 生成导航质量统计；UAV 帧仍为半真实演示帧时，报告口径必须说明这是软件仿真验证结果，不是真实飞行测试结果。
 
 ## 5. 联调规则
 

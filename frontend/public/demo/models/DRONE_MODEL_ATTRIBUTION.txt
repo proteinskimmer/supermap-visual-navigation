@@ -1,0 +1,8 @@
+Drone model for the SuperMap UAV demo
+
+File: drone_animated.glb
+Source: https://git.datalabrotterdam.nl/websites/resources/-/raw/main/models/drone/drone_animated.glb
+Downloaded: 2026-06-09
+
+Note: The source did not expose a license file through the checked raw URL.
+Please confirm redistribution rights before packaging this asset for public release.

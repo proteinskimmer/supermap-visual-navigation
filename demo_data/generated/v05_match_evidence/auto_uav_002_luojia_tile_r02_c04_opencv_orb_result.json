@@ -1,0 +1,38 @@
+{
+  "image_id": "auto_uav_002",
+  "tile_id": "luojia_tile_r02_c04",
+  "provider": "opencv_orb",
+  "matched_points": 50,
+  "inlier_ratio": 0.16,
+  "confidence": 0.475,
+  "error_radius_m": 82.5,
+  "offset_m": [
+    -51.1,
+    -6.7
+  ],
+  "estimated_pose": {
+    "lon": 114.362568791,
+    "lat": 30.53872877,
+    "altitude_m": 123.8,
+    "yaw_deg": 45.0,
+    "pitch_deg": -40,
+    "roll_deg": 0
+  },
+  "failure_reason": "ORB/RANSAC confidence is below navigation threshold",
+  "view_id": "syn_auto_uav_002_luojia_tile_r02_c04",
+  "synthetic_image": "/demo/synthetic_views/v05a_syn_auto_uav_002_luojia_tile_r02_c04_lat30d5388_lon114d3631_az100_el64_evp0d0_sh0d22_hz0d08_k5600.png",
+  "evidence_files": {
+    "uav_image": "E:\\supermap_project\\demo_data\\generated\\v05_match_evidence\\auto_uav_002_luojia_tile_r02_c04_opencv_orb_uav.png",
+    "synthetic_image": "E:\\supermap_project\\demo_data\\generated\\v05_match_evidence\\auto_uav_002_luojia_tile_r02_c04_opencv_orb_synthetic.png",
+    "match_lines": "E:\\supermap_project\\demo_data\\generated\\v05_match_evidence\\auto_uav_002_luojia_tile_r02_c04_opencv_orb_matches.png",
+    "ransac_inliers": "E:\\supermap_project\\demo_data\\generated\\v05_match_evidence\\auto_uav_002_luojia_tile_r02_c04_opencv_orb_inliers.png",
+    "result_json": "E:\\supermap_project\\demo_data\\generated\\v05_match_evidence\\auto_uav_002_luojia_tile_r02_c04_opencv_orb_result.json"
+  },
+  "evidence_urls": {
+    "uav_image": "/api/vision/evidence/auto_uav_002_luojia_tile_r02_c04_opencv_orb_uav.png",
+    "synthetic_image": "/api/vision/evidence/auto_uav_002_luojia_tile_r02_c04_opencv_orb_synthetic.png",
+    "match_lines": "/api/vision/evidence/auto_uav_002_luojia_tile_r02_c04_opencv_orb_matches.png",
+    "ransac_inliers": "/api/vision/evidence/auto_uav_002_luojia_tile_r02_c04_opencv_orb_inliers.png",
+    "result_json": "/api/vision/evidence/auto_uav_002_luojia_tile_r02_c04_opencv_orb_result.json"
+  }
+}

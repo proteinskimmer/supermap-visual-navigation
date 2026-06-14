@@ -47,3 +47,13 @@ def replace_risk_zones(task_id: str, risk_zones: list[dict]) -> list[dict]:
         raise KeyError(f"task not found: {task_id}")
     data["risk_zones"] = risk_zones
     return save_demo_data(data)["risk_zones"]
+
+
+def update_task_endpoints(task_id: str, start: list[float], target: list[float]) -> dict:
+    data = get_demo_data()
+    task = data["task"]
+    if task["id"] != task_id:
+        raise KeyError(f"task not found: {task_id}")
+    task["start"] = start
+    task["target"] = target
+    return save_demo_data(data)["task"]

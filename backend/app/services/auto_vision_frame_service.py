@@ -3,6 +3,7 @@ from __future__ import annotations
 from math import atan2, degrees
 
 from app.services.geometry import distance_m, lonlat_to_xy
+from app.services.vision_matcher_provider import build_semi_real_uav_frame, default_camera_calibration
 
 
 DISTANCE_INTERVAL_M = 280.0
@@ -110,27 +111,36 @@ def _frame_from_sample(
 ) -> dict:
     point = sample["point"]
     tile = _nearest_tile(point, tiles, origin)
-    query_image = tile.get("tile_image") if tile else "/demo/luojia_ortho_preview.jpg"
+    source_tile_image = tile.get("tile_image") if tile else "/demo/luojia_ortho_preview.jpg"
+    frame_id = f"auto_uav_{frame_number:03d}"
+    camera = {
+        "fov_deg": 72,
+        "height_m": point[2] if len(point) > 2 else 120,
+        "yaw_deg": sample.get("heading_deg", 0),
+        "pitch_deg": -40,
+        "roll_deg": 0,
+    }
+    semi_real = build_semi_real_uav_frame(source_tile_image, frame_id, camera["yaw_deg"], camera["fov_deg"], point)
+    calibration = semi_real.get("camera_calibration", default_camera_calibration())
     return {
-        "id": f"auto_uav_{frame_number:03d}",
+        "id": frame_id,
         "task_id": task["id"],
         "name": f"自动合成视觉帧 {frame_number:02d}",
-        "query_image": query_image,
+        "query_image": semi_real["image_url"],
         "capture_time_s": int(time_s),
         "resolution": [1280, 720],
-        "camera": {
-            "fov_deg": 72,
-            "height_m": point[2] if len(point) > 2 else 120,
-            "yaw_deg": sample.get("heading_deg", 0),
-            "pitch_deg": -40,
-            "roll_deg": 0,
-        },
+        "camera": camera,
+        "camera_calibration": calibration,
+        "distortion_model": calibration.get("distortion_model", "plumb_bob"),
+        "distortion_coefficients": calibration.get("distortion_coefficients", {}),
         "scene_tags": ["luojia", "synthetic", "dem", "ortho", "building"],
         "expected_center": [point[0], point[1], point[2] if len(point) > 2 else 120.0],
-        "source": "auto_dem_ortho_route_sampler",
+        "source": "semi_real_uav_frame_simulator",
         "frame_trigger": trigger,
         "route_distance_m": sample["distance_m"],
         "source_tile_id": tile.get("tile_id", "") if tile else "",
+        "source_tile_image": source_tile_image,
+        "uav_frame_simulation": semi_real,
         "synthetic_view_note": "Frame image is derived from the orthophoto tile selected along the route; DEM/building context is used during synthetic-view localization.",
     }
 

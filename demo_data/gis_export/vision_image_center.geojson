@@ -86,7 +86,7 @@
                                       },
                          "properties":  {
                                             "source":  "vision_expected_center",
-                                            "query_image":  "/demo/uav_view_004.jpg",
+                                            "query_image":  "/demo/uav_view_004.svg",
                                             "id":  "demo_uav_004",
                                             "pitch_deg":  -40,
                                             "altitude_m":  128.0,

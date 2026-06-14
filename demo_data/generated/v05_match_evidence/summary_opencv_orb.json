@@ -1,0 +1,137 @@
+{
+  "task_id": "task_001",
+  "provider": "opencv_orb",
+  "matcher_status": {
+    "status": "available",
+    "provider": "opencv_orb",
+    "cv2_available": true,
+    "cv2_version": "4.13.0",
+    "algorithm_available": true,
+    "description": "v0.5a OpenCV ORB + BFMatcher/Hamming + RANSAC provider."
+  },
+  "evidence_dir": "E:\\supermap_project\\demo_data\\generated\\v05_match_evidence",
+  "image_count": 6,
+  "localized_count": 6,
+  "results": [
+    {
+      "image_id": "auto_uav_001",
+      "frame_trigger": "distance_interval",
+      "provider": "opencv_orb",
+      "status": "localized",
+      "matched_points": 10,
+      "inlier_ratio": 0.9,
+      "confidence": 0.705,
+      "error_radius_m": 59.6,
+      "failure_reason": "",
+      "best_estimated_pose": {
+        "lon": 114.361061977,
+        "lat": 30.537292631,
+        "altitude_m": 122.5,
+        "yaw_deg": 45.0,
+        "pitch_deg": -40,
+        "roll_deg": 0
+      },
+      "match_count": 2
+    },
+    {
+      "image_id": "auto_uav_002",
+      "frame_trigger": "distance_interval",
+      "provider": "opencv_orb",
+      "status": "localized",
+      "matched_points": 175,
+      "inlier_ratio": 0.663,
+      "confidence": 0.832,
+      "error_radius_m": 25.2,
+      "failure_reason": "",
+      "best_estimated_pose": {
+        "lon": 114.361097831,
+        "lat": 30.538799923,
+        "altitude_m": 123.8,
+        "yaw_deg": 45.0,
+        "pitch_deg": -40,
+        "roll_deg": 0
+      },
+      "match_count": 2
+    },
+    {
+      "image_id": "auto_uav_003",
+      "frame_trigger": "heading_change",
+      "provider": "opencv_orb",
+      "status": "localized",
+      "matched_points": 9,
+      "inlier_ratio": 1.0,
+      "confidence": 0.752,
+      "error_radius_m": 52.8,
+      "failure_reason": "",
+      "best_estimated_pose": {
+        "lon": 114.363099027,
+        "lat": 30.540316008,
+        "altitude_m": 125.0,
+        "yaw_deg": 90.0,
+        "pitch_deg": -40,
+        "roll_deg": 0
+      },
+      "match_count": 2
+    },
+    {
+      "image_id": "auto_uav_004",
+      "frame_trigger": "distance_interval",
+      "provider": "opencv_orb",
+      "status": "localized",
+      "matched_points": 53,
+      "inlier_ratio": 0.679,
+      "confidence": 0.745,
+      "error_radius_m": 41.1,
+      "failure_reason": "",
+      "best_estimated_pose": {
+        "lon": 114.365115473,
+        "lat": 30.540309503,
+        "altitude_m": 127.5,
+        "yaw_deg": 87.3,
+        "pitch_deg": -40,
+        "roll_deg": 0
+      },
+      "match_count": 2
+    },
+    {
+      "image_id": "auto_uav_005",
+      "frame_trigger": "distance_interval",
+      "provider": "opencv_orb",
+      "status": "localized",
+      "matched_points": 176,
+      "inlier_ratio": 0.659,
+      "confidence": 0.83,
+      "error_radius_m": 25.5,
+      "failure_reason": "",
+      "best_estimated_pose": {
+        "lon": 114.367119404,
+        "lat": 30.540301167,
+        "altitude_m": 128.8,
+        "yaw_deg": 87.3,
+        "pitch_deg": -40,
+        "roll_deg": 0
+      },
+      "match_count": 2
+    },
+    {
+      "image_id": "auto_uav_006",
+      "frame_trigger": "route_arrival",
+      "provider": "opencv_orb",
+      "status": "localized",
+      "matched_points": 270,
+      "inlier_ratio": 0.719,
+      "confidence": 0.859,
+      "error_radius_m": 21.1,
+      "failure_reason": "",
+      "best_estimated_pose": {
+        "lon": 114.369127506,
+        "lat": 30.540287413,
+        "altitude_m": 130.0,
+        "yaw_deg": 87.3,
+        "pitch_deg": -40,
+        "roll_deg": 0
+      },
+      "match_count": 2
+    }
+  ]
+}

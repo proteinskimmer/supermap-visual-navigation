@@ -1233,6 +1233,45 @@ small {
   border-bottom: 1px solid rgba(255, 205, 119, 0.25);
 }
 
+.report-loading-banner {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 10px 18px;
+  color: #dff8ff;
+  background: rgba(12, 42, 66, 0.84);
+  border-bottom: 1px solid rgba(92, 214, 255, 0.2);
+}
+
+.report-loading-banner div {
+  display: grid;
+  gap: 2px;
+}
+
+.report-loading-banner strong {
+  color: #eafaff;
+  font-size: 13px;
+}
+
+.report-loading-banner small {
+  color: #9fc7d8;
+}
+
+.loading-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(108, 231, 255, 0.22);
+  border-top-color: #6ce7ff;
+  border-radius: 50%;
+  animation: spin 900ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .cockpit-grid {
   display: grid;
   grid-template-columns: 300px minmax(520px, 1fr) 340px;
@@ -1397,13 +1436,15 @@ small {
 
 .risk-editor-actions {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 6px;
 }
 
 .risk-editor-actions button,
 .risk-points-head button,
-.risk-point-row button {
+.risk-point-row button,
+.risk-map-tools button,
+.risk-nudge-grid button {
   min-height: 30px;
   color: #06131f;
   background: #6ce7ff;
@@ -1412,10 +1453,16 @@ small {
 
 .risk-editor-actions button:disabled,
 .risk-points-head button:disabled,
-.risk-point-row button:disabled {
+.risk-point-row button:disabled,
+.risk-map-tools button:disabled,
+.risk-nudge-grid button:disabled {
   color: #728a98;
   background: rgba(79, 103, 119, 0.55);
   cursor: not-allowed;
+}
+
+.risk-save-button {
+  grid-column: span 1;
 }
 
 .risk-select,
@@ -1458,6 +1505,243 @@ small {
   width: 16px;
   height: 16px;
   padding: 0;
+}
+
+.risk-map-editor {
+  display: grid;
+  gap: 7px;
+}
+
+.risk-map-editor svg {
+  width: 100%;
+  aspect-ratio: 1.25 / 1;
+  overflow: hidden;
+  background: #eaf2f7;
+  border: 1px solid rgba(92, 214, 255, 0.22);
+  border-radius: 6px;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.risk-map-bg {
+  fill: #eaf2f7;
+}
+
+.risk-map-task-area {
+  fill: rgba(80, 128, 166, 0.08);
+  stroke: rgba(58, 92, 120, 0.52);
+  stroke-width: 0.45;
+}
+
+.risk-sketch-zone {
+  cursor: pointer;
+  stroke-width: 0.7;
+  transition:
+    fill 160ms ease,
+    stroke 160ms ease,
+    opacity 160ms ease;
+}
+
+.risk-sketch-muted {
+  fill: rgba(240, 203, 72, 0.16);
+  stroke: rgba(185, 145, 17, 0.62);
+}
+
+.risk-sketch-high {
+  fill: rgba(240, 155, 61, 0.18);
+  stroke: rgba(217, 128, 25, 0.72);
+}
+
+.risk-sketch-critical {
+  fill: rgba(224, 70, 86, 0.18);
+  stroke: rgba(224, 70, 86, 0.78);
+}
+
+.risk-sketch-selected {
+  fill: rgba(224, 70, 86, 0.3);
+  stroke: #e04656;
+  stroke-width: 1.05;
+}
+
+.risk-sketch-outline {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 0.38;
+  pointer-events: none;
+}
+
+.risk-vertex {
+  fill: #ffffff;
+  stroke: #245c86;
+  stroke-width: 0.75;
+  cursor: grab;
+}
+
+.risk-vertex.active {
+  fill: #245c86;
+  stroke: #ffffff;
+}
+
+.risk-vertex:active {
+  cursor: grabbing;
+}
+
+.risk-map-tools {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 54px;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.risk-nudge-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.risk-coordinate-details {
+  display: grid;
+  gap: 6px;
+  padding: 8px;
+  background: rgba(7, 18, 29, 0.42);
+  border: 1px solid rgba(92, 214, 255, 0.14);
+  border-radius: 6px;
+}
+
+.risk-coordinate-details summary {
+  color: #dff8ff;
+  cursor: pointer;
+  font-size: 12px;
+  user-select: none;
+}
+
+.endpoint-editor {
+  gap: 10px;
+}
+
+.endpoint-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.endpoint-switch button {
+  min-height: 30px;
+  color: #536b80;
+  background: transparent;
+  border: 1px solid rgba(92, 214, 255, 0.22);
+  border-radius: 6px;
+}
+
+.endpoint-switch button.active {
+  color: #07121d;
+  background: #6ce7ff;
+  border-color: #6ce7ff;
+}
+
+.endpoint-map-editor {
+  display: grid;
+  gap: 6px;
+}
+
+.endpoint-map-editor svg {
+  width: 100%;
+  aspect-ratio: 1.25 / 1;
+  overflow: hidden;
+  background: #eaf2f7;
+  border: 1px solid rgba(92, 214, 255, 0.22);
+  border-radius: 6px;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.endpoint-map-editor small {
+  color: #9fb9c8;
+  line-height: 1.45;
+}
+
+.endpoint-preview-line {
+  fill: none;
+  stroke: rgba(108, 231, 255, 0.72);
+  stroke-dasharray: 2 1.6;
+  stroke-linecap: round;
+  stroke-width: 0.7;
+}
+
+.endpoint-marker {
+  cursor: grab;
+}
+
+.endpoint-marker:active {
+  cursor: grabbing;
+}
+
+.endpoint-marker circle {
+  fill: #ffffff;
+  stroke-width: 1.2;
+}
+
+.endpoint-marker.start circle {
+  stroke: #14b872;
+}
+
+.endpoint-marker.target circle {
+  stroke: #e04656;
+}
+
+.endpoint-marker.active circle {
+  fill: #245c86;
+  stroke: #ffffff;
+}
+
+.endpoint-marker text {
+  fill: #eafaff;
+  paint-order: stroke;
+  stroke: rgba(7, 18, 29, 0.76);
+  stroke-width: 2.8px;
+  font: 700 5px Microsoft YaHei, sans-serif;
+  pointer-events: none;
+}
+
+.endpoint-coordinate-grid {
+  display: grid;
+  gap: 7px;
+}
+
+.endpoint-coordinate-grid label {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 5px 7px;
+  align-items: center;
+  color: #9fb9c8;
+  font-size: 12px;
+}
+
+.endpoint-coordinate-grid strong {
+  grid-column: 1 / -1;
+  color: #eafaff;
+  font-size: 13px;
+}
+
+.endpoint-coordinate-grid input {
+  min-width: 0;
+  width: 100%;
+  padding: 5px 6px;
+  color: #eafaff;
+  background: rgba(7, 18, 29, 0.72);
+  border: 1px solid rgba(92, 214, 255, 0.22);
+  border-radius: 5px;
+}
+
+.endpoint-nudge-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.endpoint-editor .risk-editor-actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .risk-points {
@@ -1775,6 +2059,83 @@ small {
   color: #eafaff;
 }
 
+.provider-metrics {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+
+.provider-metrics span {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 8px;
+  color: #9fb9c8;
+  font-size: 12px;
+}
+
+.provider-metrics strong {
+  overflow-wrap: anywhere;
+  color: #eafaff;
+}
+
+.lighting-controls {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+  align-items: end;
+}
+
+.lighting-controls label {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  color: #9fb9c8;
+  font-size: 11px;
+}
+
+.lighting-controls input {
+  min-width: 0;
+  width: 100%;
+}
+
+.lighting-controls input[type="datetime-local"] {
+  grid-column: span 2;
+  padding: 4px 5px;
+  color: #eafaff;
+  background: rgba(7, 18, 29, 0.72);
+  border: 1px solid rgba(92, 214, 255, 0.24);
+  border-radius: 4px;
+}
+
+.orb-evidence-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.orb-evidence-grid figure {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  margin: 0;
+}
+
+.orb-evidence-grid img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border: 1px solid rgba(125, 211, 199, 0.24);
+  border-radius: 6px;
+}
+
+.orb-evidence-grid figcaption {
+  overflow: hidden;
+  color: #9fb9c8;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .kpi-row {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1927,6 +2288,25 @@ small {
   border-bottom: 1px solid #ead39d;
 }
 
+.report-loading-banner {
+  color: #183149;
+  background: #eef7fb;
+  border-bottom: 1px solid #cfe0ea;
+}
+
+.report-loading-banner strong {
+  color: #183149;
+}
+
+.report-loading-banner small {
+  color: #5f7285;
+}
+
+.loading-spinner {
+  border-color: rgba(36, 92, 134, 0.18);
+  border-top-color: #245c86;
+}
+
 .cockpit-grid {
   grid-template-columns: 308px minmax(560px, 1fr) 348px;
   gap: 14px;
@@ -1986,7 +2366,10 @@ small {
 .command-buttons button,
 .risk-editor-actions button,
 .risk-points-head button,
-.risk-point-row button {
+.risk-point-row button,
+.risk-map-tools button,
+.risk-nudge-grid button,
+.endpoint-nudge-grid button {
   min-height: 34px;
   color: #ffffff;
   background: #245c86;
@@ -1997,17 +2380,33 @@ small {
 .command-buttons button:hover:not(:disabled),
 .risk-editor-actions button:hover:not(:disabled),
 .risk-points-head button:hover:not(:disabled),
-.risk-point-row button:hover:not(:disabled) {
+.risk-point-row button:hover:not(:disabled),
+.risk-map-tools button:hover:not(:disabled),
+.risk-nudge-grid button:hover:not(:disabled),
+.endpoint-nudge-grid button:hover:not(:disabled) {
   background: #1d4d72;
 }
 
 .command-buttons button:disabled,
 .risk-editor-actions button:disabled,
 .risk-points-head button:disabled,
-.risk-point-row button:disabled {
+.risk-point-row button:disabled,
+.risk-map-tools button:disabled,
+.risk-nudge-grid button:disabled,
+.endpoint-nudge-grid button:disabled {
   color: #8798a7;
   background: #dce6ee;
   box-shadow: none;
+}
+
+.command-hint {
+  display: block;
+  padding: 8px 10px;
+  color: #4c6c83;
+  background: #eef6fb;
+  border: 1px solid #d2e2ed;
+  border-radius: 6px;
+  line-height: 1.45;
 }
 
 .layer-row {
@@ -2068,6 +2467,8 @@ small {
 .risk-form label,
 .risk-points-head,
 .risk-point-row span,
+.risk-map-tools,
+.risk-coordinate-details summary,
 .risk-editor-message {
   color: #5f7285;
 }
@@ -2075,6 +2476,61 @@ small {
 .risk-point-row input:disabled {
   color: #8595a3;
   background: #eef3f7;
+}
+
+.risk-map-editor svg {
+  background: #edf5fa;
+  border-color: #c8dce9;
+}
+
+.endpoint-map-editor svg {
+  background: #edf5fa;
+  border-color: #c8dce9;
+}
+
+.endpoint-map-editor small,
+.endpoint-coordinate-grid label {
+  color: #5f7285;
+}
+
+.endpoint-coordinate-grid strong {
+  color: #183149;
+}
+
+.endpoint-coordinate-grid input {
+  color: #183149;
+  background: #ffffff;
+  border-color: #cbdbe7;
+}
+
+.endpoint-switch button {
+  color: #536b80;
+  background: #eef4f8;
+  border-color: #d4e0ea;
+}
+
+.endpoint-switch button.active {
+  color: #ffffff;
+  background: #245c86;
+  border-color: #245c86;
+}
+
+.endpoint-preview-line {
+  stroke: rgba(36, 92, 134, 0.72);
+}
+
+.endpoint-marker text {
+  fill: #183149;
+  stroke: rgba(255, 255, 255, 0.85);
+}
+
+.risk-map-bg {
+  fill: #edf5fa;
+}
+
+.risk-coordinate-details {
+  background: #f6f9fb;
+  border-color: #d9e4ec;
 }
 
 .position-fusion-list span {
@@ -2262,6 +2718,80 @@ small {
 
 .console-list small {
   color: #647789;
+}
+
+.simulation-log-window {
+  position: absolute;
+  z-index: 5;
+  right: 14px;
+  bottom: 14px;
+  width: min(420px, calc(100% - 28px));
+  max-height: min(280px, calc(100% - 86px));
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid #cbdce8;
+  border-radius: 8px;
+  box-shadow: 0 18px 38px rgba(35, 63, 89, 0.18);
+}
+
+.simulation-log-window.collapsed {
+  width: 168px;
+}
+
+.simulation-log-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 36px;
+  padding: 8px 11px;
+  color: #183149;
+  background: #f4f8fb;
+  border-bottom: 1px solid #dbe6ee;
+}
+
+.simulation-log-toggle strong {
+  font-size: 13px;
+}
+
+.simulation-log-toggle span {
+  color: #2b6f9d;
+  font-size: 12px;
+}
+
+.simulation-log-list {
+  display: grid;
+  gap: 7px;
+  max-height: 230px;
+  padding: 10px;
+  overflow: auto;
+}
+
+.simulation-log-list article {
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr);
+  gap: 2px 9px;
+  padding: 8px 9px;
+  background: #f6f9fb;
+  border: 1px solid #dce7ef;
+  border-radius: 6px;
+}
+
+.simulation-log-list strong {
+  grid-row: span 2;
+  color: #2b6f9d;
+  font-size: 12px;
+}
+
+.simulation-log-list span {
+  color: #183149;
+  font-size: 13px;
+}
+
+.simulation-log-list small {
+  color: #647789;
+  line-height: 1.45;
 }
 
 .section-focus {

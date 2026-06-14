@@ -76,6 +76,16 @@ class TaskDetailData(BaseModel):
     obstacles: list[Obstacle]
 
 
+class TaskEndpointsUpdateRequest(BaseModel):
+    start: Point3D
+    target: Point3D
+
+
+class TaskEndpointsUpdateData(BaseModel):
+    task_id: str
+    task: Task
+
+
 class Route(BaseModel):
     id: str
     mode: str
@@ -155,12 +165,17 @@ class VisionImage(BaseModel):
     capture_time_s: int
     resolution: list[int]
     camera: dict[str, Any]
+    camera_calibration: dict[str, Any] = Field(default_factory=dict)
+    distortion_model: str = ""
+    distortion_coefficients: dict[str, float] = Field(default_factory=dict)
     scene_tags: list[str]
     expected_center: Point3D
     source: str = ""
     frame_trigger: str = ""
     route_distance_m: float = 0
     source_tile_id: str = ""
+    source_tile_image: str = ""
+    uav_frame_simulation: dict[str, Any] = Field(default_factory=dict)
     synthetic_view_note: str = ""
 
 
@@ -237,6 +252,7 @@ class ReportData(BaseModel):
     events: list[SimulationEvent]
     vision: VisionMatchResult
     vision_summary: VisionSummary
+    navigation_quality: dict[str, Any] = Field(default_factory=dict)
     summary: str
 
 
@@ -273,12 +289,14 @@ class SyntheticViewRequest(BaseModel):
     initial_pose: CameraPose | None = None
     route_prior_pose: CameraPose | None = None
     top_k_tiles: int = Field(default=3, ge=1, le=10)
+    lighting_options: dict[str, Any] = Field(default_factory=dict)
 
 
 class SyntheticViewResponse(BaseModel):
     task_id: str
     image_id: str
     query_image: str
+    image_simulation: dict[str, Any] = Field(default_factory=dict)
     initial_pose: CameraPose
     route_prior_pose: CameraPose
     candidate_count: int
@@ -299,6 +317,7 @@ class SyntheticViewMatch(BaseModel):
     status: str
     failure_reason: str = ""
     reason: str = ""
+    evidence: dict[str, Any] = Field(default_factory=dict)
     rank: int = Field(ge=1)
 
 
@@ -320,6 +339,7 @@ class VisualLocalizationResult(BaseModel):
     query_image: str
     provider: str
     status: str
+    image_simulation: dict[str, Any] = Field(default_factory=dict)
     initial_pose: CameraPose
     route_prior_pose: CameraPose
     best_estimated_pose: CameraPose | None = None
@@ -405,6 +425,7 @@ class NavigationSession(BaseModel):
     session_id: str
     task_id: str
     active_route_id: str
+    matcher_mode: str = "synthetic_v04"
     route: Route
     duration_s: int = Field(ge=1)
     state: Literal["ready"]
@@ -416,12 +437,28 @@ class NavigationStartRequest(BaseModel):
     task_id: str = "task_001"
     route: Route
     mode: Literal["autonomous", "assisted"] = "autonomous"
+    matcher_mode: Literal[
+        "synthetic_v04",
+        "precomputed",
+        "precomputed_proxy",
+        "opencv_orb",
+        "opencv_sift",
+        "external_deep_matcher",
+    ] = "synthetic_v04"
 
 
 class NavigationLocalizeRequest(BaseModel):
     task_id: str = "task_001"
     image_id: str
     route: Route | None = None
+    matcher_mode: Literal[
+        "synthetic_v04",
+        "precomputed",
+        "precomputed_proxy",
+        "opencv_orb",
+        "opencv_sift",
+        "external_deep_matcher",
+    ] = "synthetic_v04"
 
 
 class NavigationReplanRequest(BaseModel):

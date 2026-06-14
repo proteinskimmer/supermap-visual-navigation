@@ -1,6 +1,7 @@
 param(
   [string]$CondaExe = "E:\anaconda\Scripts\conda.exe",
   [string]$EnvName = "supermap_nav",
+  [string]$PythonExe = "E:\anaconda\envs\supermap_nav\python.exe",
   [switch]$SkipBuild,
   [switch]$SkipBackend
 )
@@ -10,6 +11,7 @@ $ProjectRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
 $FrontendDir = Join-Path $ProjectRoot "frontend"
 $SdkPublicRoot = Join-Path $FrontendDir "public\vendor\supermap3d\Build\SuperMap3D"
 $MinimalPage = Join-Path $FrontendDir "public\supermap-minimal.html"
+$PytestBaseTemp = Join-Path $ProjectRoot ".tmp\pytest"
 
 function Write-Step {
   param([string]$Message)
@@ -77,14 +79,24 @@ if (-not $SkipBuild) {
 Set-Location $ProjectRoot
 if (-not $SkipBackend) {
   Write-Step "Backend tests and smoke"
-  if (-not (Test-Path -LiteralPath $CondaExe)) {
-    throw "Conda executable not found: $CondaExe"
+  New-Item -ItemType Directory -Force -Path $PytestBaseTemp | Out-Null
+  if (Test-Path -LiteralPath $PythonExe) {
+    & $PythonExe -m pytest backend/tests --basetemp $PytestBaseTemp
+    if ($LASTEXITCODE -ne 0) {
+      exit $LASTEXITCODE
+    }
+    & (Join-Path $PSScriptRoot "check_backend_smoke_full.ps1") -PythonExe $PythonExe
   }
-  & $CondaExe run -n $EnvName python -m pytest backend/tests
-  if ($LASTEXITCODE -ne 0) {
-    exit $LASTEXITCODE
+  else {
+    if (-not (Test-Path -LiteralPath $CondaExe)) {
+      throw "Python executable not found: $PythonExe; Conda executable not found: $CondaExe"
+    }
+    & $CondaExe run -n $EnvName python -m pytest backend/tests --basetemp $PytestBaseTemp
+    if ($LASTEXITCODE -ne 0) {
+      exit $LASTEXITCODE
+    }
+    & (Join-Path $PSScriptRoot "check_backend_smoke_full.ps1") -PythonExe $CondaExe -PythonArgs @("run", "-n", $EnvName, "python")
   }
-  & (Join-Path $PSScriptRoot "check_backend_smoke_full.ps1") -PythonExe $CondaExe -PythonArgs @("run", "-n", $EnvName, "python")
 }
 
 Write-Host ""

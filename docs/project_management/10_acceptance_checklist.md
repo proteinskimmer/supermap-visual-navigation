@@ -135,6 +135,7 @@
 - [ ] 接口和数据契约已包含导航状态接口。
 - [ ] 部署说明可指导新环境启动。
 - [ ] 截图按清单命名并归档。
+- [x] 报告页摘要截图已命名归档：`docs/delivery/screenshots/v05_report_page_summary_route_risk_profile.png`。
 - [ ] PPT 完成。
 - [ ] 演示视频完成。
 - [ ] 最终提交包完成。
@@ -194,7 +195,7 @@
 - [x] backend full smoke 通过。
 - [x] frontend build 通过。
 - [ ] v0.4 合成图仍为正射瓦片代理图，不是最终真实相机渲染图。
-- [ ] ORB/SIFT/LoFTR/LightGlue 等真实匹配算法尚未接入。
+- [x] v0.4 默认链路仍保留；v0.5a 可通过 `matcher_mode=opencv_orb` 驱动主导航时间线。
 
 ## 2026-06-09 自动视觉帧验收补充
 
@@ -204,3 +205,24 @@
 - [x] UAV 当前影像帧绑定到正射瓦片派生图像，页面可显示。
 - [x] 导航时间线按所选航线生成自动视觉帧。
 - [x] 前端帧按钮支持可变数量。
+
+## 2026-06-09 v0.5a ORB 视觉定位验收补充
+
+- [x] `supermap_nav` 环境已安装并可导入 `opencv-python-headless 4.13.0`。
+- [x] `cv2.ORB_create` 可用，`cv2.SIFT_create` 可检测但暂未作为正式 provider 接入。
+- [x] `POST /api/vision/localize` 支持 `matcher_mode=opencv_orb`。
+- [x] ORB provider 可输出 `provider=opencv_orb`、`status`、`matched_points`、`inlier_ratio`、`confidence`、`error_radius_m` 和 `best_estimated_pose`。
+- [x] `scripts/generate_v05_match_evidence.py --task-id task_001 --top-k-tiles 2 --limit 6` 已验证 6/6 帧 localized。
+- [x] `demo_data/generated/v05_match_evidence/` 已生成匹配连线、RANSAC 内点、UAV 图、合成视图和 JSON 结果证据。
+- [x] 前端视觉定位面板已请求 `matcher_mode=opencv_orb` 并读取 `matches[0].evidence.urls`。
+- [x] `POST /api/navigation/start` 支持 `matcher_mode=opencv_orb`，ORB 结果可进入导航时间线并写入 `visual_position`、`visual_frame` 和 `fused_position`。
+- [x] `E:\anaconda\envs\supermap_nav\python.exe -m pytest backend\tests --basetemp E:\supermap_project\.tmp\pytest` 通过：12 passed。
+- [x] `test_visual_navigation_timeline_can_be_orb_driven` 已覆盖 ORB 驱动导航时间线。
+- [x] `npm run build` 通过。
+- [x] `scripts/check_backend_smoke_full.ps1` 通过。
+- [x] `scripts/check_project_runtime.ps1` 已修正并通过。
+- [x] v0.5 轨迹误差报告字段已建立：`navigation_quality` 包含平均置信度、平均误差半径、融合轨迹偏差、终点误差、provider 统计、回退帧和平滑性。
+- [ ] UAV 帧仍为基于正射影像/航线上下文生成的半真实演示帧，不是真实飞行相机数据。
+- [x] v0.5 DOM/截图总门禁已形成：`scripts/check_v05_navigation_gate.ps1` 可一键覆盖 runtime、build、pytest、ORB 证据、导航时间线、报告字段、DOM 和截图。
+- [x] 2026-06-10 完整 v0.5 门禁通过：`quality_grade=demo_verified`、`visual_observation_count=27`、`provider_counts={"opencv_orb":27}`、平均置信度 `0.775`、平均融合偏差 `2.1m`、终点误差 `8.6m`、SuperMap canvas `864x594`。
+- [ ] 尚未形成完整彩排视频证据。

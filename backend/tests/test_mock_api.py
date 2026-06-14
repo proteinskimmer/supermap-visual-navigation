@@ -1,3 +1,6 @@
+import math
+from pathlib import Path
+
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -86,6 +89,14 @@ def test_simulation_replan_and_report_contract():
     assert report["vision"]["candidate_count"] >= 1
     assert report["vision_summary"]["image_count"] >= 4
     assert report["vision_summary"]["needs_review_count"] == 0
+    assert report["navigation_quality"]["matcher_mode"] == "opencv_orb"
+    assert report["navigation_quality"]["visual_observation_count"] >= 6
+    assert report["navigation_quality"]["provider_counts"]["opencv_orb"] >= 1
+    assert report["navigation_quality"]["confidence"]["average"] >= 0.65
+    assert report["navigation_quality"]["fused_trajectory"]["smoothness_passed"] is True
+    assert report["navigation_quality"]["fused_trajectory"]["average_deviation_m"] <= 10
+    assert report["navigation_quality"]["fused_trajectory"]["max_step_mps"] <= 10.1
+    assert report["navigation_quality"]["fused_trajectory"]["max_heading_delta_deg"] <= 20
     assert any(event["type"] == "vision_match" for event in report["events"])
 
 
@@ -154,8 +165,11 @@ def test_synthetic_view_localization_contract():
     assert localization["matches"][0]["view_id"] == views["synthetic_views"][0]["view_id"]
 
 
-def test_v05_matcher_provider_status_and_unavailable_contract():
+def test_v05_matcher_provider_status_and_orb_contract():
     image = unwrap(client.get("/api/vision/images?task_id=task_001"))[0]
+    lighting = image["uav_frame_simulation"]["lighting_model"]
+    assert lighting["longitude_deg"] == image["expected_center"][0]
+    assert lighting["latitude_deg"] == image["expected_center"][1]
     matchers = unwrap(client.get("/api/vision/matchers"))
     assert matchers["precomputed_proxy"]["status"] == "available"
     assert "opencv_orb" in matchers
@@ -171,13 +185,25 @@ def test_v05_matcher_provider_status_and_unavailable_contract():
             },
         )
     )
-    assert localization["provider"] == "opencv_orb_unavailable"
-    assert localization["status"] == "failed"
-    assert localization["confidence"] == 0
-    assert localization["matched_points"] == 0
-    assert localization["matches"] == []
     assert localization["synthetic_views"]
-    assert "OpenCV" in localization["failure_reason"] or "reserved for v0.5" in localization["failure_reason"]
+    if matchers["opencv_orb"]["status"] == "available":
+        assert localization["provider"] == "opencv_orb"
+        assert localization["status"] in {"localized", "needs_review", "failed"}
+        assert localization["image_simulation"]["camera_calibration"]["distortion_coefficients"]["k1"] != 0
+        assert localization["image_simulation"]["lighting_model"]["longitude_deg"] == image["expected_center"][0]
+        assert localization["matches"]
+        assert localization["synthetic_views"][0]["render_source"]["mode"].startswith("v0.5a")
+        assert localization["matched_points"] >= 1
+        evidence = Path("demo_data/generated/v05_match_evidence")
+        assert evidence.exists()
+        assert any(evidence.glob(f"{image['id']}_*_opencv_orb_result.json"))
+    else:
+        assert localization["provider"] == "opencv_orb_unavailable"
+        assert localization["status"] == "failed"
+        assert localization["confidence"] == 0
+        assert localization["matched_points"] == 0
+        assert localization["matches"] == []
+        assert "OpenCV" in localization["failure_reason"] or "reserved for v0.5" in localization["failure_reason"]
 
 
 def test_risk_zone_edit_save_and_validation_contract(tmp_path, monkeypatch):
@@ -273,6 +299,7 @@ def test_visual_navigation_timeline_contract():
     assert distance_m(final_point, route["points"][-1], origin) <= 1.0
 
     max_step_m = 0
+    headings = []
     for previous, current in zip(session["timeline"], session["timeline"][1:]):
         previous_point = [
             previous["fused_position"]["lon"],
@@ -286,7 +313,50 @@ def test_visual_navigation_timeline_contract():
         ]
         delta_t = max(1, current["time_s"] - previous["time_s"])
         max_step_m = max(max_step_m, distance_m(previous_point, current_point, origin) / delta_t)
+        heading = _bearing_degrees(previous_point, current_point)
+        if heading is not None:
+            headings.append(heading)
     assert max_step_m <= 10.1
+    max_heading_delta = max(
+        [_heading_delta(previous, current) for previous, current in zip(headings, headings[1:])],
+        default=0,
+    )
+    assert max_heading_delta <= 20
+
+
+def test_visual_navigation_timeline_can_be_orb_driven():
+    task = unwrap(client.get("/api/tasks/task_001"))["task"]
+    route = unwrap(
+        client.post(
+            "/api/routes/plan",
+            json={"task_id": task["id"], "start": task["start"], "target": task["target"], "modes": ["balanced"]},
+        )
+    )[0]
+
+    session = unwrap(
+        client.post(
+            "/api/navigation/start",
+            json={
+                "task_id": task["id"],
+                "route": route,
+                "mode": "autonomous",
+                "matcher_mode": "opencv_orb",
+            },
+        )
+    )
+    assert session["matcher_mode"] == "opencv_orb"
+    providers = {
+        frame["visual_position"]["localization_mode"]
+        for frame in session["timeline"]
+        if frame.get("visual_position")
+    }
+    assert providers == {"opencv_orb"}
+
+    visual_frames = [frame for frame in session["timeline"] if frame.get("visual_position")]
+    assert visual_frames
+    assert any(frame["navigation_mode"] == "autonomous" for frame in visual_frames)
+    assert any(frame["visual_frame"]["matched_points"] >= 100 for frame in visual_frames)
+    assert max(frame["visual_position"]["confidence"] for frame in visual_frames) >= 0.8
 
 
 def test_navigation_localize_and_replan_contract():
@@ -313,3 +383,16 @@ def test_navigation_localize_and_replan_contract():
     )
     assert replanned["route"]["id"] == "route_replanned_001"
     assert replanned["event"]["type"] == "replan"
+
+
+def _bearing_degrees(start: list[float], end: list[float]) -> float | None:
+    avg_lat = math.radians((start[1] + end[1]) / 2)
+    east_m = (end[0] - start[0]) * 111320 * math.cos(avg_lat)
+    north_m = (end[1] - start[1]) * 111320
+    if abs(east_m) + abs(north_m) < 0.01:
+        return None
+    return (math.degrees(math.atan2(east_m, north_m)) + 360) % 360
+
+
+def _heading_delta(previous: float, current: float) -> float:
+    return abs(((current - previous + 540) % 360) - 180)

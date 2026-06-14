@@ -15,6 +15,7 @@ const props = defineProps({
   currentPoint: { type: Array, default: null },
   actualFlightTrail: { type: Array, default: () => [] },
   referenceFlightTrail: { type: Array, default: () => [] },
+  visualMatchPoints: { type: Array, default: () => [] },
 });
 
 const bounds = computed(() => {
@@ -69,6 +70,12 @@ function candidateClass(candidate) {
   if (candidate.status === "best") return "vision-best";
   if (candidate.status === "rejected") return "vision-rejected";
   return "vision-candidate";
+}
+
+function matchClass(match) {
+  if ((match.confidence || 0) >= 0.75) return "match-good";
+  if ((match.confidence || 0) >= 0.5) return "match-warn";
+  return "match-bad";
 }
 </script>
 
@@ -162,6 +169,17 @@ function candidateClass(candidate) {
       />
     </g>
 
+    <g v-if="visualMatchPoints.length">
+      <circle
+        v-for="match in visualMatchPoints"
+        :key="match.id"
+        :cx="project(match.point).split(',')[0]"
+        :cy="project(match.point).split(',')[1]"
+        r="1.45"
+        :class="['match-point', matchClass(match)]"
+      />
+    </g>
+
     <circle
       :cx="project(selectedTask.start).split(',')[0]"
       :cy="project(selectedTask.start).split(',')[1]"
@@ -204,7 +222,24 @@ function candidateClass(candidate) {
 }
 
 .flight-trail-actual {
-  stroke: rgba(0, 224, 255, 0.95);
+  stroke: rgba(230, 126, 34, 0.95);
   stroke-width: 1.15;
+}
+
+.match-point {
+  stroke: #ffffff;
+  stroke-width: 0.45;
+}
+
+.match-good {
+  fill: #16a56a;
+}
+
+.match-warn {
+  fill: #e3a820;
+}
+
+.match-bad {
+  fill: #d84a4a;
 }
 </style>

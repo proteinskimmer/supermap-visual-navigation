@@ -1,4 +1,7 @@
+from pathlib import Path
+
 from fastapi import APIRouter, HTTPException, Query
+from fastapi.responses import FileResponse
 
 from app.api.responses import ok
 from app.models.schemas import (
@@ -17,7 +20,7 @@ from app.services.synthetic_view_service import (
     get_localization,
     localize_with_synthetic_views,
 )
-from app.services.vision_matcher_provider import matcher_runtime_status
+from app.services.vision_matcher_provider import V05_EVIDENCE_DIR, matcher_runtime_status
 from app.services.vision_service import (
     get_match_by_id,
     get_match_result,
@@ -41,6 +44,16 @@ def vision_tiles(task_id: str = Query(default="task_001")):
 @router.get("/vision/matchers")
 def vision_matchers():
     return ok(matcher_runtime_status())
+
+
+@router.get("/vision/evidence/{filename}")
+def vision_evidence_file(filename: str):
+    safe_name = Path(filename).name
+    path = (V05_EVIDENCE_DIR / safe_name).resolve()
+    evidence_root = V05_EVIDENCE_DIR.resolve()
+    if evidence_root not in path.parents or not path.exists() or not path.is_file():
+        raise HTTPException(status_code=404, detail=f"vision evidence not found: {filename}")
+    return FileResponse(path)
 
 
 @router.post("/vision/match", response_model=ApiResponse[VisionMatchResult])
@@ -73,6 +86,7 @@ def vision_synthetic_views(payload: SyntheticViewRequest):
             initial_pose=payload.initial_pose.model_dump() if payload.initial_pose else None,
             route_prior_pose=payload.route_prior_pose.model_dump() if payload.route_prior_pose else None,
             top_k_tiles=payload.top_k_tiles,
+            lighting_options=payload.lighting_options,
         )
     )
 
@@ -87,6 +101,7 @@ def vision_localize(payload: VisualLocalizationRequest):
             route_prior_pose=payload.route_prior_pose.model_dump() if payload.route_prior_pose else None,
             top_k_tiles=payload.top_k_tiles,
             matcher_mode=payload.matcher_mode,
+            lighting_options=payload.lighting_options,
         )
     )
 

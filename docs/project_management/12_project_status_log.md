@@ -24,7 +24,7 @@
 | SuperMap 三维接入 | SuperMap Verified | 官方 `3D-CBD` 样例链路和项目自建 `3D-low_altitude_demo` 三维服务均已完成 REST 门禁；当前配置已指向项目自建 scene/map/data 服务 |
 | SuperMap 接入预案 | Review | 已完成 iDesktopX、iServer、iClient3D 操作流程、服务地址记录模板、验收清单和服务配置读取接口 |
 | 视觉自主导航后端闭环 | Runtime Verified | 已新增 `VisualNavigationService`、导航会话、后端权威 `fused_position`、遥测时间线和事件流 |
-| 视觉定位数据 | Mock Done | 已有预计算视觉匹配结果和占位样例；仍需补真实或半真实 UAV 图像，并把视觉结果接入导航状态 |
+| 视觉定位数据 | Runtime Verified / Real Flight Pending | v0.5a 已接入 `opencv_orb` 真实特征匹配 provider，6/6 半真实帧定位证据已生成，且导航会话可用 `matcher_mode=opencv_orb` 驱动 `visual_position/fused_position`；真实飞行相机数据仍未入库 |
 | 官方文档本地化 | Review | 已在 `docs/vendor/supermap_official/README.md` 建立本机官方文档索引；全量 HTML 文档仍保留在 iClient3D 安装包内，尚未复制进仓库 |
 | 比赛材料 | Review | 已有系统设计、部署说明、数据说明、源码结构说明、PPT 初稿、答辩讲稿、演示视频脚本、截图清单、真实数据清单和提交包模板；SuperMap/iDesktopX/项目工作台截图已部分归档，PPT 文件和视频未实际生成 |
 | 版本管理 | Runtime Verified | 已初始化 Git 仓库并创建基线提交 `fed8b4f Establish mock prototype baseline` |
@@ -36,11 +36,12 @@
 | R0 主线纠偏与范围冻结 | Done | 已冻结为“视觉自主导航仿真系统”，视觉辅助导航保留为降级/扩展能力 |
 | R1 SuperMap/GIS 底座 | SuperMap Verified | iClient3D SDK、iDesktopX、iServer、`3D-low_altitude_demo` 与珞珈山 `3D-luojia_mountain_demo` 三维服务均已通过脚本门禁 |
 | R2 后端视觉自主导航状态机 | Runtime Verified | 已由 `VisualNavigationService` 输出权威 UAV 状态、遥测、事件和导航模式 |
-| R3 视觉定位与演示数据 | Mock Done | 预计算演示框架可用；需补真实/半真实 UAV 图像，并将视觉结果接入导航状态 |
+| R3 视觉定位与演示数据 | Runtime Verified / Real Flight Pending | v0.5a ORB 定位 provider 已通过接口、证据和导航主线测试；仍需真实飞行相机数据与误差报告 |
 | R4 前端指挥舱状态消费端 | Runtime Verified | 播放控制、三维 UAV、遥测、视觉帧和事件流已消费后端导航时间线 |
 | R5 航线规划、风险与重规划支撑服务 | Mock Done | 候选航线、风险评分、重规划演示框架已有；已补基于 `fused_position` 的导航重规划接口，仍需真实安全策略扩展 |
 | R6 数据准备 | Doing | 珞珈山正射影像、DEM、地形点和建筑面已导入 SuperMap 工作空间并发布 map/data/3D 服务；UAV 视角图像与导航时间线仍需补齐 |
 | R7 交付材料与最终彩排 | Todo | PPT、视频、最终提交包和 3 次完整彩排未完成 |
+| R8 v0.5 真实视觉定位开发 | Doing | ORB provider、v0.5a 合成视图、证据生成、前端视觉面板、ORB 驱动主导航时间线和导航质量报告已通过阶段验收；DOM/截图总门禁和最终彩排仍未完成 |
 
 ## 当前阻塞
 
@@ -52,6 +53,7 @@
 | B-006 | 完整演示闭环截图尚未全部归档且截图命名不规范 | M2、M4、M6 | `docs/delivery/screenshots/` 已有 7 张截图；仍需按截图清单补齐规划、仿真、重规划、视觉匹配、报告等完整流程截图，并把 QQ 时间戳文件名改为可读验收名称 |
 | B-008 | 截图已归档但文件名仍不适合最终提交 | M1、比赛截图 | 已补 `docs/delivery/screenshots/README.md` 说明每张截图对应验收项；后续提交包中需复制并重命名为可读文件名 |
 | B-011 | 珞珈山数据缺少 UAV 视角帧和相机/时间信息 | R3、R6、R7 | 该数据可作为三维/GIS 底座；视觉组仍需补 UAV 图像或视频帧、时间戳、近似拍摄位置和视觉定位结果 |
+| B-012 | v0.5a ORB 主导航接入需要持续防回归 | R3、R8、演示主线 | 已为 `/api/navigation/start` 增加 `matcher_mode` 并新增 ORB 驱动测试；后续一键验收脚本需覆盖该门禁，防止回退到 v0.4 proxy 后无人发现 |
 
 ## 关键决策
 
@@ -73,6 +75,127 @@
 | D-014 | 2026-06-09 | 珞珈山数据处理优先使用 SuperMap，ArcGIS Pro 只作备用诊断工具 | 项目交付底座是 SuperMap GIS，应优先保持 iDesktopX/iServer/iClient3D 主链路一致 |
 
 ## 推进记录
+
+### 2026-06-10 无人机飞行平稳性修正
+
+- 问题定位：
+  - 前端虽然已消费后端导航时间线并做帧间插值，但飞行观感仍不自然。
+  - 轨迹探针显示最大速度已受控，但单步航向变化最高约 `69°`，属于“速度不超但转向突变”的不真实飞行。
+- 已完成修正：
+  - `VisualNavigationService` 的导航时间线采样从 6 秒加密到 3 秒。
+  - 参考航线插值从“按航点序号比例”改为“按累计距离比例”，避免长短航段导致速度忽快忽慢。
+  - 后端用于导航的参考路径增加 Chaikin 圆角平滑，减少航点折线硬拐。
+  - 视觉定位修正权重从“捕获瞬间立即生效并衰减”改为“渐入、保持、渐出”的平滑脉冲，避免视觉观测导致 UAV 横向跳修正。
+  - 导航质量报告 `smoothness_passed` 从只检查最大速度，升级为同时检查最大速度和最大航向变化。
+  - 前端遥测插值改为航向/偏航最短角插值，避免跨 `0°/360°` 时反向大幅旋转。
+  - 后端测试新增最大航向变化门禁，防止后续退回不平稳轨迹。
+- 修正后轨迹探针：
+  - 时间线帧数：`63`。
+  - 最大速度：约 `9.03m/s`。
+  - 最大单步航向变化：约 `14.48°`。
+  - 超过 `30°` 的硬转向次数：`0`。
+  - 报告输出：`max_step_mps=9.0`，`max_heading_delta_deg=14.5`，`smoothness_passed=True`。
+- 验证结果：
+  - `E:\anaconda\envs\supermap_nav\python.exe -m pytest backend\tests --basetemp E:\supermap_project\.tmp\pytest` 通过：12 passed。
+  - `npm run build --prefix frontend` 通过。
+- 严格口径：
+  - 可以说“当前演示飞行轨迹已从离散折线/突变修正改为后端平滑距离参数化轨迹，并增加速度与航向双重平稳性门禁”。
+  - 仍不能说“真实飞控动力学已接入”，当前仍是软件仿真级轨迹平滑。
+
+### 2026-06-10 R8-10 导航质量报告完成
+
+- 已完成：
+  - 新增 `backend/app/services/navigation_quality_service.py`。
+  - `GET /api/reports/{task_id}` 新增 `navigation_quality` 字段。
+  - 报告默认生成 `matcher_mode=opencv_orb` 导航会话，并统计 ORB 导航质量。
+  - 前端 `ReportPage.vue` 新增“视觉导航质量”板块。
+  - 后端测试 `test_simulation_replan_and_report_contract` 已覆盖 `navigation_quality`。
+  - 视觉证据图、半真实 UAV 帧和 v0.5a 合成视图写入改为临时文件原子替换，避免并发报告/导航请求读到半截 PNG。
+- 当前质量探针结果：
+  - `matcher_mode=opencv_orb`。
+  - 时间线 36 帧，其中 27 帧包含视觉观测。
+  - provider 统计：`opencv_orb=27`。
+  - 平均置信度：0.775。
+  - 平均误差半径：40.6m。
+  - 融合轨迹平均偏差：2.1m。
+  - 融合轨迹终点误差：8.6m。
+  - 最大步速：9.2m/s，平滑性通过。
+  - 回退帧：0。
+  - 质量等级：`demo_verified`。
+  - 并发压力探针：报告接口和导航会话同时触发 ORB 时，均保持 `opencv_orb=27`、回退帧 0。
+- 严格口径：
+  - 可以说“v0.5a 已形成 ORB 视觉导航质量统计报告，能量化展示置信度、误差半径、融合轨迹偏差和回退情况”。
+  - 仍不能说“真实飞行误差评估完成”，因为 UAV 帧仍为正射影像派生的半真实演示帧。
+- 下一步门禁：
+  - 建立 v0.5 一键验收脚本，覆盖 ORB 导航、报告字段、前端 DOM/截图、build 和 smoke。
+  - 归档报告页面截图证据。
+  - 做完整彩排视频证据。
+
+### 2026-06-09 v0.5a ORB 驱动主导航时间线完成
+
+- 已完成：
+  - `NavigationStartRequest` 新增 `matcher_mode`。
+  - `/api/navigation/start` 可接收 `matcher_mode=opencv_orb`。
+  - `VisualNavigationService` 可按指定 matcher 构建视觉定位 fixes。
+  - `opencv_orb` 定位成功时写入导航时间线的 `visual_position`，并参与 `fused_position` 计算。
+  - ORB 不可用、失败或未形成导航级位姿时，后端显式回退到 v0.4 `precomputed_proxy`。
+  - 前端“视觉自主”推演模式会发送 `matcher_mode=opencv_orb`；辅助导航模式保留 `precomputed_proxy`。
+  - 新增后端测试 `test_visual_navigation_timeline_can_be_orb_driven`。
+- 探针结果：
+  - `POST /api/navigation/start` 返回 `matcher_mode=opencv_orb`。
+  - 当前珞珈山 balanced 航线中，有视觉观测的 27 个时间线帧 provider 均为 `opencv_orb`。
+- 严格口径：
+  - 可以说“v0.5a 已实现 ORB 真实特征匹配结果驱动软件仿真导航状态更新”。
+  - 仍不能说“已完成真实飞行相机数据导航闭环”，因为 UAV 帧仍为正射影像派生的半真实演示帧。
+
+### 2026-06-09 项目文档复核与总门禁修正
+
+- 本次监督动作：
+  - 已阅读 `12_project_status_log.md`、`08_task_board.md`、`10_acceptance_checklist.md`、`17_v05_development_plan.md` 和接口契约文档。
+  - 已复核当前代码更新：`opencv_orb` matcher provider、v0.5a 合成视图、半真实 UAV 帧、前端视觉证据面板和证据生成脚本。
+- 实测验收结果：
+  - `E:\anaconda\envs\supermap_nav\python.exe -c "import cv2"` 通过：`cv2 4.13.0`、`ORB_create=True`、`SIFT_create=True`。
+  - `E:\anaconda\envs\supermap_nav\python.exe -m pytest backend\tests --basetemp E:\supermap_project\.tmp\pytest` 通过：11 passed。
+  - `E:\anaconda\envs\supermap_nav\python.exe scripts\generate_v05_match_evidence.py --limit 6 --top-k-tiles 2` 通过：6/6 自动帧 localized。
+  - `npm run build` 通过。
+  - `scripts/check_backend_smoke_full.ps1` 通过。
+  - `scripts/check_project_runtime.ps1` 已修正并复跑通过。
+- 顺手修正：
+  - `scripts/check_project_runtime.ps1` 优先使用 `E:\anaconda\envs\supermap_nav\python.exe`，避免 `conda run` 在 Windows GBK 输出下触发 `UnicodeEncodeError`。
+  - `scripts/check_project_runtime.ps1` 已固定 pytest `--basetemp` 到项目内 `.tmp\pytest`，避免默认用户 Temp 目录权限导致假失败。
+- 严格结论：
+  - 当前可以认定 v0.5a ORB 视觉定位 provider 原型通过 runtime 级验收。
+  - `POST /api/navigation/start` 已支持 `matcher_mode=opencv_orb`，前端 autonomous 模式会传入 ORB matcher，ORB 结果可进入导航时间线。
+  - 仍不能认定 v0.5 最终交付完成，因为 UAV 帧仍是基于正射影像/航线上下文生成的半真实演示帧，不是真实飞行相机采集数据，且定位误差报告、截图视频和完整彩排尚未完成。
+
+### 2026-06-09 v0.5a ORB 视觉定位成果验收
+
+- 验收范围：
+  - OpenCV 环境与依赖；
+  - `opencv_orb` matcher provider；
+  - v0.5a 合成视图/UAV 半真实帧；
+  - `/api/vision/localize` 接口；
+  - 匹配证据生成；
+  - 前端视觉证据面板；
+  - 后端测试、前端构建和 smoke。
+- 验收结果：
+  - `cv2 4.13.0` 可导入，`ORB_create=True`，`SIFT_create=True`。
+  - `POST /api/vision/localize` 使用 `matcher_mode=opencv_orb` 可返回 `provider=opencv_orb`、`status=localized`、匹配点数、内点率、置信度、误差半径和估计位姿。
+  - `scripts/generate_v05_match_evidence.py --task-id task_001 --top-k-tiles 2 --limit 6` 通过，6/6 自动帧 localized。
+  - `demo_data/generated/v05_match_evidence/` 当前已生成 72 个 PNG 证据文件和 19 个 JSON 结果文件。
+  - 肉眼检查 `auto_uav_002_luojia_tile_r02_c03_opencv_orb_matches.png`，匹配连线证据非空。
+  - `E:\anaconda\envs\supermap_nav\python.exe -m pytest backend\tests --basetemp E:\supermap_project\.tmp\pytest` 通过：11 passed。
+  - `npm run build` 通过。
+  - `scripts/check_backend_smoke_full.ps1` 通过。
+  - `scripts/check_project_runtime.ps1` 通过。
+- 严格结论：
+  - 可判定为“v0.5a 真实 ORB 视觉定位 provider 原型 Runtime Verified”。
+  - 可判定为“ORB matcher 已可通过 `POST /api/navigation/start` 的 `matcher_mode=opencv_orb` 进入后端导航时间线”；实测 ORB 时间线首个视觉帧为 `localization_mode=opencv_orb`、`confidence=0.705`、`navigation_mode=assisted`。
+  - 不能表述为“真实飞行视觉自主导航完成”，因为 UAV 图像帧当前仍是基于正射影像和航线上下文生成的半真实演示帧，不是真实飞行相机数据。
+- 下一步门禁：
+  - ORB 驱动导航时间线的专门测试用例已存在并在本轮 `backend\tests` 中通过；
+  - 明确低置信/失败时回退 v0.4 proxy 的前端提示；
+  - 输出轨迹误差统计、报告字段和演示彩排证据。
 
 ### 2026-06-09 珞珈山 SuperMap 服务发布完成
 
@@ -2091,3 +2214,106 @@
   - v0.5 has started at the provider-architecture level.
   - Real ORB/SIFT matching is not implemented yet because OpenCV is not installed in the active environment.
   - Next engineering step is to decide whether to install `opencv-python` into `supermap_nav` or vendor a lightweight matcher dependency path.
+### 2026-06-09 v0.5a OpenCV ORB matcher provider prototype
+
+- Environment:
+  - Verified `E:\anaconda\envs\supermap_nav\python.exe` can import `cv2`.
+  - Installed minimal backend dependency `opencv-python-headless 4.13.0.92`, which also installed `numpy 2.4.6`.
+  - ORB is available: `hasattr(cv2, "ORB_create") == True`.
+  - SIFT is available in the installed OpenCV build: `hasattr(cv2, "SIFT_create") == True`, but SIFT is not wired into navigation yet.
+- Implementation:
+  - Upgraded `backend/app/services/vision_matcher_provider.py` from status scaffold to a real `opencv_orb` provider.
+  - The provider reads the UAV frame and candidate synthetic view, converts to grayscale, extracts ORB keypoints/descriptors, matches with BFMatcher/Hamming, filters with ratio test, estimates homography with RANSAC, converts image-center offset to map offset, and outputs the existing localization fields.
+  - Kept `synthetic_v04`, `precomputed`, and `precomputed_proxy` behavior stable.
+  - If OpenCV or ORB is unavailable, the API still returns structured `failed/unavailable` localization output instead of HTTP 500.
+  - Added v0.5a synthetic-view generation for real matcher requests: orthophoto tile + UAV yaw rotation + FOV center crop/scale, while retaining DEM/building metadata.
+  - Added `scripts/generate_v05_match_evidence.py`.
+- Evidence:
+  - Generated evidence under `demo_data/generated/v05_match_evidence/`.
+  - Generated v0.5a synthetic view images under `frontend/public/demo/synthetic_views/`.
+  - Evidence includes UAV image copies, candidate synthetic-view images, ORB match-line images, RANSAC inlier images where available, per-candidate JSON files, and `summary_opencv_orb.json`.
+  - Current Luojia auto-frame run localized 6/6 frames with `opencv_orb`; this is a real matching minimum prototype over generated/synthetic imagery, not a real flight dataset result.
+- Verification:
+  - `E:\anaconda\envs\supermap_nav\python.exe -c "import cv2; print(cv2.__version__); print(hasattr(cv2,'ORB_create')); print(hasattr(cv2,'SIFT_create'))"` returned `4.13.0`, `True`, `True`.
+  - `E:\anaconda\envs\supermap_nav\python.exe scripts\generate_v05_match_evidence.py --task-id task_001 --top-k-tiles 2 --limit 6` completed and wrote summary/evidence artifacts.
+- Strict status:
+  - This can be described as a v0.5a real matching minimum prototype.
+  - It must not be described as a completed real-world visual navigation algorithm.
+  - UAV inputs are still generated/synthetic frames derived from orthophoto/DEM route context, not real flight-camera imagery.
+  - SIFT is only environment-available, not implemented as a provider.
+
+### 2026-06-09 v0.5a semi-real UAV frame and lighting controls
+
+- User clarification:
+  - There is no real UAV image dataset yet; current v0.5 should explicitly use semi-real simulated UAV frames.
+  - Camera distortion parameters must be recorded for later geometric solving.
+  - Lighting should consider capture time and geographic position because illumination changes image features.
+  - Longitude/latitude must not be hard-coded; they are passed from the current frame/tile position.
+- Implementation:
+  - Auto UAV frames now use `source=semi_real_uav_frame_simulator`.
+  - Each auto frame stores `camera_calibration`, `distortion_model`, and `distortion_coefficients`:
+    - pinhole/plumb_bob model;
+    - `fx/fy/cx/cy`;
+    - `k1/k2/p1/p2/k3`.
+  - Semi-real UAV frame generation now applies:
+    - UAV yaw rotation;
+    - FOV crop/scale;
+    - controlled lens distortion;
+    - vignette;
+    - solar/lighting model.
+  - Lighting model parameters include:
+    - `capture_datetime`;
+    - `timezone_offset_hours`;
+    - `sun_azimuth_deg`;
+    - `sun_elevation_deg`;
+    - `exposure_ev`;
+    - `shadow_strength`;
+    - `haze`;
+    - `color_temperature_k`.
+  - Longitude/latitude are derived from the current frame `expected_center` or candidate tile center and written back into the lighting model for traceability.
+  - `POST /api/vision/localize` accepts `lighting_options`; frontend controls can adjust time/exposure/shadow/haze/color temperature and rerun ORB matching.
+  - The frontend visual panel now requests `matcher_mode=opencv_orb` and displays ORB match-line and RANSAC-inlier evidence images through `/api/vision/evidence/{filename}`.
+- Evidence:
+  - Semi-real UAV frames are generated under `frontend/public/demo/uav_frames/`.
+  - v0.5a candidate synthetic views are generated under `frontend/public/demo/synthetic_views/`.
+  - ORB evidence files remain under `demo_data/generated/v05_match_evidence/`.
+  - Current default semi-real run localizes 6/6 auto frames with `opencv_orb`.
+- Verification:
+  - `E:\anaconda\envs\supermap_nav\python.exe scripts\generate_v05_match_evidence.py --task-id task_001 --top-k-tiles 2 --limit 6` completed with `localized_count=6`.
+  - `E:\anaconda\envs\supermap_nav\python.exe -m pytest backend\tests` passed: 11 tests.
+  - `npm run build` passed.
+  - `scripts/check_backend_smoke_full.ps1` passed.
+- Strict status:
+  - This remains a semi-real simulation and real matching minimum prototype.
+  - The camera distortion and lighting parameters are controlled simulation parameters, not a calibrated real UAV camera or measured irradiance.
+  - The latitude/longitude used by lighting are now sourced from frame/tile geometry rather than constants.
+
+### 2026-06-10 R8-11 v0.5 one-command navigation gate
+
+- Implementation:
+  - Added `scripts/check_v05_navigation_gate.ps1` as the v0.5 one-command acceptance gate.
+  - The gate covers runtime baseline, GeoJSON export/parse, frontend build, backend pytest/smoke, ORB evidence generation, backend navigation/report API probes, frontend DOM evidence, and frontend screenshot evidence.
+  - Fixed `scripts/check_luojia_frontend_dom_gate.ps1` so it accepts the real SuperMap ready path and the visible local fallback-map path, while still failing on missing scene mount, Luojia mode, DEM/fallback marker, or invalid canvas.
+  - Fixed the v0.5 gate to check child script exit codes; browser gate failures now make the top-level gate fail.
+- Verification:
+  - `powershell -ExecutionPolicy Bypass -File E:\supermap_project\scripts\check_v05_navigation_gate.ps1 -PythonExe E:\anaconda\envs\supermap_nav\python.exe -SkipRuntime` passed.
+  - `powershell -ExecutionPolicy Bypass -File E:\supermap_project\scripts\check_v05_navigation_gate.ps1 -PythonExe E:\anaconda\envs\supermap_nav\python.exe` passed.
+  - Full gate evidence:
+    - backend tests: `12 passed`;
+    - ORB evidence: `6/6` UAV frames localized;
+    - navigation timeline frames: `36`;
+    - visual observations: `27`;
+    - provider counts: `{"opencv_orb": 27}`;
+    - quality grade: `demo_verified`;
+    - average confidence: `0.775`;
+    - average fused trajectory deviation: `2.1m`;
+    - final fused trajectory error: `8.6m`;
+    - SuperMap DOM status: `data-scene-status="ready"`;
+    - DEM/fallback state: `data-luojia-terrain-installed="true"` and `data-luojia-fallback-installed="true"`;
+    - SuperMap canvas: `864x594`;
+    - screenshot: `docs/delivery/screenshots/frontend_luojia_scene_headless.png`.
+- Strict status:
+  - v0.5a ORB visual navigation software-simulation chain is runtime verified.
+  - The system still must not be described as real-flight visual autonomous navigation.
+  - UAV frames are semi-real/generated from orthophoto, route, camera, DEM/building context, not real UAV camera footage.
+  - Next gate is report-page screenshot evidence and 3 complete rehearsal runs.

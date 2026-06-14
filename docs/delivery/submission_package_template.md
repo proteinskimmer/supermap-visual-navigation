@@ -17,12 +17,12 @@ submission/
   video/
     demo_video.mp4
   screenshots/
-    S-01_idesktopx_workspace.png
-    S-03_iserver_publish.png
-    S-06_dashboard_overview.png
-    S-09_candidate_routes.png
-    S-15_replanning_compare.png
-    S-17_vision_candidates.png
+    S-01_luojia_cockpit_overview.png
+    S-02_supermap_scene_services.png
+    S-03_orb_visual_localization.png
+    S-04_reference_vs_fused_track.png
+    S-05_navigation_quality_report.png
+    S-06_risk_replanning_support.png
   source/
     backend/
     frontend/
@@ -40,11 +40,12 @@ submission/
 最终提交包 `README.md` 应包含：
 
 - 项目名称。
-- 一句话定位。
-- 技术栈。
+- 一句话定位：基于 SuperMap GIS 的低空视觉自主导航软件仿真系统。
+- 技术栈：SuperMap iDesktopX / iServer / iClient3D、FastAPI、Vue、OpenCV ORB。
 - SuperMap 使用说明。
 - 启动方式。
 - 演示流程。
+- v0.5a 验收结果。
 - 项目边界说明。
 
 ## 3. 提交前检查
@@ -53,6 +54,7 @@ submission/
 
 - [ ] 后端可启动。
 - [ ] 前端可启动。
+- [ ] v0.5 一键门禁通过。
 - [ ] 无全局环境依赖说明缺失。
 - [ ] 无绝对路径依赖，或已在部署说明中解释。
 - [ ] 不提交 `node_modules`。
@@ -67,14 +69,16 @@ submission/
 - [ ] 数据说明完成。
 - [ ] 源码结构说明完成。
 - [ ] SuperMap 接入说明完成。
+- [ ] v0.5a ORB 视觉定位和导航质量口径明确。
 - [ ] 项目边界说明明确。
 
 ### 数据
 
 - [ ] demo 数据可解析。
-- [ ] 真实数据来源可说明。
-- [ ] 服务 URL 已记录。
-- [ ] 视觉图片或占位策略已说明。
+- [ ] 珞珈山 scene/map/data 服务 URL 已记录。
+- [ ] 半真实 UAV 帧来源和生成方式已说明。
+- [ ] ORB 匹配证据和导航质量报告已归档。
+- [ ] 真实 UAV 数据缺口已说明。
 
 ### 材料
 
@@ -82,6 +86,7 @@ submission/
 - [ ] 演示视频完成。
 - [ ] 截图素材齐全。
 - [ ] 视频和 PPT 展示的是同一套系统流程。
+- [ ] 至少 3 次完整彩排记录已归档。
 
 ## 4. 不应提交内容
 
@@ -95,25 +100,26 @@ submission/
 
 ## 5. 最终演示必过流程
 
-1. 打开系统。
-2. 加载任务区域。
-3. 展示风险区和障碍物。
-4. 点击规划生成三条候选航线。
-5. 展示风险评分和高程剖面。
-6. 启动仿真。
-7. 添加临时风险区。
-8. 触发动态重规划。
-9. 展示视觉匹配候选区域。
-10. 生成任务报告。
+1. 打开系统，进入视觉自主导航指挥舱。
+2. 加载珞珈山 SuperMap 三维场景和任务数据。
+3. 展示参考航线、风险区、建筑/地形和 UAV 初始状态。
+4. 启动视觉自主模式。
+5. 展示 UAV 影像帧和 ORB 视觉定位结果。
+6. 展示三维无人机按 `fused_position` 连续飞行。
+7. 展示参考轨迹与融合轨迹对比。
+8. 展示风险告警或重规划支撑过程。
+9. 打开任务报告，展示视觉导航质量指标。
+10. 说明项目边界：软件仿真、不接真实飞控、半真实 UAV 帧。
 
 ## 6. 提交前口径检查
 
 必须避免：
 
 - 暗示系统能直接控制真实无人机。
-- 暗示视觉匹配已经是真实实时定位闭环。
-- 暗示系统已完成真实飞控安全验证。
+- 暗示已完成真实飞行视觉自主导航。
+- 暗示半真实 UAV 帧来自真实飞行相机。
+- 暗示三维场景已达到精细倾斜摄影级效果。
 
 推荐表述：
 
-> 本项目聚焦低空任务的软件仿真验证和辅助规划，基于 SuperMap GIS 底座完成三维环境构建、航线规划、风险校验、动态重规划和视觉定位辅助展示。
+> 本项目聚焦低空视觉自主导航的软件仿真验证，基于 SuperMap GIS 三维底座完成珞珈山 scene/map/data 接入，并实现 ORB 半真实视觉定位、后端融合导航时间线、三维连续飞行、风险重规划支撑和导航质量报告输出。

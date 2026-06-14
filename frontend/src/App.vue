@@ -1,9 +1,10 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import MissionEndpointEditor from "./components/MissionEndpointEditor.vue";
 import ReportPage from "./components/ReportPage.vue";
 import RiskZoneEditor from "./components/RiskZoneEditor.vue";
 import SuperMapScene from "./components/SuperMapScene.vue";
-import { api } from "./services/api";
+import { api, API_ORIGIN } from "./services/api";
 
 const SIM_PLAY_SECONDS = 18;
 
@@ -21,13 +22,28 @@ const temporaryRisk = ref(null);
 const replannedRoute = ref(null);
 const visionResult = ref(null);
 const visualLocalization = ref(null);
+const visionMatchCache = ref({});
+const visualLocalizationCache = ref({});
 const visionImages = ref([]);
 const visionTiles = ref([]);
 const selectedVisionImageId = ref("demo_uav_001");
 const visionTopK = ref(3);
+const lightingOptions = ref({
+  capture_datetime: "2026-06-09T10:30",
+  timezone_offset_hours: 8,
+  exposure_ev: 0,
+  shadow_strength: 0.22,
+  haze: 0.08,
+  color_temperature_k: 5600,
+});
 const supermapConfig = ref(null);
 const supermapStatus = ref(null);
 const reportResult = ref(null);
+const reportLoading = ref(false);
+const reportLoadingMessage = ref("");
+const endpointEditDraft = ref(null);
+const endpointSaveError = ref("");
+const savingEndpoints = ref(false);
 const riskEditDraft = ref(null);
 const riskSaveError = ref("");
 const savingRiskZones = ref(false);
@@ -39,21 +55,49 @@ const playFrame = ref(null);
 const activeView = ref("cockpit");
 const activeCockpitSection = ref("situational");
 const navigationMode = ref("autonomous");
+const showShortestRoute = ref(false);
+const simLogCollapsed = ref(false);
+const isSimulationStarting = ref(false);
+const preparingNavigation = ref(false);
+const navigationPreparationMessage = ref("");
+const preparedNavigationSession = ref(null);
+const preparedNavigationKey = ref("");
 let playLastTimestamp = 0;
 let visionRequestToken = 0;
+let navigationPreparationPromise = null;
+let navigationPreparationKey = "";
+let reportLoadingTimer = null;
+const pendingVisionMatchRequests = new Map();
+const pendingVisualLocalizationRequests = new Map();
 
 const selectedTask = computed(() => taskDetail.value?.task || null);
+const navigationMatcherMode = computed(() => "precomputed_proxy");
 const taskDetailForDisplay = computed(() => {
   if (!taskDetail.value) return null;
+  const task = endpointEditDraft.value
+    ? {
+        ...taskDetail.value.task,
+        start: endpointEditDraft.value.start,
+        target: endpointEditDraft.value.target,
+      }
+    : taskDetail.value.task;
   return {
     ...taskDetail.value,
+    task,
     risk_zones: riskEditDraft.value || taskDetail.value.risk_zones || [],
   };
 });
 const currentRouteForDisplay = computed(() => replannedRoute.value?.route || selectedRoute.value);
+const visibleSceneRoutes = computed(() =>
+  routes.value.filter((route) => showShortestRoute.value || route.mode !== "shortest")
+);
 const isPlaying = computed(() => Boolean(playFrame.value));
 const activeVisionImageId = computed(() => navigationState.value?.active_frame_id || selectedVisionImageId.value);
-const selectedVisionImage = computed(() => visionImages.value.find((image) => image.id === activeVisionImageId.value) || null);
+const selectedVisionImage = computed(() =>
+  visionImages.value.find((image) => image.id === selectedVisionImageId.value) ||
+  visionImages.value.find((image) => image.id === activeVisionImageId.value) ||
+  null
+);
 const bestVisionCandidate = computed(() => {
   const fix = navigationState.value?.visual_position;
   if (fix) {
@@ -74,6 +118,7 @@ const bestSyntheticView = computed(() => {
   if (!bestMatch) return null;
   return visualLocalization.value.synthetic_views?.find((view) => view.view_id === bestMatch.view_id) || null;
 });
+const activeOrbEvidence = computed(() => visualLocalization.value?.matches?.[0]?.evidence?.urls || null);
 const elapsedSeconds = computed(() => {
   if (navigationState.value) return navigationState.value.time_s;
   const total = navigationSession.value?.duration_s || currentRouteForDisplay.value?.estimated_time_s || 180;
@@ -83,6 +128,39 @@ const elapsedSeconds = computed(() => {
 const referencePoint = computed(() => poseToPoint(navigationState.value?.reference_position));
 const actualFlightTrail = computed(() => navigationTrail("fused_position"));
 const referenceFlightTrail = computed(() => navigationTrail("reference_position"));
+const visualMatchPoints = computed(() => {
+  if (!navigationTimeline.value.length) return [];
+  const seen = new Set();
+  return navigationTimeline.value
+    .filter((frame) => frame.time_s <= elapsedSeconds.value && frame.visual_position)
+    .map((frame) => {
+      const visual = frame.visual_position;
+      const visualFrame = frame.visual_frame || {};
+      return {
+        id: visual.match_id || visual.image_id || `${frame.time_s}-${visual.tile_id}`,
+        point: poseToPoint(frame.reference_position) || poseToPoint(visual),
+        visualPoint: poseToPoint(visual),
+        confidence: visual.confidence || 0,
+        matchedPoints: visualFrame.matched_points || 0,
+        inlierRatio: visualFrame.inlier_ratio || 0,
+        timeS: frame.time_s,
+        imageId: visual.image_id || frame.active_frame_id || "",
+      };
+    })
+    .filter((match) => {
+      if (!match.point || seen.has(match.id)) return false;
+      seen.add(match.id);
+      return true;
+    });
+});
+const activeVisualControlPoint = computed(() => {
+  if (!activeVisionImageId.value) return null;
+  return visualMatchPoints.value.find((match) => match.imageId === activeVisionImageId.value) || null;
+});
+const sceneVisionResult = computed(() => {
+  if (simulation.value && !activeVisualControlPoint.value) return null;
+  return visionResult.value;
+});
 
 const visualNavigation = computed(() => {
   const state = navigationState.value;
@@ -165,6 +243,37 @@ const events = computed(() => {
 
 const activeEvents = computed(() => events.value.filter((event) => event.time_s <= elapsedSeconds.value + 2).slice(-5).reverse());
 const upcomingEvents = computed(() => events.value.filter((event) => event.time_s > elapsedSeconds.value).slice(0, 3));
+const simulationLogs = computed(() => {
+  if (!simulation.value) {
+    return [];
+  }
+  const logs = [];
+  if (navigationState.value) {
+    logs.push({
+      id: `state-${navigationState.value.time_s}`,
+      time: navigationState.value.time_s,
+      title: "导航状态更新",
+      detail: `${locationSourceLabel(navigationState.value.telemetry?.location_source)} · 高度 ${telemetry.value.altitude.toFixed(1)} 米 · 速度 ${telemetry.value.speed.toFixed(1)} 米/秒`,
+    });
+  }
+  activeEvents.value.forEach((event) => {
+    logs.push({
+      id: `event-${event.type}-${event.time_s}`,
+      time: event.time_s,
+      title: event.title || "任务事件",
+      detail: event.description || "仿真事件已触发",
+    });
+  });
+  if (visualNavigation.value.usedForNavigation) {
+    logs.push({
+      id: `vision-${navigationState.value?.time_s || 0}`,
+      time: navigationState.value?.time_s || elapsedSeconds.value,
+      title: "视觉融合生效",
+      detail: `融合偏差 ${visualNavigation.value.deviationM} 米，置信度 ${confidencePercent(visualNavigation.value.confidence)}`,
+    });
+  }
+  return logs.sort((a, b) => b.time - a.time).slice(0, 8);
+});
 
 const cockpitStatus = computed(() => {
   if (fatalError.value) return "接口异常";
@@ -202,6 +311,81 @@ async function runAction(label, fn) {
   } finally {
     loading.value = "";
   }
+}
+
+function navigationSessionKey(route = selectedRoute.value) {
+  return [
+    selectedTask.value?.id || "",
+    route?.id || "",
+    navigationMode.value,
+    navigationMatcherMode.value,
+  ].join("|");
+}
+
+function clearPreparedNavigation() {
+  preparedNavigationSession.value = null;
+  preparedNavigationKey.value = "";
+  navigationPreparationMessage.value = "";
+}
+
+async function createNavigationSession(route = selectedRoute.value) {
+  if (!selectedTask.value || !route) {
+    throw new Error("缺少任务或航线，无法启动推演。");
+  }
+  const started = await api.startNavigation({
+    task_id: selectedTask.value.id,
+    route,
+    mode: navigationMode.value,
+    matcher_mode: navigationMatcherMode.value,
+  });
+  const session = started?.timeline?.length ? started : await api.navigationTimeline(started.session_id);
+  if (!session?.timeline?.length) {
+    throw new Error("后端未返回导航时间线。");
+  }
+  return session;
+}
+
+async function prepareNavigationSession({ silent = true } = {}) {
+  const key = navigationSessionKey();
+  if (!selectedTask.value || !selectedRoute.value) return null;
+  if (preparedNavigationSession.value && preparedNavigationKey.value === key) {
+    return preparedNavigationSession.value;
+  }
+  if (preparingNavigation.value && navigationPreparationKey === key && navigationPreparationPromise) {
+    return navigationPreparationPromise;
+  }
+
+  navigationPreparationKey = key;
+  preparingNavigation.value = true;
+  navigationPreparationMessage.value = "正在预生成推演时间线...";
+  navigationPreparationPromise = createNavigationSession(selectedRoute.value);
+
+  try {
+    const session = await navigationPreparationPromise;
+    if (navigationPreparationKey === key) {
+      preparedNavigationSession.value = session;
+      preparedNavigationKey.value = key;
+      navigationPreparationMessage.value = "推演时间线已准备";
+    }
+    return session;
+  } catch (err) {
+    if (navigationPreparationKey === key) {
+      clearPreparedNavigation();
+      navigationPreparationMessage.value = `推演预生成失败：${messageFromError(err)}`;
+    }
+    if (!silent) throw err;
+    return null;
+  } finally {
+    if (navigationPreparationKey === key) {
+      preparingNavigation.value = false;
+      navigationPreparationPromise = null;
+    }
+  }
+}
+
+function scheduleNavigationPreparation() {
+  if (!selectedTask.value || !selectedRoute.value) return;
+  void prepareNavigationSession();
 }
 
 function setCockpitSection(section) {
@@ -248,7 +432,7 @@ async function initialize() {
     supermapStatus.value = supermapRuntime;
     await loadVisionFrameworkData(taskId);
     await planRoutes();
-    await runVisionMatch();
+    void runVisionMatch({ silent: true });
   } catch (err) {
     fatalError.value = `后端暂不可用：${messageFromError(err)}`;
   } finally {
@@ -266,6 +450,7 @@ async function loadVisionFrameworkData(taskId) {
 async function planRoutes() {
   if (!selectedTask.value) return;
   await runAction("规划航线", async () => {
+    clearPreparedNavigation();
     resetSimulation();
     reportResult.value = null;
     const planned = await api.planRoutes({
@@ -277,6 +462,7 @@ async function planRoutes() {
     routes.value = planned;
     selectedRoute.value = planned.find((route) => route.mode === "balanced") || planned[0] || null;
     await analyzeSelectedRoute();
+    scheduleNavigationPreparation();
   });
 }
 
@@ -286,6 +472,45 @@ async function analyzeSelectedRoute() {
     task_id: selectedTask.value.id,
     route: selectedRoute.value,
   });
+}
+
+function previewTaskEndpoints(endpoints) {
+  endpointEditDraft.value = endpoints;
+}
+
+async function reloadTaskEndpoints() {
+  if (!selectedTask.value || !taskDetail.value) return;
+  await runAction("重载起终点", async () => {
+    endpointSaveError.value = "";
+    const detail = await api.taskDetail(selectedTask.value.id);
+    taskDetail.value = detail;
+    endpointEditDraft.value = null;
+    await planRoutes();
+  });
+}
+
+async function saveTaskEndpoints(endpoints) {
+  if (!selectedTask.value || !taskDetail.value) return;
+  try {
+    endpointSaveError.value = "";
+    savingEndpoints.value = true;
+    const saved = await api.updateTaskEndpoints(selectedTask.value.id, endpoints.start, endpoints.target);
+    taskDetail.value = { ...taskDetail.value, task: saved.task };
+    endpointEditDraft.value = null;
+    temporaryRisk.value = null;
+    replannedRoute.value = null;
+    visionResult.value = null;
+    visualLocalization.value = null;
+    visionMatchCache.value = {};
+    visualLocalizationCache.value = {};
+    await planRoutes();
+    await loadVisionFrameworkData(saved.task.id);
+    void runVisionMatch({ silent: true });
+  } catch (err) {
+    endpointSaveError.value = messageFromError(err);
+  } finally {
+    savingEndpoints.value = false;
+  }
 }
 
 function previewRiskZones(zones) {
@@ -323,10 +548,12 @@ async function saveRiskZones(zones) {
 
 async function selectRoute(route) {
   await runAction("校验航线", async () => {
+    clearPreparedNavigation();
     resetSimulation();
     selectedRoute.value = route;
     replannedRoute.value = null;
     await analyzeSelectedRoute();
+    scheduleNavigationPreparation();
   });
 }
 
@@ -335,13 +562,13 @@ async function startSimulation() {
     actionError.value = "请先选择一条候选航线。";
     return;
   }
+  if (isSimulationStarting.value) return;
+  isSimulationStarting.value = true;
   await runAction("启动任务推演", async () => {
-    const started = await api.startNavigation({
-      task_id: selectedTask.value.id,
-      route: selectedRoute.value,
-      mode: navigationMode.value,
-    });
-    navigationSession.value = await api.navigationTimeline(started.session_id);
+    navigationPreparationMessage.value = preparedNavigationKey.value === navigationSessionKey()
+      ? "正在载入已准备的推演时间线..."
+      : "正在生成推演时间线，首次启动可能需要十几秒...";
+    navigationSession.value = await prepareNavigationSession({ silent: false });
     navigationTimeline.value = navigationSession.value.timeline || [];
     navigationState.value = navigationTimeline.value[0] || null;
     simulation.value = {
@@ -352,7 +579,10 @@ async function startSimulation() {
     simProgress.value = 0;
     temporaryRisk.value = null;
     replannedRoute.value = null;
+    simLogCollapsed.value = false;
+    navigationPreparationMessage.value = "推演已启动";
   });
+  isSimulationStarting.value = false;
 }
 
 async function toggleAutoPlay() {
@@ -386,6 +616,15 @@ function stopAutoPlay() {
   playFrame.value = null;
 }
 
+function jumpSimulationToTime(timeS) {
+  if (!navigationTimeline.value.length) return false;
+  const duration = navigationSession.value?.duration_s || navigationTimeline.value[navigationTimeline.value.length - 1]?.time_s || 1;
+  simProgress.value = Math.max(0, Math.min(100, (timeS / duration) * 100));
+  navigationState.value = interpolatedNavigationFrame(timeS);
+  playLastTimestamp = performance.now();
+  return true;
+}
+
 function advanceSimulation() {
   if (!simulation.value) {
     actionError.value = "请先启动任务推演。";
@@ -404,6 +643,26 @@ function resetSimulation() {
   temporaryRisk.value = null;
   replannedRoute.value = null;
   simulation.value = null;
+}
+
+function startReportLoading() {
+  if (reportLoadingTimer) {
+    clearTimeout(reportLoadingTimer);
+  }
+  reportLoading.value = true;
+  reportLoadingMessage.value = "正在生成任务报告...";
+  reportLoadingTimer = setTimeout(() => {
+    reportLoadingMessage.value = "正在汇总航线、风险、视觉匹配和导航质量数据...";
+  }, 1200);
+}
+
+function stopReportLoading() {
+  if (reportLoadingTimer) {
+    clearTimeout(reportLoadingTimer);
+    reportLoadingTimer = null;
+  }
+  reportLoading.value = false;
+  reportLoadingMessage.value = "";
 }
 
 function navigationTrail(field) {
@@ -447,7 +706,8 @@ function interpolatedNavigationFrame(timeS) {
   if (!before || !after || before.time_s === after.time_s) return after || before;
 
   const ratio = (timeS - before.time_s) / (after.time_s - before.time_s);
-  const active = before.time_s <= timeS ? before : nearestNavigationFrame(timeS);
+  const exactFrame = navigationTimeline.value.find((frame) => Math.round(frame.time_s) === Math.round(timeS));
+  const active = exactFrame || (ratio >= 0.5 ? after : before) || nearestNavigationFrame(timeS);
   return {
     ...active,
     time_s: Math.round(timeS),
@@ -474,13 +734,18 @@ function interpolateTelemetry(before, after, ratio, timeS) {
   return {
     ...before,
     speed_mps: Number(lerp(before.speed_mps || 0, after.speed_mps || 0, ratio).toFixed(1)),
-    heading_deg: Math.round(lerp(before.heading_deg || 0, after.heading_deg || 0, ratio)),
+    heading_deg: Math.round(interpolateDegrees(before.heading_deg || 0, after.heading_deg || 0, ratio)),
     pitch_deg: Number(lerp(before.pitch_deg || 0, after.pitch_deg || 0, ratio).toFixed(1)),
     roll_deg: Number(lerp(before.roll_deg || 0, after.roll_deg || 0, ratio).toFixed(1)),
-    yaw_deg: Math.round(lerp(before.yaw_deg || 0, after.yaw_deg || 0, ratio)),
+    yaw_deg: Math.round(interpolateDegrees(before.yaw_deg || 0, after.yaw_deg || 0, ratio)),
     battery_pct: Math.round(lerp(before.battery_pct || 0, after.battery_pct || 0, ratio)),
     flight_time: formatClock(timeS),
   };
+}
+
+function interpolateDegrees(before, after, ratio) {
+  const delta = ((((after - before) % 360) + 540) % 360) - 180;
+  return (((before + delta * ratio) % 360) + 360) % 360;
 }
 
 async function triggerTemporaryRisk() {
@@ -512,42 +777,151 @@ async function triggerTemporaryRisk() {
   });
 }
 
-async function runVisionMatch() {
-  await runAction("视觉匹配", async () => {
+function visionCacheKey(imageId) {
+  return `${selectedTask.value?.id || "task_001"}|${imageId}|${visionTopK.value}`;
+}
+
+function applyImmediateVisionMatch(imageId) {
+  const key = visionCacheKey(imageId);
+  const cachedMatch = visionMatchCache.value[key];
+  const cachedLocalization = visualLocalizationCache.value[key];
+  visionResult.value = cachedMatch || buildInstantVisionMatch(imageId);
+  visualLocalization.value = cachedLocalization || null;
+}
+
+function buildInstantVisionMatch(imageId) {
+  const image = visionImages.value.find((item) => item.id === imageId) || selectedVisionImage.value;
+  const sourceTileId = image?.source_tile_id;
+  const rankedTiles = rankTilesNearSource(sourceTileId).slice(0, visionTopK.value);
+  return {
+    match_id: `instant_${imageId}`,
+    task_id: selectedTask.value?.id || "task_001",
+    image_id: imageId,
+    query_image: image?.query_image || "",
+    provider: "前端即时粗匹配预测",
+    status: "preview",
+    algorithm_trace: ["source_tile_id", "grid_neighbor_prefill", "async_refine"],
+    candidates: rankedTiles.map((tile, index) => ({
+      tile_id: tile.tile_id,
+      confidence: index === 0 ? 0.82 : Math.max(0.42, 0.7 - index * 0.08),
+      matched_points: index === 0 ? 96 : Math.max(42, 82 - index * 12),
+      inlier_ratio: index === 0 ? 0.62 : Math.max(0.32, 0.52 - index * 0.06),
+      bbox: tile.bbox,
+      center: tile.center,
+      offset_m: [0, 0],
+      status: index === 0 ? "best" : "candidate",
+      reason: "基于当前影像帧源瓦片和相邻网格即时预显示，后台接口返回后自动精修。",
+      rank: index + 1,
+      preview: true,
+    })),
+    candidate_count: rankedTiles.length,
+    total_candidate_count: rankedTiles.length,
+    preview: true,
+  };
+}
+
+function rankTilesNearSource(sourceTileId) {
+  if (!visionTiles.value.length) return [];
+  const source = visionTiles.value.find((tile) => tile.tile_id === sourceTileId) || visionTiles.value[0];
+  const sourceRow = source?.grid?.row || 0;
+  const sourceCol = source?.grid?.col || 0;
+  return [...visionTiles.value].sort((tileA, tileB) => {
+    const distanceA = tileGridDistance(tileA, sourceRow, sourceCol);
+    const distanceB = tileGridDistance(tileB, sourceRow, sourceCol);
+    if (distanceA !== distanceB) return distanceA - distanceB;
+    return String(tileA.tile_id).localeCompare(String(tileB.tile_id));
+  });
+}
+
+function tileGridDistance(tile, row, col) {
+  const tileRow = tile?.grid?.row || row;
+  const tileCol = tile?.grid?.col || col;
+  return Math.abs(tileRow - row) + Math.abs(tileCol - col);
+}
+
+async function runVisionMatch(options = {}) {
+  const execute = async () => {
     const imageId = visionImages.value.some((image) => image.id === selectedVisionImageId.value)
       ? selectedVisionImageId.value
       : visionImages.value[0]?.id || "demo_uav_001";
     selectedVisionImageId.value = imageId;
+    applyImmediateVisionMatch(imageId);
+
+    const key = visionCacheKey(imageId);
     const basePayload = {
       task_id: selectedTask.value?.id || "task_001",
       image_id: imageId,
     };
-    visionResult.value = await api.visionMatch({
-      ...basePayload,
-      top_k: visionTopK.value,
-      algorithm_mode: "precomputed",
-    });
-    visualLocalization.value = await api
+    const token = ++visionRequestToken;
+
+    const matchPromise = pendingVisionMatchRequests.get(key) || api
+      .visionMatch({
+        ...basePayload,
+        top_k: visionTopK.value,
+        algorithm_mode: "precomputed",
+      })
+      .finally(() => pendingVisionMatchRequests.delete(key));
+    pendingVisionMatchRequests.set(key, matchPromise);
+
+    const match = await matchPromise;
+    visionMatchCache.value = { ...visionMatchCache.value, [key]: match };
+    if (token === visionRequestToken && selectedVisionImageId.value === imageId) {
+      visionResult.value = match;
+    }
+
+    const localizationPromise = pendingVisualLocalizationRequests.get(key) || api
       .visionLocalize({
         ...basePayload,
         top_k_tiles: visionTopK.value,
-        matcher_mode: "synthetic_v04",
+        matcher_mode: "precomputed_proxy",
+        lighting_options: lightingOptions.value,
       })
-      .catch(() => null);
-  });
+      .catch(() => null)
+      .finally(() => pendingVisualLocalizationRequests.delete(key));
+    pendingVisualLocalizationRequests.set(key, localizationPromise);
+
+    const localization = await localizationPromise;
+    if (localization) {
+      visualLocalizationCache.value = { ...visualLocalizationCache.value, [key]: localization };
+    }
+    if (token === visionRequestToken && selectedVisionImageId.value === imageId) {
+      visualLocalization.value = localization;
+    }
+  };
+
+  if (options.silent) {
+    try {
+      await execute();
+    } catch (err) {
+      console.warn("视觉匹配更新失败", err);
+    }
+    return;
+  }
+  await runAction("视觉匹配", execute);
 }
 
 async function selectVisionImage(imageId) {
+  const image = visionImages.value.find((item) => item.id === imageId);
   selectedVisionImageId.value = imageId;
+  if (image?.capture_time_s !== undefined && navigationTimeline.value.length) {
+    jumpSimulationToTime(image.capture_time_s);
+  }
+  applyImmediateVisionMatch(imageId);
   await runVisionMatch();
 }
 
 async function loadReport() {
   if (!selectedTask.value) return;
-  await runAction("生成报告", async () => {
-    reportResult.value = await api.report(selectedTask.value.id);
-    activeView.value = "report";
-  });
+  if (reportLoading.value) return;
+  startReportLoading();
+  try {
+    await runAction("生成报告", async () => {
+      reportResult.value = await api.report(selectedTask.value.id);
+      activeView.value = "report";
+    });
+  } finally {
+    stopReportLoading();
+  }
 }
 
 async function refreshSuperMapStatus() {
@@ -563,6 +937,18 @@ async function refreshSuperMapStatus() {
 
 function confidencePercent(value) {
   return `${Math.round((value || 0) * 100)}%`;
+}
+
+function evidenceSrc(url) {
+  if (!url) return "";
+  if (url.startsWith("/api/")) return `${API_ORIGIN}${url}`;
+  return url;
+}
+
+function lightingValue(key, fallback = "-") {
+  const lighting = visualLocalization.value?.image_simulation?.lighting_model || selectedVisionImage.value?.uav_frame_simulation?.lighting_model;
+  const value = lighting?.[key];
+  return value === undefined || value === null || value === "" ? fallback : value;
 }
 
 function poseToPoint(pose) {
@@ -631,12 +1017,23 @@ function formatPoint(point) {
 }
 
 onMounted(initialize);
-onBeforeUnmount(stopAutoPlay);
+onBeforeUnmount(() => {
+  stopAutoPlay();
+  stopReportLoading();
+});
+
+watch(navigationMode, () => {
+  clearPreparedNavigation();
+  resetSimulation();
+  scheduleNavigationPreparation();
+});
 
 watch(activeVisionImageId, async (imageId, previousImageId) => {
   if (!imageId || imageId === previousImageId) return;
+  const alreadySelected = selectedVisionImageId.value === imageId;
   selectedVisionImageId.value = imageId;
-  await runVisionMatch();
+  if (alreadySelected) return;
+  await runVisionMatch({ silent: true });
 });
 </script>
 
@@ -663,7 +1060,7 @@ watch(activeVisionImageId, async (imageId, previousImageId) => {
         <button :class="{ active: activeCockpitSection === 'situational' }" @click="showSituationalView">实时态势</button>
         <button :class="{ active: activeCockpitSection === 'routes' }" @click="openRoutePlanning">航线规划</button>
         <button :class="{ active: activeCockpitSection === 'vision' }" @click="openVisionMatching">影像匹配</button>
-        <button @click="loadReport">任务报告</button>
+        <button :disabled="reportLoading" @click="loadReport">{{ reportLoading ? "生成中" : "任务报告" }}</button>
       </nav>
       <div class="cockpit-status">
         <span :class="['status-dot', fatalError ? 'status-bad' : 'status-good']"></span>
@@ -673,6 +1070,14 @@ watch(activeVisionImageId, async (imageId, previousImageId) => {
 
     <section v-if="fatalError || actionError" class="cockpit-alert">
       {{ fatalError || actionError }}
+    </section>
+
+    <section v-if="reportLoading" class="report-loading-banner">
+      <span class="loading-spinner"></span>
+      <div>
+        <strong>{{ reportLoadingMessage }}</strong>
+        <small>报告生成时间取决于后端汇总数据量，请稍候。</small>
+      </div>
     </section>
 
     <section class="cockpit-grid">
@@ -688,12 +1093,19 @@ watch(activeVisionImageId, async (imageId, previousImageId) => {
           </div>
           <div class="command-buttons">
             <button :disabled="!selectedTask" @click="planRoutes">规划</button>
-            <button :disabled="!selectedRoute" @click="startSimulation">推演</button>
-            <button :disabled="!selectedRoute" @click="toggleAutoPlay">{{ isPlaying ? "暂停" : "播放" }}</button>
+            <button :disabled="!selectedRoute || isSimulationStarting" @click="startSimulation">
+              {{ isSimulationStarting ? "准备中" : "推演" }}
+            </button>
+            <button :disabled="!selectedRoute || isSimulationStarting" @click="toggleAutoPlay">
+              {{ isSimulationStarting ? "准备推演" : isPlaying ? "暂停" : "播放" }}
+            </button>
             <button :disabled="!simulation" @click="advanceSimulation">步进</button>
             <button :disabled="!canTriggerReplan" @click="triggerTemporaryRisk">重规划</button>
             <button @click="resetSimulation">复位</button>
           </div>
+          <small v-if="navigationPreparationMessage" class="command-hint">
+            {{ navigationPreparationMessage }}
+          </small>
         </section>
 
         <section class="glass-panel">
@@ -702,12 +1114,26 @@ watch(activeVisionImageId, async (imageId, previousImageId) => {
             <input v-model="layer.visible" type="checkbox" />
             <span>{{ layer.name }}</span>
           </label>
+          <label class="layer-row">
+            <input v-model="showShortestRoute" type="checkbox" />
+            <span>显示最短航线</span>
+          </label>
           <button class="ghost-button" @click="refreshSuperMapStatus">刷新 SuperMap 状态</button>
         </section>
 
+        <MissionEndpointEditor
+          v-if="selectedTask"
+          :task="taskDetailForDisplay?.task || selectedTask"
+          :saving="savingEndpoints"
+          :error="endpointSaveError"
+          @preview="previewTaskEndpoints"
+          @reload="reloadTaskEndpoints"
+          @save="saveTaskEndpoints"
+        />
+
         <RiskZoneEditor
           v-if="selectedTask"
-          :task="selectedTask"
+          :task="taskDetailForDisplay?.task || selectedTask"
           :zones="taskDetail?.risk_zones || []"
           :saving="savingRiskZones"
           :error="riskSaveError"
@@ -751,21 +1177,40 @@ watch(activeVisionImageId, async (imageId, previousImageId) => {
           <SuperMapScene
             v-if="taskDetailForDisplay && selectedTask"
             :task-detail="taskDetailForDisplay"
-            :selected-task="selectedTask"
+            :selected-task="taskDetailForDisplay.task"
             :layers="layers"
-            :routes="routes"
+            :routes="visibleSceneRoutes"
             :selected-route="selectedRoute"
             :risk-analysis="riskAnalysis"
             :temporary-risk="temporaryRisk"
             :replanned-route="replannedRoute"
-            :vision-result="visionResult"
+            :vision-result="sceneVisionResult"
             :vision-tiles="visionTiles"
             :current-point="currentPoint"
             :actual-flight-trail="actualFlightTrail"
             :reference-flight-trail="referenceFlightTrail"
+            :visual-match-points="visualMatchPoints"
             :supermap-config="supermapConfig"
           />
-          <div v-else class="scene-loading">等待任务和 SuperMap 场景加载</div>
+          <div v-if="!taskDetailForDisplay || !selectedTask" class="scene-loading">等待任务和 SuperMap 场景加载</div>
+          <section v-if="simulation" :class="['simulation-log-window', simLogCollapsed ? 'collapsed' : '']">
+            <button class="simulation-log-toggle" type="button" @click="simLogCollapsed = !simLogCollapsed">
+              <strong>仿真日志</strong>
+              <span>{{ simLogCollapsed ? "展开" : "收起" }}</span>
+            </button>
+            <div v-if="!simLogCollapsed" class="simulation-log-list">
+              <article v-for="log in simulationLogs" :key="log.id">
+                <strong>{{ log.time }}秒</strong>
+                <span>{{ log.title }}</span>
+                <small>{{ log.detail }}</small>
+              </article>
+              <article v-if="!simulationLogs.length">
+                <strong>--</strong>
+                <span>等待仿真推进</span>
+                <small>播放或步进后显示导航、视觉融合、风险和重规划日志。</small>
+              </article>
+            </div>
+          </section>
         </div>
 
         <section class="cockpit-timeline">
@@ -804,7 +1249,7 @@ watch(activeVisionImageId, async (imageId, previousImageId) => {
             <button
               v-for="(image, index) in visionImages"
               :key="image.id"
-              :class="{ active: activeVisionImageId === image.id }"
+              :class="{ active: selectedVisionImageId === image.id }"
               @click="selectVisionImage(image.id)"
             >
               第 {{ index + 1 }} 帧
@@ -862,6 +1307,42 @@ watch(activeVisionImageId, async (imageId, previousImageId) => {
             <span>定位状态<strong>{{ localizationStatusLabel(visualLocalization.status) }}</strong></span>
           </div>
           <p v-if="!bestVisionCandidate && !visualLocalization" class="summary-text">等待无人机影像帧进入匹配流程。</p>
+          <div v-if="visualLocalization" class="provider-metrics">
+            <span>匹配器<strong>{{ visualLocalization.provider }}</strong></span>
+            <span>太阳角<strong>{{ lightingValue("sun_azimuth_deg") }} / {{ lightingValue("sun_elevation_deg") }}</strong></span>
+          </div>
+          <div class="lighting-controls">
+            <label>
+              <span>时间</span>
+              <input v-model="lightingOptions.capture_datetime" type="datetime-local" @change="runVisionMatch" />
+            </label>
+            <label>
+              <span>曝光</span>
+              <input v-model.number="lightingOptions.exposure_ev" type="range" min="-2" max="2" step="0.1" @change="runVisionMatch" />
+            </label>
+            <label>
+              <span>阴影</span>
+              <input v-model.number="lightingOptions.shadow_strength" type="range" min="0" max="0.75" step="0.05" @change="runVisionMatch" />
+            </label>
+            <label>
+              <span>雾化</span>
+              <input v-model.number="lightingOptions.haze" type="range" min="0" max="0.6" step="0.05" @change="runVisionMatch" />
+            </label>
+            <label>
+              <span>色温</span>
+              <input v-model.number="lightingOptions.color_temperature_k" type="range" min="3200" max="8500" step="100" @change="runVisionMatch" />
+            </label>
+          </div>
+          <div v-if="activeOrbEvidence" class="orb-evidence-grid">
+            <figure>
+              <img :src="evidenceSrc(activeOrbEvidence.match_lines)" alt="ORB 匹配连线" />
+              <figcaption>ORB 匹配</figcaption>
+            </figure>
+            <figure>
+              <img :src="evidenceSrc(activeOrbEvidence.ransac_inliers)" alt="RANSAC 内点匹配" />
+              <figcaption>RANSAC 内点</figcaption>
+            </figure>
+          </div>
           <div v-if="navigationState" class="position-fusion-list">
             <span>参考<strong>{{ formatPoint(visualNavigation.referencePoint) }}</strong></span>
             <span>视觉<strong>{{ formatPoint(visualNavigation.visualPoint) }}</strong></span>
@@ -888,7 +1369,7 @@ watch(activeVisionImageId, async (imageId, previousImageId) => {
       </aside>
     </section>
 
-    <footer class="event-console">
+    <footer v-if="!simulation" class="event-console">
       <section>
         <h2>实时事件流</h2>
         <div class="console-list">

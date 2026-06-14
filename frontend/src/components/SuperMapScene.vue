@@ -15,6 +15,7 @@ import {
   openScene,
   syncSceneLayerVisibility,
   updateCurrentPoint,
+  updateVisionCandidates,
 } from "../services/supermap3d";
 
 const props = defineProps({
@@ -31,6 +32,7 @@ const props = defineProps({
   currentPoint: { type: Array, default: null },
   actualFlightTrail: { type: Array, default: () => [] },
   referenceFlightTrail: { type: Array, default: () => [] },
+  visualMatchPoints: { type: Array, default: () => [] },
   supermapConfig: { type: Object, default: null },
 });
 
@@ -91,7 +93,6 @@ const overlayData = computed(() => ({
   selectedRoute: props.selectedRoute,
   temporaryRisk: props.temporaryRisk,
   replannedRoute: props.replannedRoute,
-  visionResult: props.visionResult,
   visionTiles: props.visionTiles,
   luojiaBuildings: luojiaBuildings.value,
   luojiaTerrain: luojiaTerrain.value,
@@ -126,12 +127,24 @@ watch(
 );
 
 watch(
-  () => [props.currentPoint, props.actualFlightTrail, props.referenceFlightTrail],
-  ([point, actualTrail, referenceTrail]) => {
+  () => props.visionResult?.candidates || [],
+  (candidates) => {
+    if (viewerRef.value && sdkRef.value && status.value === "ready") {
+      updateVisionCandidates(viewerRef.value, sdkRef.value, candidates);
+      refreshDebugState();
+    }
+  },
+  { deep: true }
+);
+
+watch(
+  () => [props.currentPoint, props.actualFlightTrail, props.referenceFlightTrail, props.visualMatchPoints],
+  ([point, actualTrail, referenceTrail, visualMatchPoints]) => {
     if (viewerRef.value && sdkRef.value && status.value === "ready") {
       updateCurrentPoint(viewerRef.value, sdkRef.value, point, {
         actualTrail,
         referenceTrail,
+        visualMatchPoints,
       });
       refreshDebugState();
     }
@@ -236,10 +249,14 @@ function refreshSceneBase() {
   if (!viewerRef.value || !sdkRef.value || status.value !== "ready") return;
   installMapImageryFallback(viewerRef.value, sdkRef.value, props.supermapConfig);
   syncSceneLayerVisibility(viewerRef.value, props.layers, props.supermapConfig);
-  drawDemoOverlay(viewerRef.value, sdkRef.value, overlayData.value);
+  drawDemoOverlay(viewerRef.value, sdkRef.value, {
+    ...overlayData.value,
+    visionResult: props.visionResult,
+  });
   updateCurrentPoint(viewerRef.value, sdkRef.value, props.currentPoint, {
     actualTrail: props.actualFlightTrail,
     referenceTrail: props.referenceFlightTrail,
+    visualMatchPoints: props.visualMatchPoints,
   });
   refreshDebugState();
 }
@@ -329,6 +346,7 @@ function refreshDebugState() {
         :current-point="currentPoint"
         :actual-flight-trail="actualFlightTrail"
         :reference-flight-trail="referenceFlightTrail"
+        :visual-match-points="visualMatchPoints"
       />
     </div>
 
@@ -347,6 +365,7 @@ function refreshDebugState() {
       :current-point="currentPoint"
       :actual-flight-trail="actualFlightTrail"
       :reference-flight-trail="referenceFlightTrail"
+      :visual-match-points="visualMatchPoints"
     />
   </div>
 </template>

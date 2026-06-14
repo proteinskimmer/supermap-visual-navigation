@@ -18,6 +18,24 @@ function routeModeLabel(mode) {
   if (mode === "balanced") return "综合平衡";
   return mode || "-";
 }
+
+function qualityGradeLabel(grade) {
+  if (grade === "navigation_verified") return "导航级通过";
+  if (grade === "demo_verified") return "演示级通过";
+  if (grade === "review_required") return "需要复核";
+  return grade || "-";
+}
+
+function percent(value) {
+  return `${Math.round((value || 0) * 100)}%`;
+}
+
+function countMapText(counts) {
+  if (!counts) return "-";
+  const entries = Object.entries(counts);
+  if (!entries.length) return "-";
+  return entries.map(([key, value]) => `${key}: ${value}`).join(" / ");
+}
 </script>
 
 <template>
@@ -62,6 +80,35 @@ function routeModeLabel(mode) {
         <section class="report-section">
           <h2>摘要</h2>
           <p class="summary-text">{{ report.summary }}</p>
+        </section>
+
+        <section class="report-section" v-if="report.navigation_quality">
+          <h2>视觉导航质量</h2>
+          <div class="report-grid report-grid-wide">
+            <span>Matcher</span>
+            <strong>{{ report.navigation_quality.matcher_mode }}</strong>
+            <span>质量等级</span>
+            <strong>{{ qualityGradeLabel(report.navigation_quality.quality_grade) }}</strong>
+            <span>视觉观测帧</span>
+            <strong>{{ report.navigation_quality.visual_observation_count }} / {{ report.navigation_quality.frame_count }}</strong>
+            <span>平均置信度</span>
+            <strong>{{ percent(report.navigation_quality.confidence?.average) }}</strong>
+            <span>平均误差半径</span>
+            <strong>{{ report.navigation_quality.visual_error?.average_error_radius_m }} 米</strong>
+            <span>融合平均偏差</span>
+            <strong>{{ report.navigation_quality.fused_trajectory?.average_deviation_m }} 米</strong>
+            <span>终点误差</span>
+            <strong>{{ report.navigation_quality.fused_trajectory?.final_error_m }} 米</strong>
+            <span>最大步速</span>
+            <strong>{{ report.navigation_quality.fused_trajectory?.max_step_mps }} m/s</strong>
+            <span>平滑性</span>
+            <strong>{{ report.navigation_quality.fused_trajectory?.smoothness_passed ? "通过" : "需复核" }}</strong>
+            <span>回退帧</span>
+            <strong>{{ report.navigation_quality.fallback_count }}</strong>
+            <span>Provider</span>
+            <strong>{{ countMapText(report.navigation_quality.provider_counts) }}</strong>
+          </div>
+          <p class="summary-text">{{ report.navigation_quality.summary }}</p>
         </section>
 
         <section class="report-section">

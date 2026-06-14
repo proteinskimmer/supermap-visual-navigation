@@ -8,24 +8,28 @@ from app.services.geometry import distance_m, lonlat_to_xy, point_in_polygon, xy
 from app.services.planning_service import replan_route
 from app.services.synthetic_view_service import localization_to_visual_frame, localize_with_synthetic_views
 from app.services.vision_service import list_query_images
+from app.services.vision_matcher_provider import is_precomputed_matcher, normalize_matcher_mode
 
 
 _sessions: dict[str, dict] = {}
+NAVIGATION_FRAME_STEP_S = 3
 
 
-def start_navigation_session(task_id: str, route: dict, mode: str = "autonomous") -> dict:
+def start_navigation_session(task_id: str, route: dict, mode: str = "autonomous", matcher_mode: str = "synthetic_v04") -> dict:
     try:
         task = get_task(task_id)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
     data = get_demo_data()
-    session_id = f"nav_{task_id}_{route['id']}"
-    timeline, events = _build_timeline(session_id, task, route, data, mode)
+    normalized_matcher = normalize_matcher_mode(matcher_mode)
+    session_id = f"nav_{task_id}_{route['id']}_{normalized_matcher}"
+    timeline, events = _build_timeline(session_id, task, route, data, mode, normalized_matcher)
     session = {
         "session_id": session_id,
         "task_id": task_id,
         "active_route_id": route["id"],
+        "matcher_mode": normalized_matcher,
         "route": route,
         "duration_s": timeline[-1]["time_s"] if timeline else max(route.get("estimated_time_s", 1), 1),
         "state": "ready",
@@ -48,9 +52,9 @@ def get_navigation_timeline(session_id: str) -> dict:
     return _get_session(session_id)
 
 
-def localize_visual_frame(task_id: str, image_id: str) -> dict:
+def localize_visual_frame(task_id: str, image_id: str, matcher_mode: str = "synthetic_v04") -> dict:
     image = _image_by_id(task_id, image_id)
-    localization = localize_with_synthetic_views(task_id, image_id, top_k_tiles=1)
+    localization = _localize_for_navigation(task_id, image, top_k_tiles=1, matcher_mode=matcher_mode)
     if not localization or not localization.get("matches"):
         raise HTTPException(status_code=404, detail=f"vision localization not found: {image_id}")
     return localization_to_visual_frame(localization, image)
@@ -81,15 +85,16 @@ def _get_session(session_id: str) -> dict:
     return session
 
 
-def _build_timeline(session_id: str, task: dict, route: dict, data: dict, mode: str) -> tuple[list[dict], list[dict]]:
+def _build_timeline(session_id: str, task: dict, route: dict, data: dict, mode: str, matcher_mode: str) -> tuple[list[dict], list[dict]]:
     tiles = [tile for tile in data.get("vision_tile_index", []) if tile.get("task_id") == task["id"]]
     images = sorted(build_auto_vision_images(task, route, tiles), key=lambda image: image.get("capture_time_s", 0))
     if not images:
         images = sorted(list_query_images(task["id"]), key=lambda image: image.get("capture_time_s", 0))
     duration = max(route.get("estimated_time_s", 1), 1)
-    frame_times = sorted({*range(0, duration + 1, 6), duration, *[image["capture_time_s"] for image in images]})
     origin = [task["area"]["coordinates"][0][0][0], task["area"]["coordinates"][0][0][1]]
-    visual_fixes = _build_visual_fixes(task["id"], images)
+    route_path = _smooth_route_path(route["points"], origin)
+    frame_times = sorted({*range(0, duration + 1, NAVIGATION_FRAME_STEP_S), duration, *[image["capture_time_s"] for image in images]})
+    visual_fixes = _build_visual_fixes(task["id"], images, matcher_mode)
     events = _build_base_events(task, route, images, visual_fixes)
     timeline = []
     previous_frame = None
@@ -100,6 +105,7 @@ def _build_timeline(session_id: str, task: dict, route: dict, data: dict, mode: 
             session_id=session_id,
             task=task,
             route=route,
+            route_path=route_path,
             time_s=time_s,
             duration=duration,
             origin=origin,
@@ -138,10 +144,10 @@ def _build_timeline(session_id: str, task: dict, route: dict, data: dict, mode: 
     return timeline, events
 
 
-def _build_visual_fixes(task_id: str, images: list[dict]) -> list[dict]:
+def _build_visual_fixes(task_id: str, images: list[dict], matcher_mode: str = "synthetic_v04") -> list[dict]:
     fixes = []
     for image in images:
-        localization = localize_with_synthetic_views(task_id, image["id"], top_k_tiles=3, image_override=image)
+        localization = _localize_for_navigation(task_id, image, top_k_tiles=3, matcher_mode=matcher_mode)
         if not localization or not localization.get("matches") or not localization.get("best_estimated_pose"):
             continue
         match = localization["matches"][0]
@@ -168,7 +174,7 @@ def _build_visual_fixes(task_id: str, images: list[dict]) -> list[dict]:
                     "tile_id": match.get("tile_id", ""),
                     "match_id": localization.get("localization_id", ""),
                     "image_id": image["id"],
-                    "reason": match.get("reason", localization.get("failure_reason", "")),
+                    "reason": _visual_reason(localization, match),
                     "error_radius_m": localization.get("error_radius_m", 0),
                     "correction_vector_m": localization.get("correction_vector_m", []),
                     "synthetic_view_id": match.get("view_id", ""),
@@ -179,10 +185,57 @@ def _build_visual_fixes(task_id: str, images: list[dict]) -> list[dict]:
     return fixes
 
 
+def _localize_for_navigation(task_id: str, image: dict, top_k_tiles: int, matcher_mode: str) -> dict:
+    normalized_matcher = normalize_matcher_mode(matcher_mode)
+    localization = localize_with_synthetic_views(
+        task_id,
+        image["id"],
+        top_k_tiles=top_k_tiles,
+        image_override=image,
+        matcher_mode=normalized_matcher,
+    )
+    if _is_navigation_grade(localization) or is_precomputed_matcher(normalized_matcher):
+        return localization
+
+    fallback = localize_with_synthetic_views(
+        task_id,
+        image["id"],
+        top_k_tiles=top_k_tiles,
+        image_override=image,
+        matcher_mode="precomputed_proxy",
+    )
+    fallback["provider"] = f"{fallback.get('provider', 'synthetic_view_v04_precomputed_proxy')}_fallback_from_{normalized_matcher}"
+    fallback["navigation_effect"] = (
+        f"{normalized_matcher} did not produce a navigation-grade observation; "
+        "navigation fell back to the v0.4 precomputed proxy"
+    )
+    fallback["failure_reason"] = localization.get("failure_reason", "")
+    fallback.setdefault("pipeline", []).append(f"fallback_from_{normalized_matcher}")
+    return fallback
+
+
+def _is_navigation_grade(localization: dict | None) -> bool:
+    return bool(
+        localization
+        and localization.get("status") == "localized"
+        and localization.get("best_estimated_pose")
+        and localization.get("matches")
+    )
+
+
+def _visual_reason(localization: dict, match: dict) -> str:
+    reason = match.get("reason") or localization.get("failure_reason", "")
+    provider = localization.get("provider", "")
+    if "_fallback_from_" in provider:
+        return f"{reason}；真实 matcher 未达到导航门槛，已回退 v0.4 proxy"
+    return reason
+
+
 def _build_state_frame(
     session_id: str,
     task: dict,
     route: dict,
+    route_path: list[list[float]],
     time_s: int,
     duration: int,
     origin: list[float],
@@ -191,7 +244,7 @@ def _build_state_frame(
     requested_mode: str,
     previous_frame: dict | None,
 ) -> dict:
-    reference_point = _interpolate_route_point(route["points"], time_s / max(duration, 1))
+    reference_point = _interpolate_route_point(route_path, time_s / max(duration, 1), origin)
     active_fix = _active_visual_fix(visual_fixes, time_s)
     visual_position = active_fix["visual_position"] if active_fix else None
     visual_frame = active_fix["visual_frame"] if active_fix else None
@@ -203,7 +256,7 @@ def _build_state_frame(
         duration=duration,
         fused_point=fused_point,
         reference_point=reference_point,
-        next_point=_interpolate_route_point(route["points"], min(1, (time_s + 6) / max(duration, 1))),
+        next_point=_interpolate_route_point(route_path, min(1, (time_s + NAVIGATION_FRAME_STEP_S) / max(duration, 1)), origin),
         previous_frame=previous_frame,
         navigation_mode=navigation_mode,
         visual_position=visual_position,
@@ -402,8 +455,15 @@ def _fused_point(
 
 def _freshness_weight(elapsed_s: int) -> float:
     if elapsed_s <= 0:
-        return 1.0
-    return max(0.0, 1.0 - elapsed_s / 18.0)
+        return 0.0
+    ramp_in = min(1.0, elapsed_s / 6.0)
+    fade_out = max(0.0, 1.0 - elapsed_s / 30.0)
+    return _smoothstep(ramp_in) * _smoothstep(fade_out)
+
+
+def _smoothstep(value: float) -> float:
+    clamped = max(0.0, min(1.0, value))
+    return clamped * clamped * (3 - 2 * clamped)
 
 
 def _corrected_reference_point(
@@ -480,18 +540,58 @@ def _telemetry(
     }
 
 
-def _interpolate_route_point(points: list[list[float]], progress_ratio: float) -> list[float]:
+def _smooth_route_path(points: list[list[float]], origin: list[float]) -> list[list[float]]:
+    if len(points) <= 2:
+        return [_normalize_point(point) for point in points]
+    path = [_normalize_point(point) for point in points]
+    for _ in range(2):
+        refined = [path[0]]
+        for start, end in zip(path, path[1:]):
+            refined.append(_lerp_point_meters(start, end, 0.28, origin))
+            refined.append(_lerp_point_meters(start, end, 0.72, origin))
+        refined.append(path[-1])
+        path = refined
+    path[0] = _normalize_point(points[0])
+    path[-1] = _normalize_point(points[-1])
+    return _deduplicate_path(path)
+
+
+def _lerp_point_meters(start: list[float], end: list[float], ratio: float, origin: list[float]) -> list[float]:
+    start_x, start_y = lonlat_to_xy(start, origin)
+    end_x, end_y = lonlat_to_xy(end, origin)
+    lon, lat = xy_to_lonlat(_lerp(start_x, end_x, ratio), _lerp(start_y, end_y, ratio), origin)
+    return [round(lon, 6), round(lat, 6), round(_lerp(start[2], end[2], ratio), 1)]
+
+
+def _deduplicate_path(points: list[list[float]]) -> list[list[float]]:
+    result = []
+    for point in points:
+        if result and point[0] == result[-1][0] and point[1] == result[-1][1] and point[2] == result[-1][2]:
+            continue
+        result.append(point)
+    return result
+
+
+def _interpolate_route_point(points: list[list[float]], progress_ratio: float, origin: list[float]) -> list[float]:
     if not points:
         return [0, 0, 120]
     if len(points) == 1:
         return _normalize_point(points[0])
     clamped = max(0.0, min(1.0, progress_ratio))
-    scaled = clamped * (len(points) - 1)
-    start_index = min(len(points) - 2, int(scaled))
-    end_index = start_index + 1
-    local_ratio = scaled - start_index
+    distances = [0.0]
+    for start, end in zip(points, points[1:]):
+        distances.append(distances[-1] + distance_m(start, end, origin))
+    total = max(distances[-1], 1.0)
+    target_distance = clamped * total
+    start_index = 0
+    for index in range(len(distances) - 1):
+        if distances[index] <= target_distance <= distances[index + 1]:
+            start_index = index
+            break
+    segment_distance = max(distances[start_index + 1] - distances[start_index], 1.0)
+    local_ratio = (target_distance - distances[start_index]) / segment_distance
     start = _normalize_point(points[start_index])
-    end = _normalize_point(points[end_index])
+    end = _normalize_point(points[start_index + 1])
     return [
         round(_lerp(start[0], end[0], local_ratio), 6),
         round(_lerp(start[1], end[1], local_ratio), 6),

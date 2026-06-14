@@ -3,9 +3,11 @@ from fastapi import APIRouter, HTTPException
 from app.api.responses import ok
 from app.models.schemas import ApiResponse, ReportData
 from app.services.data_store import get_demo_data, get_task
+from app.services.navigation_quality_service import summarize_navigation_quality
 from app.services.planning_service import plan_routes
 from app.services.risk_service import analyze_route, build_simulation_events
 from app.services.vision_service import build_vision_event, build_vision_summary, get_match_result, list_query_images
+from app.services.visual_navigation_service import start_navigation_session
 
 router = APIRouter(tags=["reports"])
 
@@ -24,6 +26,8 @@ def report(task_id: str):
     vision = get_match_result(task_id, first_image["id"]) or get_match_result(task_id, "demo_uav_001")
     if not vision:
         raise HTTPException(status_code=404, detail=f"vision report data not found for task: {task_id}")
+    navigation_session = start_navigation_session(task_id, route, mode="autonomous", matcher_mode="opencv_orb")
+    navigation_quality = summarize_navigation_quality(navigation_session, task)
     events = build_simulation_events(route)
     events.append(build_vision_event(vision, first_image.get("capture_time_s")))
     events = sorted(events, key=lambda event: event["time_s"])
@@ -35,6 +39,7 @@ def report(task_id: str):
             "events": events,
             "vision": vision,
             "vision_summary": build_vision_summary(task_id),
-            "summary": "本报告基于示范数据生成，用于比赛演示和系统联调。",
+            "navigation_quality": navigation_quality,
+            "summary": f"本报告基于示范数据生成，用于比赛演示和系统联调。{navigation_quality['summary']}",
         }
     )

@@ -32,20 +32,20 @@
       "status": "optional"
     },
     "online_basemap": {
-      "name": "Online basemap for global overview",
+      "name": "Online basemap for regional 3D context",
       "url": "",
       "type": "url_template",
       "provider": "url_template",
       "status": "optional",
-      "usage": "global_or_large_area_background_only"
+      "usage": "regional_3d_context_background_only"
     },
     "online_terrain": {
-      "name": "Online terrain for global overview",
+      "name": "Online terrain for regional 3D context",
       "url": "",
       "type": "terrain",
       "provider": "supermap",
       "status": "optional",
-      "usage": "global_or_large_area_3d_context_only"
+      "usage": "regional_3d_context_only"
     }
   },
   "layers": {

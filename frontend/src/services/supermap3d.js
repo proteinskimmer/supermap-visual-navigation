@@ -26,6 +26,17 @@ const LUOJIA_STATIC_ORTHO = {
   absoluteSafetyHeight: 165,
 };
 
+const LUOJIA_REGIONAL_CONTEXT = {
+  west: 114.315,
+  south: 30.505,
+  east: 114.415,
+  north: 30.575,
+  baseHeight: -12,
+  heightScale: 90,
+  cols: 48,
+  rows: 36,
+};
+
 let sdkPromise = null;
 
 export function detectWebGL2() {
@@ -124,6 +135,9 @@ export function drawDemoOverlay(viewer, SuperMap3D, data) {
   clearDemoEntities(viewer);
   const visibility = buildLayerVisibility(data.layers || []);
   const useRealSuperMapScene = hasRealSuperMapScene(data);
+  if (visibility.terrain && data.luojiaTerrain) {
+    drawRegionalTerrainContext(viewer, SuperMap3D, data.luojiaTerrain);
+  }
   if (visibility.imagery && data.luojiaTerrain) {
     drawLuojiaTerrainSurface(viewer, SuperMap3D, data.luojiaTerrain);
   }
@@ -374,6 +388,91 @@ function installStaticOrthoFallback(viewer, SuperMap3D, supermapConfig = null) {
   }
 }
 
+function drawRegionalTerrainContext(viewer, SuperMap3D, terrain) {
+  if (!viewer?.scene?.primitives || viewer.__luojiaRegionalTerrainPrimitive) return;
+  if (!SuperMap3D.Geometry || !SuperMap3D.Primitive || !SuperMap3D.MaterialAppearance) return;
+  const bounds = regionalBoundsFromTerrain(terrain);
+  const cols = LUOJIA_REGIONAL_CONTEXT.cols;
+  const rows = LUOJIA_REGIONAL_CONTEXT.rows;
+
+  try {
+    const positions = new Float64Array(cols * rows * 3);
+    const st = new Float32Array(cols * rows * 2);
+    const indices = [];
+    for (let row = 0; row < rows; row += 1) {
+      const v = row / (rows - 1);
+      const lat = lerp(bounds.north, bounds.south, v);
+      for (let col = 0; col < cols; col += 1) {
+        const u = col / (cols - 1);
+        const lon = lerp(bounds.west, bounds.east, u);
+        const height = regionalTerrainHeight(lon, lat, bounds);
+        const cartesian = SuperMap3D.Cartesian3.fromDegrees(lon, lat, height);
+        const index = row * cols + col;
+        positions[index * 3] = cartesian.x;
+        positions[index * 3 + 1] = cartesian.y;
+        positions[index * 3 + 2] = cartesian.z;
+        st[index * 2] = u;
+        st[index * 2 + 1] = 1 - v;
+      }
+    }
+    for (let row = 0; row < rows - 1; row += 1) {
+      for (let col = 0; col < cols - 1; col += 1) {
+        const a = row * cols + col;
+        const b = a + 1;
+        const c = a + cols;
+        const d = c + 1;
+        indices.push(a, c, b, b, c, d);
+      }
+    }
+
+    const geometry = new SuperMap3D.Geometry({
+      attributes: new SuperMap3D.GeometryAttributes({
+        position: new SuperMap3D.GeometryAttribute({
+          componentDatatype: SuperMap3D.ComponentDatatype.DOUBLE,
+          componentsPerAttribute: 3,
+          values: positions,
+        }),
+        st: new SuperMap3D.GeometryAttribute({
+          componentDatatype: SuperMap3D.ComponentDatatype.FLOAT,
+          componentsPerAttribute: 2,
+          values: st,
+        }),
+      }),
+      indices: new Uint16Array(indices),
+      primitiveType: SuperMap3D.PrimitiveType.TRIANGLES,
+      boundingSphere: SuperMap3D.BoundingSphere.fromVertices(positions),
+    });
+    const material = SuperMap3D.Material.fromType("Color", {
+      color: colorWithAlpha(SuperMap3D, "DARKSEAGREEN", 0.72),
+    });
+    const primitive = new SuperMap3D.Primitive({
+      geometryInstances: new SuperMap3D.GeometryInstance({ geometry }),
+      appearance: new SuperMap3D.MaterialAppearance({
+        material,
+        faceForward: true,
+        translucent: true,
+        closed: false,
+      }),
+      asynchronous: false,
+    });
+    viewer.scene.primitives.add(primitive);
+    viewer.__luojiaRegionalTerrainPrimitive = primitive;
+    viewer.__luojiaRegionalTerrain = {
+      installed: true,
+      bounds,
+      vertices: cols * rows,
+      triangles: indices.length / 3,
+      mode: "local-regional-context",
+    };
+  } catch (error) {
+    console.warn("Failed to draw Luojia regional terrain context", error);
+    viewer.__luojiaRegionalTerrain = {
+      installed: false,
+      error: error?.message || String(error),
+    };
+  }
+}
+
 function drawLuojiaTerrainSurface(viewer, SuperMap3D, terrain) {
   if (!viewer?.scene?.primitives || !terrain?.vertices?.length || !terrain?.indices?.length) return;
   if (viewer.__luojiaTerrainPrimitive) {
@@ -442,6 +541,35 @@ function drawLuojiaTerrainSurface(viewer, SuperMap3D, terrain) {
   }
 }
 
+function regionalBoundsFromTerrain(terrain) {
+  const vertices = terrain?.vertices || [];
+  if (!vertices.length) return LUOJIA_REGIONAL_CONTEXT;
+  const lons = vertices.map((vertex) => vertex.lon);
+  const lats = vertices.map((vertex) => vertex.lat);
+  const west = Math.min(...lons);
+  const east = Math.max(...lons);
+  const south = Math.min(...lats);
+  const north = Math.max(...lats);
+  return {
+    west: Math.min(LUOJIA_REGIONAL_CONTEXT.west, west - 0.018),
+    south: Math.min(LUOJIA_REGIONAL_CONTEXT.south, south - 0.016),
+    east: Math.max(LUOJIA_REGIONAL_CONTEXT.east, east + 0.018),
+    north: Math.max(LUOJIA_REGIONAL_CONTEXT.north, north + 0.016),
+  };
+}
+
+function regionalTerrainHeight(lon, lat, bounds) {
+  const u = (lon - bounds.west) / Math.max(0.0001, bounds.east - bounds.west);
+  const v = (lat - bounds.south) / Math.max(0.0001, bounds.north - bounds.south);
+  const ridge =
+    Math.sin(u * Math.PI * 3.2 + 0.4) * 0.38 +
+    Math.cos(v * Math.PI * 2.7 - 0.5) * 0.32 +
+    Math.sin((u + v) * Math.PI * 4.1) * 0.18;
+  const centerBlend = Math.max(0, 1 - Math.hypot(u - 0.5, v - 0.5) * 1.8);
+  const broadSlope = (1 - v) * 18 + u * 10;
+  return LUOJIA_REGIONAL_CONTEXT.baseHeight + broadSlope + ridge * LUOJIA_REGIONAL_CONTEXT.heightScale * (0.45 + centerBlend * 0.35);
+}
+
 function cleanupStaleLuojiaFallback(viewer) {
   try {
     if (viewer?.__luojiaStaticOrthoSafetyEntity) {
@@ -468,6 +596,9 @@ export function getSuperMapDebugState(viewer, supermapConfig = null) {
     terrainInstalled: Boolean(viewer?.__luojiaTerrainPrimitive),
     terrainVertices: viewer?.__luojiaTerrainSurface?.vertices || 0,
     terrainTriangles: viewer?.__luojiaTerrainSurface?.triangles || 0,
+    regionalTerrainInstalled: Boolean(viewer?.__luojiaRegionalTerrainPrimitive),
+    regionalTerrainVertices: viewer?.__luojiaRegionalTerrain?.vertices || 0,
+    regionalTerrainTriangles: viewer?.__luojiaRegionalTerrain?.triangles || 0,
     imageryLayerCount: viewer?.imageryLayers?.length ?? null,
     sceneLayerCount: sceneLayers.length,
     sceneLayers: sceneLayers.map((layer) => layer?.name || layer?._name || layer?.caption || layer?.dataName).filter(Boolean),
@@ -1204,15 +1335,15 @@ export function fitToTask(viewer, SuperMap3D, task, supermapConfig = null) {
 
 export function fitToLargeArea(viewer, SuperMap3D, supermapConfig = null) {
   if (!viewer?.camera || !SuperMap3D.Cartesian3) return;
-  const view = supermapConfig?.presentation?.large_area_view || {};
+  const view = supermapConfig?.presentation?.regional_3d_view || supermapConfig?.presentation?.large_area_view || {};
   const destination = SuperMap3D.Cartesian3.fromDegrees(
-    view.lon ?? 105,
-    view.lat ?? 30,
-    view.altitude_m ?? 14500000
+    view.lon ?? 114.365,
+    view.lat ?? 30.54,
+    view.altitude_m ?? 9200
   );
   const orientation = {
-    heading: SuperMap3D.Math?.toRadians ? SuperMap3D.Math.toRadians(view.heading_deg ?? 0) : 0,
-    pitch: SuperMap3D.Math?.toRadians ? SuperMap3D.Math.toRadians(view.pitch_deg ?? -90) : -1.57,
+    heading: SuperMap3D.Math?.toRadians ? SuperMap3D.Math.toRadians(view.heading_deg ?? 18) : 0.31,
+    pitch: SuperMap3D.Math?.toRadians ? SuperMap3D.Math.toRadians(view.pitch_deg ?? -56) : -0.98,
     roll: 0,
   };
   if (viewer.camera.flyTo) {

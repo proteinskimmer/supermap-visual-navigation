@@ -277,7 +277,7 @@ function resetStandardView() {
 
 function showLargeAreaView() {
   if (!viewerRef.value || !sdkRef.value || status.value !== "ready") return;
-  viewScope.value = "large";
+  viewScope.value = "regional";
   fitToLargeArea(viewerRef.value, sdkRef.value, props.supermapConfig);
   refreshDebugState();
 }
@@ -306,6 +306,7 @@ function refreshDebugState() {
         :data-scene-status="status"
         :data-view-scope="viewScope"
         :data-luojia-mode="isLuojiaMode ? 'true' : 'false'"
+        :data-regional-terrain-installed="debugState?.regionalTerrainInstalled ? 'true' : 'false'"
         :data-online-basemap-status="debugState?.onlineBasemapStatus || 'not_configured'"
         :data-online-terrain-status="debugState?.onlineTerrainStatus || 'not_configured'"
         :data-luojia-fallback-installed="debugState?.fallbackInstalled ? 'true' : 'false'"
@@ -314,12 +315,12 @@ function refreshDebugState() {
       <div class="scene-control-bar">
         <button
           type="button"
-          title="飞到全球/大范围三维浏览视角"
-          data-large-area-view-button
+          title="飞到珞珈山周边大范围三维场景"
+          data-regional-3d-view-button
           :disabled="status !== 'ready'"
           @click="showLargeAreaView"
         >
-          全球视角
+          区域三维
         </button>
         <button type="button" title="重新加载珞珈底图" :disabled="status !== 'ready'" @click="reloadSceneBase">
           重载底图
@@ -347,6 +348,9 @@ function refreshDebugState() {
         </small>
         <small v-if="debugState?.terrainInstalled">
           高程地形网格：{{ debugState.terrainVertices }} 个顶点 / {{ debugState.terrainTriangles }} 个三角面
+        </small>
+        <small v-if="debugState?.regionalTerrainInstalled">
+          区域三维底座：{{ debugState.regionalTerrainVertices }} 个顶点 / {{ debugState.regionalTerrainTriangles }} 个三角面
         </small>
         <small v-if="sceneWarning">{{ sceneWarning }}</small>
         <small v-if="isLuojiaMode">正射影像备用图：/demo/luojia_ortho_preview.jpg</small>

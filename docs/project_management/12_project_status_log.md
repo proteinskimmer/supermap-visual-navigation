@@ -2342,3 +2342,34 @@
   - Large-area 3D context is a display/context enhancement.
   - Visual autonomous navigation remains locked to local Luojia high-precision DEM, orthophoto, building, UAV frame, and ORB evidence data.
   - No online basemap/terrain provider has been selected or licensed yet; real online URL configuration and screenshot evidence remain pending.
+
+### 2026-06-14 R9 correction: regional 3D context, not global view
+
+- User correction:
+  - The requested feature is not a detached global camera view.
+  - The required feature is a large-area 3D scene connected with the local Luojia task scene.
+- Implementation correction:
+  - Changed the scene control from `全球视角` to `区域三维`.
+  - Changed large-area camera target from global altitude to Luojia regional overview:
+    - default center: `114.365, 30.54`;
+    - default altitude: about `9200m`;
+    - oblique regional pitch instead of top-down globe view.
+  - Added local generated low-resolution regional terrain mesh around Luojia:
+    - installed before the high-resolution Luojia DEM/orthophoto surface;
+    - high-resolution local terrain remains on top;
+    - the surrounding context is display-only and does not enter ORB/navigation fusion.
+  - Added DOM evidence marker:
+    - `data-regional-terrain-installed="true"`;
+    - `data-regional-3d-view-button`.
+- Verification:
+  - `npm run build` passed.
+  - `powershell -ExecutionPolicy Bypass -File E:\supermap_project\scripts\check_v05_navigation_gate.ps1 -PythonExe E:\anaconda\envs\supermap_nav\python.exe -SkipRuntime` passed.
+  - DOM gate confirmed:
+    - regional terrain context installed;
+    - regional 3D view button present;
+    - Luojia DEM terrain still installed.
+  - Visual gate screenshot non-dark coverage increased to about `97.91%` inside the scene area, indicating the scene is no longer a black/empty global view.
+- Strict status:
+  - R9 now provides a locally connected regional 3D context.
+  - It is still not a verified online high-precision regional dataset.
+  - Visual navigation remains locked to local Luojia high-precision data.

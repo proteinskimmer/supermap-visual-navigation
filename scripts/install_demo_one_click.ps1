@@ -233,8 +233,8 @@ if (-not (Test-Path -LiteralPath (Join-Path $ProjectRoot "supermap_file_root")))
 else {
   Write-Ok "supermap_file_root exists"
 }
-if (-not (Test-Path -LiteralPath (Join-Path $ProjectRoot "config\supermap_services.json"))) {
-  Write-Warn "config\supermap_services.json missing. Use the example config or publish services before final demo."
+if (-not (Test-Path -LiteralPath (Join-Path $ProjectRoot "config\supermap_services.local.json"))) {
+  Write-Warn "config\supermap_services.local.json missing. Copy an example config, fill local service URLs and optional Tianditu token before final demo."
 }
 else {
   Write-Ok "SuperMap service config exists"

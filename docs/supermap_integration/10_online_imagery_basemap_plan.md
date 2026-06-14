@@ -1,62 +1,76 @@
-# Online Imagery Basemap Integration Plan
+# 在线影像底图接入预案
 
-Created: 2026-06-14
+创建时间：2026-06-14
 
-## Purpose
+## 目标
 
-Use an online imagery/map service as the large-area dynamic background layer. The local Luojia DEM, orthophoto, buildings, UAV frames, and ORB evidence remain the authoritative data for visual autonomous navigation.
+在线影像底图用于大范围动态背景展示，让局部珞珈山高精度三维场景看起来能和周边区域衔接。它不是视觉自主导航的核心数据源。
 
-The target behavior is tile-based dynamic loading:
+目标行为：
 
 ```text
-camera moves
--> SuperMap3D requests visible imagery tiles
--> local Luojia high-precision layer covers the task area
--> visual navigation still reads local Luojia data
+视角移动
+-> SuperMap3D 按可见范围请求在线影像瓦片
+-> 珞珈山任务区仍由本地 DEM、正射影像和建筑物覆盖
+-> 视觉导航仍读取本地高精度数据和合成视图匹配结果
 ```
 
-## URL Information Needed
+## 需要收集的信息
 
-When asking for a SuperMap Online, iServer, WMTS, or XYZ imagery URL, collect:
+接入 SuperMap Online、iServer、WMTS、XYZ 或天地图等在线影像服务时，需要记录：
 
-| Field | Required | Notes |
-|---|---|---|
-| Provider name | Yes | SuperMap Online, iServer, TianDiTu, etc. |
-| Service type | Yes | `supermap`, `url_template`, or `wmts` |
-| URL | Yes | Full service URL or tile template |
-| Token/key required | Yes | Record parameter name and expiration |
-| Coverage | Yes | Global, China, Wuhan, or custom region |
-| CRS/tiling scheme | Yes | WGS84/WebMercator/CGCS2000/GCJ-02 |
-| Image type | Yes | Satellite imagery, vector map, label layer, mixed map |
-| License | Yes | Whether competition demo/screenshot/video use is allowed |
-| CORS/browser access | Yes | Must be callable from `localhost:5173` |
-| Max zoom level | Recommended | Helps set `maximum_level` |
-| Attribution text | Recommended | Shown in docs/PPT if required |
+| 字段 | 是否必需 | 说明 |
+| --- | --- | --- |
+| 服务名称 | 是 | 例如天地图影像、SuperMap Online 影像等 |
+| 服务类型 | 是 | `supermap`、`url_template`、`wmts` |
+| URL | 是 | 完整服务地址或瓦片模板 |
+| token/key | 是 | 记录参数名、有效期、归属账号 |
+| 覆盖范围 | 是 | 全球、中国、武汉、指定区域 |
+| 坐标/切片体系 | 是 | WGS84、WebMercator、CGCS2000、GCJ-02 等 |
+| 影像类型 | 是 | 卫星影像、矢量地图、注记、混合图 |
+| 授权 | 是 | 是否允许比赛演示、截图、录屏使用 |
+| 浏览器访问 | 是 | 必须能从 `localhost:5173` 调用 |
+| 最大级别 | 建议 | 用于设置 `maximum_level` |
+| 署名 | 建议 | 如 PPT 或报告需要标注数据来源 |
 
-## Supported Config Shape
+## 配置写法
 
-Fill the local config after the URL is confirmed:
+正式运行时填写本机配置：
+
+```text
+config/supermap_services.local.json
+```
+
+该文件不进入 Git。仓库里的模板只保留占位符。
+
+天地图影像 WMTS 推荐写法：
 
 ```json
 {
   "services": {
     "online_basemap": {
-      "name": "Confirmed online imagery basemap",
-      "url": "TO_BE_FILLED",
+      "name": "天地图影像底图（大范围三维背景）",
+      "url": "https://t0.tianditu.gov.cn/img_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=img&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk={token}",
+      "token": "填入本机天地图 API 密钥",
       "type": "url_template",
       "provider": "url_template",
       "status": "configured",
       "usage": "regional_3d_context_background_only",
-      "minimum_level": 0,
+      "minimum_level": 1,
       "maximum_level": 18,
-      "alpha": 0.78,
-      "credit": "TO_BE_FILLED"
+      "alpha": 0.82,
+      "regional_preview_level": 13,
+      "regional_preview_max_tiles": 36,
+      "regional_preview_alpha": 0.92,
+      "credit": "天地图影像"
     }
   }
 }
 ```
 
-For a SuperMap iServer map service:
+前端会把 `url` 中的 `{token}`、`{tk}` 或 `{api_key}` 替换为配置中的 `token`、`api_key` 或 `key` 字段。
+
+SuperMap iServer 地图服务写法：
 
 ```json
 {
@@ -65,7 +79,7 @@ For a SuperMap iServer map service:
 }
 ```
 
-For an XYZ tile template:
+普通 XYZ 瓦片模板写法：
 
 ```json
 {
@@ -74,44 +88,39 @@ For an XYZ tile template:
 }
 ```
 
-## Acceptance Steps After URL Is Available
+## 验收步骤
 
-1. Update `config/supermap_services.local.json`.
-2. Start backend and frontend.
-3. Open `http://localhost:5173`.
-4. Confirm the scene status panel or DOM evidence shows:
+1. 复制合适模板为 `config/supermap_services.local.json`。
+2. 填写 `services.online_basemap.token`。
+3. 启动后端和前端。
+4. 打开 `http://localhost:5173`。
+5. 确认场景状态或 DOM 证据显示：
 
 ```text
 online basemap: installed
 data-online-basemap-status="installed"
 ```
 
-5. Click the regional 3D view button.
-6. Verify imagery appears outside the Luojia high-precision area.
-7. Verify Luojia local orthophoto/DEM still covers the task area.
-8. Run:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File E:\supermap_project\scripts\check_v05_navigation_gate.ps1 -PythonExe E:\anaconda\envs\supermap_nav\python.exe -SkipRuntime
-```
-
-9. Save a screenshot:
+6. 切到大范围三维视角。
+7. 确认珞珈山区域外能显示在线影像。
+8. 确认珞珈山任务区仍由本地 DEM/正射影像/建筑物覆盖。
+9. 保存截图：
 
 ```text
 docs/delivery/screenshots/r9_online_imagery_regional_3d_context.png
 ```
 
-## Strict Wording
+## 答辩口径
 
-Allowed:
+可以说：
 
 ```text
-The platform can load an online imagery basemap as a dynamic large-area background layer. Local Luojia high-precision DEM and orthophoto remain the visual-navigation data source.
+平台支持加载在线影像底图作为大范围动态背景；视觉自主导航验证仍以本地珞珈山高精度 DEM、正射影像和建筑物数据为准。
 ```
 
-Not allowed:
+不要说：
 
 ```text
-The online basemap has been verified as high-precision visual navigation input.
-The online imagery replaces the local Luojia orthophoto for ORB matching.
+在线底图已经作为高精度视觉导航输入。
+在线影像替代了本地正射影像用于特征匹配。
 ```

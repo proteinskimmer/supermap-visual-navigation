@@ -73,8 +73,19 @@
    对应配置文件：
 
    ```text
-   config\supermap_services.json
+   config\supermap_services.local.json
    ```
+
+   如果需要显示天地图大范围影像背景，在 `services.online_basemap` 中填写本机可用的天地图 token。模板已经预留：
+
+   ```json
+   {
+     "url": "https://t0.tianditu.gov.cn/img_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=img&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk={token}",
+     "token": "填入本机天地图 API 密钥"
+   }
+   ```
+
+   注意：`config\supermap_services.local.json` 不进入 Git。团队成员需要在各自电脑上从模板复制并填写本机服务地址和 token。
 
 5. 双击启动演示系统：
 
@@ -139,4 +150,10 @@ powershell -ExecutionPolicy Bypass -File .\scripts\install_demo_one_click.ps1 `
 powershell -ExecutionPolicy Bypass -File .\scripts\check_supermap_goal_evidence.ps1 -Strict
 ```
 
-如果该检查未通过，优先核对 `config\supermap_services.json` 中的服务 URL，以及 iServer 是否已经发布并启动对应服务。
+如果该检查未通过，优先核对 `config\supermap_services.local.json` 中的服务 URL，以及 iServer 是否已经发布并启动对应服务。
+
+## 天地图配置边界
+
+天地图影像只用于大范围三维展示背景，帮助局部珞珈山高精度场景与周边区域连起来。视觉自主导航主线仍以本地 DEM、正射影像、建筑物和合成视图匹配为准。
+
+不要把个人天地图 token 提交到公开仓库。仓库模板只保留 `{token}` 占位符，正式运行时在本机 `config\supermap_services.local.json` 中填写。

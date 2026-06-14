@@ -2689,3 +2689,17 @@
   - 补充项目输入/处理/输出、当前能力、目录结构、快速部署、SuperMap 服务要求、项目管理入口和开发验证命令。
 - 注意：
   - 第三方依赖目录 `frontend/node_modules` 内的 README 属于外部包文档，不纳入项目中文化范围。
+
+### 2026-06-14 天地图配置模板与部署口径修正
+
+- 用户反馈：
+  - 团队部署时天地图 API 配置也需要纳入说明，不能只在当前电脑本机配置里可用。
+- 修正：
+  - `config/supermap_services.example.json`、`config/supermap_services.luojia.example.json`、`config/supermap_services.low_altitude_demo.example.json` 均补充天地图影像 WMTS 模板。
+  - 模板使用 `{token}` 占位符，不提交个人天地图 API 密钥。
+  - 前端 `supermap3d.js` 支持把 `{token}`、`{tk}`、`{api_key}` 替换为本机配置中的 `token`、`api_key` 或 `key` 字段。
+  - 本机 `config/supermap_services.local.json` 已改为 URL 占位符 + `token` 字段结构；该文件继续被 `.gitignore` 忽略。
+  - 修正一键部署脚本和部署文档中误写的 `config/supermap_services.json`，统一为后端实际读取的 `config/supermap_services.local.json`。
+- 口径：
+  - 天地图影像只作为大范围三维背景。
+  - 视觉自主导航主验证仍使用本地 DEM、正射影像、建筑物和合成视图匹配。

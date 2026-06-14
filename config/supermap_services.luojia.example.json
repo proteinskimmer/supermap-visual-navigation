@@ -37,12 +37,20 @@
                                               "status":  "optional"
                                           },
                      "online_basemap":  {
-                                             "name":  "Online basemap for regional 3D context",
-                                             "url":  "",
+                                             "name":  "Tianditu imagery basemap for regional 3D context",
+                                             "url":  "https://t0.tianditu.gov.cn/img_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=img&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk={token}",
+                                             "token":  "FILL_LOCAL_TIANDITU_TOKEN_HERE",
                                              "type":  "url_template",
                                              "provider":  "url_template",
                                              "status":  "optional",
-                                             "usage":  "regional_3d_context_background_only"
+                                             "usage":  "regional_3d_context_background_only",
+                                             "minimum_level":  1,
+                                             "maximum_level":  18,
+                                             "alpha":  0.82,
+                                             "regional_preview_level":  13,
+                                             "regional_preview_max_tiles":  36,
+                                             "regional_preview_alpha":  0.92,
+                                             "credit":  "Tianditu imagery"
                                          },
                      "online_terrain":  {
                                             "name":  "Online terrain for regional 3D context",

@@ -90,7 +90,8 @@ docs/deploy_one_click.md
 - iServer 已启动，并可访问 `http://localhost:8090/iserver`。
 - 文件根目录建议设置为项目内 `supermap_file_root`。
 - 已发布或可访问项目需要的地图、数据、三维服务。
-- `config/supermap_services.json` 中的服务 URL 与目标电脑一致。
+- `config/supermap_services.local.json` 中的服务 URL 与目标电脑一致。
+- 如需显示天地图大范围影像背景，在本机 `config/supermap_services.local.json` 中填写天地图 token；不要把个人 token 提交到公开仓库。
 
 正式验收可运行：
 
@@ -131,5 +132,6 @@ npm run build
 ## 当前边界
 
 - 视觉导航主线锁定本地高精度区域，当前不把全球在线底图作为核心定位依据。
+- 天地图等在线影像只作为大范围三维背景，不替代本地 DEM/正射影像/建筑物数据。
 - 真实航拍图输入可以后续接入；当前重点是用本地 DEM/正射影像/建筑物与合成视图完成可解释的仿真验证。
 - 深度学习匹配器接口已预留，但默认共享版本不下载大模型权重。

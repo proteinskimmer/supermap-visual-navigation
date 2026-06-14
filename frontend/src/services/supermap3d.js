@@ -238,7 +238,7 @@ export function installMapImageryFallback(viewer, SuperMap3D, supermapConfig = n
 
 export function installOnlineBasemap(viewer, SuperMap3D, supermapConfig = null) {
   const service = supermapConfig?.services?.online_basemap;
-  const url = service?.url || "";
+  const url = resolveServiceUrl(service);
   if (!viewer?.imageryLayers || !url) {
     if (viewer) {
       viewer.__onlineBasemap = {
@@ -295,7 +295,7 @@ export function installOnlineBasemap(viewer, SuperMap3D, supermapConfig = null) 
 
 export function installOnlineTerrain(viewer, SuperMap3D, supermapConfig = null) {
   const service = supermapConfig?.services?.online_terrain;
-  const url = service?.url || "";
+  const url = resolveServiceUrl(service);
   if (!viewer || !url) {
     if (viewer) {
       viewer.__onlineTerrain = {
@@ -481,7 +481,7 @@ function drawRegionalTerrainContext(viewer, SuperMap3D, terrain, supermapConfig 
 
 function drawOnlineRegionalImageryTiles(viewer, SuperMap3D, supermapConfig, bounds) {
   const service = supermapConfig?.services?.online_basemap;
-  const urlTemplate = service?.url || "";
+  const urlTemplate = resolveServiceUrl(service);
   if (!viewer?.scene?.primitives || !urlTemplate.includes("{z}")) {
     return;
   }
@@ -540,6 +540,15 @@ function drawOnlineRegionalImageryTiles(viewer, SuperMap3D, supermapConfig, boun
     mode: "terrain-draped-mesh",
     primitives,
   };
+}
+
+function resolveServiceUrl(service) {
+  if (!service?.url) return "";
+  const token = service.token || service.api_key || service.key || "";
+  return service.url
+    .replaceAll("{token}", encodeURIComponent(token))
+    .replaceAll("{tk}", encodeURIComponent(token))
+    .replaceAll("{api_key}", encodeURIComponent(token));
 }
 
 function drawFlatOnlineRegionalImageryTiles(viewer, SuperMap3D, service, urlTemplate, bounds) {

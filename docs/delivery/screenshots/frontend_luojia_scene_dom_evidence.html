@@ -15,22 +15,6 @@
 .supermap3d-credit-expand-link:hover {color: #48b;  }
 .supermap3d-credit-text {color: #ffffff;  }
 .supermap3d-credit-textContainer *, .supermap3d-credit-logoContainer * {display: inline;  }
-</style><style>.supermap3d-credit-lightbox-overlay {display: none; z-index: 1; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(80, 80, 80, 0.8);  }
-.supermap3d-credit-lightbox {background-color: #303336; color: #ffffff; position: relative; min-height: 100px; margin: auto;  }
-.supermap3d-credit-lightbox > ul > li a, .supermap3d-credit-lightbox > ul > li a:visited {color: #ffffff;  }
-.supermap3d-credit-lightbox > ul > li a:hover {color: #48b;  }
-.supermap3d-credit-lightbox.supermap3d-credit-lightbox-expanded {border: 1px solid #444; border-radius: 5px; max-width: 370px;  }
-.supermap3d-credit-lightbox.supermap3d-credit-lightbox-mobile {height: 100%; width: 100%;  }
-.supermap3d-credit-lightbox-title {padding: 20px 20px 0 20px;  }
-.supermap3d-credit-lightbox-close {font-size: 18pt; cursor: pointer; position: absolute; top: 0; right: 6px; color: #ffffff;  }
-.supermap3d-credit-lightbox-close:hover {color: #48b;  }
-.supermap3d-credit-lightbox > ul {margin: 0; padding: 12px 20px 12px 40px; font-size: 13px;  }
-.supermap3d-credit-lightbox > ul > li {padding-bottom: 6px;  }
-.supermap3d-credit-lightbox > ul > li * {padding: 0; margin: 0;  }
-.supermap3d-credit-expand-link {padding-left: 5px; cursor: pointer; text-decoration: underline; color: #ffffff;  }
-.supermap3d-credit-expand-link:hover {color: #48b;  }
-.supermap3d-credit-text {color: #ffffff;  }
-.supermap3d-credit-textContainer *, .supermap3d-credit-logoContainer * {display: inline;  }
 </style>
     <script type="module" src="/@vite/client"></script>
 
@@ -1305,6 +1289,45 @@ small {
   border-bottom: 1px solid rgba(255, 205, 119, 0.25);
 }
 
+.report-loading-banner {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 10px 18px;
+  color: #dff8ff;
+  background: rgba(12, 42, 66, 0.84);
+  border-bottom: 1px solid rgba(92, 214, 255, 0.2);
+}
+
+.report-loading-banner div {
+  display: grid;
+  gap: 2px;
+}
+
+.report-loading-banner strong {
+  color: #eafaff;
+  font-size: 13px;
+}
+
+.report-loading-banner small {
+  color: #9fc7d8;
+}
+
+.loading-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(108, 231, 255, 0.22);
+  border-top-color: #6ce7ff;
+  border-radius: 50%;
+  animation: spin 900ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .cockpit-grid {
   display: grid;
   grid-template-columns: 300px minmax(520px, 1fr) 340px;
@@ -1647,6 +1670,134 @@ small {
   cursor: pointer;
   font-size: 12px;
   user-select: none;
+}
+
+.endpoint-editor {
+  gap: 10px;
+}
+
+.endpoint-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.endpoint-switch button {
+  min-height: 30px;
+  color: #536b80;
+  background: transparent;
+  border: 1px solid rgba(92, 214, 255, 0.22);
+  border-radius: 6px;
+}
+
+.endpoint-switch button.active {
+  color: #07121d;
+  background: #6ce7ff;
+  border-color: #6ce7ff;
+}
+
+.endpoint-map-editor {
+  display: grid;
+  gap: 6px;
+}
+
+.endpoint-map-editor svg {
+  width: 100%;
+  aspect-ratio: 1.25 / 1;
+  overflow: hidden;
+  background: #eaf2f7;
+  border: 1px solid rgba(92, 214, 255, 0.22);
+  border-radius: 6px;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.endpoint-map-editor small {
+  color: #9fb9c8;
+  line-height: 1.45;
+}
+
+.endpoint-preview-line {
+  fill: none;
+  stroke: rgba(108, 231, 255, 0.72);
+  stroke-dasharray: 2 1.6;
+  stroke-linecap: round;
+  stroke-width: 0.7;
+}
+
+.endpoint-marker {
+  cursor: grab;
+}
+
+.endpoint-marker:active {
+  cursor: grabbing;
+}
+
+.endpoint-marker circle {
+  fill: #ffffff;
+  stroke-width: 1.2;
+}
+
+.endpoint-marker.start circle {
+  stroke: #14b872;
+}
+
+.endpoint-marker.target circle {
+  stroke: #e04656;
+}
+
+.endpoint-marker.active circle {
+  fill: #245c86;
+  stroke: #ffffff;
+}
+
+.endpoint-marker text {
+  fill: #eafaff;
+  paint-order: stroke;
+  stroke: rgba(7, 18, 29, 0.76);
+  stroke-width: 2.8px;
+  font: 700 5px Microsoft YaHei, sans-serif;
+  pointer-events: none;
+}
+
+.endpoint-coordinate-grid {
+  display: grid;
+  gap: 7px;
+}
+
+.endpoint-coordinate-grid label {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 5px 7px;
+  align-items: center;
+  color: #9fb9c8;
+  font-size: 12px;
+}
+
+.endpoint-coordinate-grid strong {
+  grid-column: 1 / -1;
+  color: #eafaff;
+  font-size: 13px;
+}
+
+.endpoint-coordinate-grid input {
+  min-width: 0;
+  width: 100%;
+  padding: 5px 6px;
+  color: #eafaff;
+  background: rgba(7, 18, 29, 0.72);
+  border: 1px solid rgba(92, 214, 255, 0.22);
+  border-radius: 5px;
+}
+
+.endpoint-nudge-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.endpoint-editor .risk-editor-actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .risk-points {
@@ -2193,6 +2344,25 @@ small {
   border-bottom: 1px solid #ead39d;
 }
 
+.report-loading-banner {
+  color: #183149;
+  background: #eef7fb;
+  border-bottom: 1px solid #cfe0ea;
+}
+
+.report-loading-banner strong {
+  color: #183149;
+}
+
+.report-loading-banner small {
+  color: #5f7285;
+}
+
+.loading-spinner {
+  border-color: rgba(36, 92, 134, 0.18);
+  border-top-color: #245c86;
+}
+
 .cockpit-grid {
   grid-template-columns: 308px minmax(560px, 1fr) 348px;
   gap: 14px;
@@ -2254,7 +2424,8 @@ small {
 .risk-points-head button,
 .risk-point-row button,
 .risk-map-tools button,
-.risk-nudge-grid button {
+.risk-nudge-grid button,
+.endpoint-nudge-grid button {
   min-height: 34px;
   color: #ffffff;
   background: #245c86;
@@ -2267,7 +2438,8 @@ small {
 .risk-points-head button:hover:not(:disabled),
 .risk-point-row button:hover:not(:disabled),
 .risk-map-tools button:hover:not(:disabled),
-.risk-nudge-grid button:hover:not(:disabled) {
+.risk-nudge-grid button:hover:not(:disabled),
+.endpoint-nudge-grid button:hover:not(:disabled) {
   background: #1d4d72;
 }
 
@@ -2276,10 +2448,21 @@ small {
 .risk-points-head button:disabled,
 .risk-point-row button:disabled,
 .risk-map-tools button:disabled,
-.risk-nudge-grid button:disabled {
+.risk-nudge-grid button:disabled,
+.endpoint-nudge-grid button:disabled {
   color: #8798a7;
   background: #dce6ee;
   box-shadow: none;
+}
+
+.command-hint {
+  display: block;
+  padding: 8px 10px;
+  color: #4c6c83;
+  background: #eef6fb;
+  border: 1px solid #d2e2ed;
+  border-radius: 6px;
+  line-height: 1.45;
 }
 
 .layer-row {
@@ -2354,6 +2537,47 @@ small {
 .risk-map-editor svg {
   background: #edf5fa;
   border-color: #c8dce9;
+}
+
+.endpoint-map-editor svg {
+  background: #edf5fa;
+  border-color: #c8dce9;
+}
+
+.endpoint-map-editor small,
+.endpoint-coordinate-grid label {
+  color: #5f7285;
+}
+
+.endpoint-coordinate-grid strong {
+  color: #183149;
+}
+
+.endpoint-coordinate-grid input {
+  color: #183149;
+  background: #ffffff;
+  border-color: #cbdbe7;
+}
+
+.endpoint-switch button {
+  color: #536b80;
+  background: #eef4f8;
+  border-color: #d4e0ea;
+}
+
+.endpoint-switch button.active {
+  color: #ffffff;
+  background: #245c86;
+  border-color: #245c86;
+}
+
+.endpoint-preview-line {
+  stroke: rgba(36, 92, 134, 0.72);
+}
+
+.endpoint-marker text {
+  fill: #183149;
+  stroke: rgba(255, 255, 255, 0.85);
 }
 
 .risk-map-bg {
@@ -2650,8 +2874,8 @@ small {
 }
 </style><link rel="stylesheet" href="/vendor/supermap3d/Build/SuperMap3D/Widgets/widgets.css" data-supermap3d-css="/vendor/supermap3d/Build/SuperMap3D/Widgets/widgets.css"><script src="/vendor/supermap3d/Build/SuperMap3D/SuperMap3D.js" async="" data-supermap3d-sdk="/vendor/supermap3d/Build/SuperMap3D/SuperMap3D.js"></script></head>
   <body>
-    <div id="app" data-v-app=""><main class="cockpit-shell"><header class="cockpit-topbar"><div class="cockpit-brand"><span>2026/06/09</span><strong>无人机视觉自主导航系统</strong><small>珞珈山视觉自主导航验证任务 · 自主导航主线</small></div><nav class="cockpit-tabs"><button class="active">实时态势</button><button class="">航线规划</button><button class="">影像匹配</button><button>任务报告</button></nav><div class="cockpit-status"><span class="status-dot status-good"></span><strong>候选航线已生成</strong></div></header><!--v-if--><section class="cockpit-grid"><aside class="cockpit-left"><section class="glass-panel command-panel"><div class="panel-title-row"><h2>导航控制</h2><span>任务待命</span></div><div class="mode-switch"><button class="active">视觉自主</button><button class="">辅助导航</button></div><div class="command-buttons"><button>规划</button><button>推演</button><button>播放</button><button disabled="">步进</button><button disabled="">重规划</button><button>复位</button></div></section><section class="glass-panel"><h2>图层管理</h2><label class="layer-row"><input type="checkbox"><span>珞珈山 DEM 地形</span></label><label class="layer-row"><input type="checkbox"><span>珞珈山正射影像</span></label><label class="layer-row"><input type="checkbox"><span>导航风险区</span></label><label class="layer-row"><input type="checkbox"><span>障碍物/建筑</span></label><label class="layer-row"><input type="checkbox"><span>显示最短航线</span></label><button class="ghost-button">刷新 SuperMap 状态</button></section><section class="glass-panel risk-editor"><div class="panel-title-row"><h2>风险区编辑</h2><span>2 个</span></div><div class="risk-editor-actions"><button type="button">新增</button><button type="button">复制</button><button type="button">删除</button><button type="button">重载</button><button type="button" class="risk-save-button">保存</button></div><select class="risk-select"><option value="risk_fire_001">山火风险区 / L5</option><option value="risk_landslide_001">塌方风险区 / L4</option></select><div class="risk-map-editor"><svg viewBox="0 0 100 100" role="img" aria-label="风险区交互编辑图"><defs><pattern id="risk-editor-grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(82, 116, 143, 0.14)" stroke-width="0.28"></path></pattern></defs><rect width="100" height="100" class="risk-map-bg"></rect><rect width="100" height="100" fill="url(#risk-editor-grid)"></rect><polygon points="6.896551724123849,92.4050632911529 93.10344827587616,92.4050632911529 93.10344827587616,7.5949367088471 6.896551724123849,7.5949367088471 6.896551724123849,92.4050632911529" class="risk-map-task-area"></polygon><polygon points="37.54597701153132,61.43037974683152 56.06896551723389,59.949367088609485 57.98275862066947,43.7341772151989 40.74137931031901,40.78481012657097 37.54597701153132,61.43037974683152" class="risk-sketch-zone risk-sketch-selected"></polygon><polygon points="64.36781609198594,36.354430379721016 77.77586206896127,36.354430379721016 77.77586206896127,24.556962025299267 64.36781609198594,23.8227848101188 64.36781609198594,36.354430379721016" class="risk-sketch-zone risk-sketch-high"></polygon><g><polyline points="37.54597701153132,61.43037974683152 56.06896551723389,59.949367088609485 57.98275862066947,43.7341772151989 40.74137931031901,40.78481012657097 37.54597701153132,61.43037974683152" class="risk-sketch-outline"></polyline><circle cx="37.54597701153132" cy="61.43037974683152" class="risk-vertex" r="2.5"></circle><circle cx="56.06896551723389" cy="59.949367088609485" class="risk-vertex" r="2.5"></circle><circle cx="57.98275862066947" cy="43.7341772151989" class="risk-vertex" r="2.5"></circle><circle cx="40.74137931031901" cy="40.78481012657097" class="risk-vertex" r="2.5"></circle></g></svg><div class="risk-map-tools"><span>拖动圆点调整边界，点击图面插入顶点。</span><button type="button" disabled="">删点</button></div></div><div class="risk-nudge-grid" aria-label="微调风险区位置"><button type="button">上移</button><button type="button">左移</button><button type="button">右移</button><button type="button">下移</button></div><div class="risk-form"><label><span>编号</span><input type="text"></label><label><span>名称</span><input type="text"></label><label><span>类型</span><select><option value="fire">山火</option><option value="landslide">塌方</option><option value="no_fly">禁飞</option><option value="custom">自定义</option></select></label><label><span>等级</span><input min="1" max="5" type="number"></label><label><span>缓冲</span><input min="0" step="5" type="number"></label><label class="risk-check"><input type="checkbox"><span>启用</span></label></div><details class="risk-coordinate-details"><summary>坐标明细</summary><div class="risk-point-row"><span>1</span><input type="number" step="0.0001" value="114.361883"><input type="number" step="0.0001" value="30.536397"><button type="button"> - </button></div><div class="risk-point-row"><span>2</span><input type="number" step="0.0001" value="114.365106"><input type="number" step="0.0001" value="30.536514"><button type="button"> - </button></div><div class="risk-point-row"><span>3</span><input type="number" step="0.0001" value="114.365439"><input type="number" step="0.0001" value="30.537795"><button type="button"> - </button></div><div class="risk-point-row"><span>4</span><input type="number" step="0.0001" value="114.362439"><input type="number" step="0.0001" value="30.538028"><button type="button"> - </button></div><div class="risk-point-row"><span>5</span><input disabled="" type="number" step="0.0001" value="114.361883"><input disabled="" type="number" step="0.0001" value="30.536397"><button type="button" disabled=""> - </button></div></details><p class="summary-text">编辑会实时预览到主场景，保存后重新计算当前航线风险。</p></section><section class="glass-panel"><h2>全局航迹</h2><div class="mini-map"><svg viewBox="0 0 100 70" role="img" aria-label="航迹总览"><polyline points="8,60 22,48 34,42 45,25 58,18 74,12 91,8"></polyline><circle cx="8" cy="60" r="2.8" class="mini-start"></circle><circle cx="91" cy="8" r="3.2" class="mini-target"></circle><circle cx="8" cy="60" r="2.5" class="mini-uav"></circle></svg></div></section><section class="glass-panel"><h2>候选航线</h2><button class="route-card compact"><strong>最短航线</strong><span>1365.1 米 · 94 分 · low</span></button><button class="route-card compact"><strong>最安全航线</strong><span>1365.1 米 · 94 分 · low</span></button><button class="route-card compact active"><strong>综合最优航线</strong><span>1414.9 米 · 94 分 · low</span></button></section></aside><section class="cockpit-center section-focus"><div class="scene-frame"><div class="scene-head"><strong>珞珈山视觉自主导航验证任务</strong><span>场景/地图/数据：已验证</span></div><div class="scene-shell"><div class="supermap-scene"><div class="supermap-mount luojia-base-mount" data-supermap-mount="" data-scene-status="ready" data-luojia-mode="true" data-luojia-fallback-installed="true" data-luojia-terrain-installed="true"><div class="supermap3d-viewer" style="cursor: url(&quot;http://localhost:5173/vendor/supermap3d/Build/SuperMap3D/Widgets/Images/cur/Pan.cur&quot;), auto;"><div class="supermap3d-viewer-WidgetContainer"><div class="supermap3d-widget"><canvas width="864" height="594" style="image-rendering: pixelated;"></canvas><div class="supermap3d-credit-lightbox-overlay"><div class="supermap3d-credit-lightbox"><div class="supermap3d-credit-lightbox-title">Data provided by:</div><a class="supermap3d-credit-lightbox-close">×</a><ul></ul></div></div></div></div><div class="supermap3d-viewer-bottom" style="left: 0px; bottom: 0px;"><div class="supermap3d-widget-credits"><div class="supermap3d-credit-logoContainer" style="display: inline;"><div style="display: inline;"><a href="http://www.supermap.com" target="_blank"><img title="SuperMap" src="http://localhost:5173/vendor/supermap3d/Build/SuperMap3D/Assets/Images/logo.png"></a></div></div><div class="supermap3d-credit-textContainer" style="display: inline;"></div><a class="supermap3d-credit-expand-link" style="display: none;">Data attribution</a></div></div><div class="supermap3d-viewer-toolbar"></div><div class="supermap3d-viewer-navigationContainer"><div class="sm-compass" data-bind="visible: showCompass, event: { mousedown: handleMouseDown , touchstart : handleMouseDown, mouseup: handleMouseUp, touchend: handleMouseUp}"><div class="sm-compass-tilt"></div><div class="sm-compass-tiltbar" data-bind="style : { left :  + tiltbarLeft + 'px',top : + tiltbarTop + 'px'}" style="left: 89px; top: 15px;"></div><div class="sm-compass-arrows"></div><div class="sm-compass-outer-ring" data-bind="style: { transform: 'rotate(-' + heading + 'rad)', '-webkit-transform': 'rotate(-' + heading + 'rad)' }" style="transform: rotate(-0.558505rad);"></div><div class="arrows_e_active"></div><div class="arrows_n_active"></div><div class="arrows_s_active"></div><div class="arrows_w_active"></div></div><div class="sm-zoom"><div class="sm-zoomin" data-bind="event : {mousedown : handleZoomInMouseDown,touchstart : handleZoomInMouseDown}"></div><div class="sm-zoomout" data-bind="event : {mousedown : handleZoomOutMouseDown, touchstart : handleZoomOutMouseDown}"></div><div class="sm-zoombar" data-bind="event : {mousedown : handleZoomBarScrollMouseDown, touchstart : handleZoomBarScrollMouseDown},style : {top : + zoombarTop + 'px' }" style="top: 65px;"></div> </div></div><div class="supermap3d-viewer-zoomIndicatorContainer"><div class="supermap3d-zoom-wrapper" data-bind="    style: { &quot;top&quot; : _screenPositionY, &quot;left&quot; : _screenPositionX,&quot;opacity&quot; : _opacity },    css: { &quot;supermap3d-zoom-wrapper-visible&quot; : isVisible }" style="top: 100px; left: 100px; opacity: 1;"><img src="http://localhost:5173/vendor/supermap3d/Build/SuperMap3D/Widgets/Images/ZoomIndicator/zoom_Identifiers.png" style="width: 48px; height: 48px;"></div></div></div></div><div class="scene-control-bar"><button type="button" title="重新加载珞珈底图"> 重载底图 </button><button type="button" title="飞回任务标准视角"> 标准视角 </button></div><details class="supermap-empty-state supermap-status-panel"><summary><strong>场景状态</strong><span>SuperMap 场景已就绪</span></summary><div class="supermap-status-detail"><small>SDK 路径：/vendor/supermap3d/Build/SuperMap3D</small><small>WebGL2：可用 / 上下文类型：2</small><small>场景地址：http://localhost:8090/iserver/services/3D-luojia_mountain_demo/rest/realspace</small><small> 珞珈备用底图：已安装 / 场景图层：2 / 影像图层：2</small><small> 高程地形网格：2880 个顶点 / 5538 个三角面 </small><!--v-if--><small>正射影像备用图：/demo/luojia_ortho_preview.jpg</small><small>图例：灰色=建筑 / 橙红=风险 / 青色=视觉匹配区</small><!--v-if--></div></details><!--v-if--></div></div><div class="scene-loading">等待任务和 SuperMap 场景加载</div></div><section class="cockpit-timeline"><div class="progress-track"><span style="width: 0%;"></span></div><div class="timeline-meta"><strong>00:00</strong><span>0%</span><span>下一事件：暂无</span></div></section></section><aside class="cockpit-right"><section class="glass-panel video-panel"><div class="video-head"><strong>实时影像 · 无人机-011</strong><span>自动合成视觉帧 01</span></div><div class="video-feed"><img src="/demo/vision_tiles/luojia_tile_r03_c03.png" alt="无人机实时影像帧"><div class="video-osd"><span>录制</span><span>120.0米</span><span>0.0米/秒</span></div></div><div class="vision-select"><button class="active"> 第 1 帧 </button><button class=""> 第 2 帧 </button><button class=""> 第 3 帧 </button><button class=""> 第 4 帧 </button><button class=""> 第 5 帧 </button><button class=""> 第 6 帧 </button></div><small class="vision-frame-source">auto_dem_ortho_route_sampler · distance_interval · luojia_tile_r03_c03</small></section><section class="glass-panel telemetry-panel"><h2>飞行遥测</h2><div class="telemetry-grid"><span>经度<strong>114.357883</strong></span><span>纬度<strong>30.534649</strong></span><span>高度<strong>120.0 米</strong></span><span>速度<strong>0.0 米/秒</strong></span><span>航向<strong>0°</strong></span><span>电量<strong>96%</strong></span><span>俯仰角<strong>-2.0°</strong></span><span>横滚角<strong>0.0°</strong></span><span>偏航角<strong>0°</strong></span><span>定位源<strong>参考航线</strong></span><span>视觉偏差<strong>0 米</strong></span><span>导航模式<strong>待命</strong></span></div><div class="battery-bar"><span style="width: 96%;"></span></div></section><section class="glass-panel match-panel"><h2>视觉定位状态</h2><div class="match-card"><strong>等待后端导航状态 · luojia_tile_r03_c03</strong><span>86%</span><small>匹配点 131 · 内点 72% · 偏差 0 米</small><div class="confidence-bar"><span style="width: 86%;"></span></div></div><!--v-if--><!--v-if--><!--v-if--><!--v-if--><div class="lighting-controls"><label><span>Time</span><input type="datetime-local"></label><label><span>EV</span><input type="range" min="-2" max="2" step="0.1"></label><label><span>Shadow</span><input type="range" min="0" max="0.75" step="0.05"></label><label><span>Haze</span><input type="range" min="0" max="0.6" step="0.05"></label><label><span>K</span><input type="range" min="3200" max="8500" step="100"></label></div><!--v-if--><!--v-if--></section><section class="glass-panel"><h2>参考航线与安全约束</h2><div class="kpi-row"><span>航程<strong>1414.9 米</strong></span><span>评分<strong>94</strong></span><span>风险<strong>low</strong></span></div><p class="summary-text">航线总长约 1415 米，识别到 2 个风险点，主要风险为：航线距离通信塔低于安全缓冲距离。当前评分 76 分。</p></section><section class="glass-panel"><h2>自主/辅助边界</h2><p class="summary-text"> 视觉自主模式下，匹配结果会修正无人机导航状态；辅助导航模式下，匹配结果只作为定位参考和人工复核提示。 </p></section></aside></section><footer class="event-console"><section><h2>实时事件流</h2><div class="console-list"><article><strong>--</strong><span>等待任务推演</span><small>点击播放后，视觉匹配、风险告警和重规划事件将随时间推进。</small></article></div></section></footer></main></div>
-    <script type="module" src="/src/main.js?t=1781024049548"></script>
+    <div id="app" data-v-app=""><main class="cockpit-shell"><header class="cockpit-topbar"><div class="cockpit-brand"><span>2026/06/09</span><strong>无人机视觉自主导航系统</strong><small>珞珈山视觉自主导航验证任务 · 自主导航主线</small></div><nav class="cockpit-tabs"><button class="active">实时态势</button><button class="">航线规划</button><button class="">影像匹配</button><button>任务报告</button></nav><div class="cockpit-status"><span class="status-dot status-good"></span><strong>候选航线已生成</strong></div></header><!--v-if--><!--v-if--><section class="cockpit-grid"><aside class="cockpit-left"><section class="glass-panel command-panel"><div class="panel-title-row"><h2>导航控制</h2><span>任务待命</span></div><div class="mode-switch"><button class="active">视觉自主</button><button class="">辅助导航</button></div><div class="command-buttons"><button>规划</button><button>推演</button><button>播放</button><button disabled="">步进</button><button disabled="">重规划</button><button>复位</button></div><small class="command-hint">推演时间线已准备</small></section><section class="glass-panel"><h2>图层管理</h2><label class="layer-row"><input type="checkbox"><span>珞珈山 DEM 地形</span></label><label class="layer-row"><input type="checkbox"><span>珞珈山正射影像</span></label><label class="layer-row"><input type="checkbox"><span>导航风险区</span></label><label class="layer-row"><input type="checkbox"><span>障碍物/建筑</span></label><label class="layer-row"><input type="checkbox"><span>显示最短航线</span></label><button class="ghost-button">刷新 SuperMap 状态</button></section><section class="glass-panel endpoint-editor"><div class="panel-title-row"><h2>起终点编辑</h2><span>已同步</span></div><div class="endpoint-switch"><button class="active" type="button">起点</button><button class="" type="button">终点</button></div><div class="endpoint-map-editor"><svg viewBox="0 0 100 100" role="img" aria-label="起终点交互编辑图"><rect class="risk-map-bg" x="0" y="0" width="100" height="100"></rect><polygon class="risk-map-task-area" points="6.896551724123849,92.4050632911529 93.10344827587616,92.4050632911529 93.10344827587616,7.5949367088471 6.896551724123849,7.5949367088471 6.896551724123849,92.4050632911529"></polygon><polyline class="endpoint-preview-line" points="14.557471264370147,83.5569620253141 84.16091954027775,16.443037974685893"></polyline><g class="endpoint-marker start active" transform="translate(14.557471264370147 83.5569620253141)"><circle r="3.6"></circle><text x="5" y="-5">起</text></g><g class="endpoint-marker target" transform="translate(84.16091954027775 16.443037974685893)"><circle r="3.6"></circle><text x="5" y="-5">终</text></g></svg><small>点击地图移动当前选中的点，拖动标记可连续调整。</small></div><div class="endpoint-coordinate-grid"><label><strong>起点</strong><span>经度</span><input type="number" step="0.000001" value="114.357883"><span>纬度</span><input type="number" step="0.000001" value="30.534649"><span>高度</span><input type="number" step="1" min="0" value="120"></label><label><strong>终点</strong><span>经度</span><input type="number" step="0.000001" value="114.369994"><span>纬度</span><input type="number" step="0.000001" value="30.539951"><span>高度</span><input type="number" step="1" min="0" value="130"></label></div><div class="endpoint-nudge-grid"><button type="button">上移</button><button type="button">下移</button><button type="button">左移</button><button type="button">右移</button></div><div class="risk-editor-actions"><button type="button">保存</button><button type="button">重载</button></div><!--v-if--></section><section class="glass-panel risk-editor"><div class="panel-title-row"><h2>风险区编辑</h2><span>2 个</span></div><div class="risk-editor-actions"><button type="button">新增</button><button type="button">复制</button><button type="button">删除</button><button type="button">重载</button><button type="button" class="risk-save-button">保存</button></div><select class="risk-select"><option value="risk_fire_001">山火风险区 / L5</option><option value="risk_landslide_001">塌方风险区 / L4</option></select><div class="risk-map-editor"><svg viewBox="0 0 100 100" role="img" aria-label="风险区交互编辑图"><defs><pattern id="risk-editor-grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(82, 116, 143, 0.14)" stroke-width="0.28"></path></pattern></defs><rect width="100" height="100" class="risk-map-bg"></rect><rect width="100" height="100" fill="url(#risk-editor-grid)"></rect><polygon points="6.896551724123849,92.4050632911529 93.10344827587616,92.4050632911529 93.10344827587616,7.5949367088471 6.896551724123849,7.5949367088471 6.896551724123849,92.4050632911529" class="risk-map-task-area"></polygon><polygon points="37.54597701153132,61.43037974683152 56.06896551723389,59.949367088609485 57.98275862066947,43.7341772151989 40.74137931031901,40.78481012657097 37.54597701153132,61.43037974683152" class="risk-sketch-zone risk-sketch-selected"></polygon><polygon points="64.36781609198594,36.354430379721016 77.77586206896127,36.354430379721016 77.77586206896127,24.556962025299267 64.36781609198594,23.8227848101188 64.36781609198594,36.354430379721016" class="risk-sketch-zone risk-sketch-high"></polygon><g><polyline points="37.54597701153132,61.43037974683152 56.06896551723389,59.949367088609485 57.98275862066947,43.7341772151989 40.74137931031901,40.78481012657097 37.54597701153132,61.43037974683152" class="risk-sketch-outline"></polyline><circle cx="37.54597701153132" cy="61.43037974683152" class="risk-vertex" r="2.5"></circle><circle cx="56.06896551723389" cy="59.949367088609485" class="risk-vertex" r="2.5"></circle><circle cx="57.98275862066947" cy="43.7341772151989" class="risk-vertex" r="2.5"></circle><circle cx="40.74137931031901" cy="40.78481012657097" class="risk-vertex" r="2.5"></circle></g></svg><div class="risk-map-tools"><span>拖动圆点调整边界，点击图面插入顶点。</span><button type="button" disabled="">删点</button></div></div><div class="risk-nudge-grid" aria-label="微调风险区位置"><button type="button">上移</button><button type="button">左移</button><button type="button">右移</button><button type="button">下移</button></div><div class="risk-form"><label><span>编号</span><input type="text"></label><label><span>名称</span><input type="text"></label><label><span>类型</span><select><option value="fire">山火</option><option value="landslide">塌方</option><option value="no_fly">禁飞</option><option value="custom">自定义</option></select></label><label><span>等级</span><input min="1" max="5" type="number"></label><label><span>缓冲</span><input min="0" step="5" type="number"></label><label class="risk-check"><input type="checkbox"><span>启用</span></label></div><details class="risk-coordinate-details"><summary>坐标明细</summary><div class="risk-point-row"><span>1</span><input type="number" step="0.0001" value="114.361883"><input type="number" step="0.0001" value="30.536397"><button type="button"> - </button></div><div class="risk-point-row"><span>2</span><input type="number" step="0.0001" value="114.365106"><input type="number" step="0.0001" value="30.536514"><button type="button"> - </button></div><div class="risk-point-row"><span>3</span><input type="number" step="0.0001" value="114.365439"><input type="number" step="0.0001" value="30.537795"><button type="button"> - </button></div><div class="risk-point-row"><span>4</span><input type="number" step="0.0001" value="114.362439"><input type="number" step="0.0001" value="30.538028"><button type="button"> - </button></div><div class="risk-point-row"><span>5</span><input disabled="" type="number" step="0.0001" value="114.361883"><input disabled="" type="number" step="0.0001" value="30.536397"><button type="button" disabled=""> - </button></div></details><p class="summary-text">编辑会实时预览到主场景，保存后重新计算当前航线风险。</p></section><section class="glass-panel"><h2>全局航迹</h2><div class="mini-map"><svg viewBox="0 0 100 70" role="img" aria-label="航迹总览"><polyline points="8,60 22,48 34,42 45,25 58,18 74,12 91,8"></polyline><circle cx="8" cy="60" r="2.8" class="mini-start"></circle><circle cx="91" cy="8" r="3.2" class="mini-target"></circle><circle cx="8" cy="60" r="2.5" class="mini-uav"></circle></svg></div></section><section class="glass-panel"><h2>候选航线</h2><button class="route-card compact"><strong>最短航线</strong><span>1365.1 米 · 94 分 · low</span></button><button class="route-card compact"><strong>最安全航线</strong><span>1365.1 米 · 94 分 · low</span></button><button class="route-card compact active"><strong>综合最优航线</strong><span>1414.9 米 · 94 分 · low</span></button></section></aside><section class="cockpit-center section-focus"><div class="scene-frame"><div class="scene-head"><strong>珞珈山视觉自主导航验证任务</strong><span>场景/地图/数据：已验证</span></div><div class="scene-shell"><div class="supermap-scene"><div class="supermap-mount luojia-base-mount" data-supermap-mount="" data-scene-status="ready" data-view-scope="task" data-luojia-mode="true" data-online-basemap-status="not_configured" data-online-terrain-status="not_configured" data-luojia-fallback-installed="true" data-luojia-terrain-installed="true"><div class="supermap3d-viewer" style="cursor: url(&quot;http://localhost:5173/vendor/supermap3d/Build/SuperMap3D/Widgets/Images/cur/Pan.cur&quot;), auto;"><div class="supermap3d-viewer-WidgetContainer"><div class="supermap3d-widget"><canvas width="864" height="611" style="image-rendering: pixelated;"></canvas><div class="supermap3d-credit-lightbox-overlay"><div class="supermap3d-credit-lightbox"><div class="supermap3d-credit-lightbox-title">Data provided by:</div><a class="supermap3d-credit-lightbox-close">×</a><ul></ul></div></div></div></div><div class="supermap3d-viewer-bottom" style="left: 0px; bottom: 0px;"><div class="supermap3d-widget-credits"><div class="supermap3d-credit-logoContainer" style="display: inline;"><div style="display: inline;"><a href="http://www.supermap.com" target="_blank"><img title="SuperMap" src="http://localhost:5173/vendor/supermap3d/Build/SuperMap3D/Assets/Images/logo.png"></a></div></div><div class="supermap3d-credit-textContainer" style="display: inline;"></div><a class="supermap3d-credit-expand-link" style="display: none;">Data attribution</a></div></div><div class="supermap3d-viewer-toolbar"></div><div class="supermap3d-viewer-navigationContainer"><div class="sm-compass" data-bind="visible: showCompass, event: { mousedown: handleMouseDown , touchstart : handleMouseDown, mouseup: handleMouseUp, touchend: handleMouseUp}"><div class="sm-compass-tilt"></div><div class="sm-compass-tiltbar" data-bind="style : { left :  + tiltbarLeft + 'px',top : + tiltbarTop + 'px'}" style="left: 89px; top: 15px;"></div><div class="sm-compass-arrows"></div><div class="sm-compass-outer-ring" data-bind="style: { transform: 'rotate(-' + heading + 'rad)', '-webkit-transform': 'rotate(-' + heading + 'rad)' }" style="transform: rotate(-0.558505rad);"></div><div class="arrows_e_active"></div><div class="arrows_n_active"></div><div class="arrows_s_active"></div><div class="arrows_w_active"></div></div><div class="sm-zoom"><div class="sm-zoomin" data-bind="event : {mousedown : handleZoomInMouseDown,touchstart : handleZoomInMouseDown}"></div><div class="sm-zoomout" data-bind="event : {mousedown : handleZoomOutMouseDown, touchstart : handleZoomOutMouseDown}"></div><div class="sm-zoombar" data-bind="event : {mousedown : handleZoomBarScrollMouseDown, touchstart : handleZoomBarScrollMouseDown},style : {top : + zoombarTop + 'px' }" style="top: 65px;"></div> </div></div><div class="supermap3d-viewer-zoomIndicatorContainer"><div class="supermap3d-zoom-wrapper" data-bind="    style: { &quot;top&quot; : _screenPositionY, &quot;left&quot; : _screenPositionX,&quot;opacity&quot; : _opacity },    css: { &quot;supermap3d-zoom-wrapper-visible&quot; : isVisible }" style="top: 100px; left: 100px; opacity: 1;"><img src="http://localhost:5173/vendor/supermap3d/Build/SuperMap3D/Widgets/Images/ZoomIndicator/zoom_Identifiers.png" style="width: 48px; height: 48px;"></div></div></div></div><div class="scene-control-bar"><button type="button" title="飞到全球/大范围三维浏览视角" data-large-area-view-button=""> 全球视角 </button><button type="button" title="重新加载珞珈底图"> 重载底图 </button><button type="button" title="飞回任务标准视角"> 标准视角 </button></div><details class="supermap-empty-state supermap-status-panel"><summary><strong>场景状态</strong><span>SuperMap 场景已就绪</span></summary><div class="supermap-status-detail"><small>SDK 路径：/vendor/supermap3d/Build/SuperMap3D</small><small>WebGL2：可用 / 上下文类型：2</small><small>场景地址：http://localhost:8090/iserver/services/3D-luojia_mountain_demo/rest/realspace</small><small> 珞珈备用底图：已安装 / 场景图层：2 / 影像图层：2</small><small> 在线底图：not_configured / 在线地形：not_configured</small><small> 高程地形网格：2880 个顶点 / 5538 个三角面 </small><!--v-if--><small>正射影像备用图：/demo/luojia_ortho_preview.jpg</small><small>图例：灰色=建筑 / 橙红=风险 / 青色=视觉匹配区</small><!--v-if--></div></details><!--v-if--></div></div><!--v-if--><!--v-if--></div><section class="cockpit-timeline"><div class="progress-track"><span style="width: 0%;"></span></div><div class="timeline-meta"><strong>00:00</strong><span>0%</span><span>下一事件：暂无</span></div></section></section><aside class="cockpit-right"><section class="glass-panel video-panel"><div class="video-head"><strong>实时影像 · 无人机-011</strong><span>自动合成视觉帧 01</span></div><div class="video-feed"><img src="/demo/uav_frames/semi_real_auto_uav_001_lat30d5375_lon114d3606_az100_el64_evp0d0_sh0d22_hz0d08_k5600.png" alt="无人机实时影像帧"><div class="video-osd"><span>录制</span><span>120.0米</span><span>0.0米/秒</span></div></div><div class="vision-select"><button class="active"> 第 1 帧 </button><button class=""> 第 2 帧 </button><button class=""> 第 3 帧 </button><button class=""> 第 4 帧 </button><button class=""> 第 5 帧 </button><button class=""> 第 6 帧 </button></div><small class="vision-frame-source">semi_real_uav_frame_simulator · distance_interval · luojia_tile_r03_c03</small></section><section class="glass-panel telemetry-panel"><h2>飞行遥测</h2><div class="telemetry-grid"><span>经度<strong>114.357883</strong></span><span>纬度<strong>30.534649</strong></span><span>高度<strong>120.0 米</strong></span><span>速度<strong>0.0 米/秒</strong></span><span>航向<strong>0°</strong></span><span>电量<strong>96%</strong></span><span>俯仰角<strong>-2.0°</strong></span><span>横滚角<strong>0.0°</strong></span><span>偏航角<strong>0°</strong></span><span>定位源<strong>参考航线</strong></span><span>视觉偏差<strong>0 米</strong></span><span>导航模式<strong>待命</strong></span></div><div class="battery-bar"><span style="width: 96%;"></span></div></section><section class="glass-panel match-panel"><h2>视觉定位状态</h2><div class="match-card"><strong>等待后端导航状态 · luojia_tile_r03_c03</strong><span>86%</span><small>匹配点 131 · 内点 72% · 偏差 0 米</small><div class="confidence-bar"><span style="width: 86%;"></span></div></div><div class="synthetic-compare"><figure><img src="/demo/uav_frames/semi_real_auto_uav_001_lat30d5375_lon114d3606_az100_el64_evp0d0_sh0d22_hz0d08_k5600.png" alt="无人机当前影像帧"><figcaption>无人机图像</figcaption></figure><figure><img src="/demo/vision_tiles/luojia_tile_r03_c03.png" alt="合成候选视图"><figcaption>合成视图 syn_auto_uav_001_luojia_tile_r03_c03</figcaption></figure></div><div class="synthetic-metrics"><span>误差半径<strong>23.1 米</strong></span><span>修正向量<strong>0.4 / 10.5 / 0 米</strong></span><span>定位状态<strong>已定位</strong></span></div><!--v-if--><div class="provider-metrics"><span>匹配器<strong>synthetic_view_v04_precomputed_proxy</strong></span><span>太阳角<strong>100.44 / 64.05</strong></span></div><div class="lighting-controls"><label><span>时间</span><input type="datetime-local"></label><label><span>曝光</span><input type="range" min="-2" max="2" step="0.1"></label><label><span>阴影</span><input type="range" min="0" max="0.75" step="0.05"></label><label><span>雾化</span><input type="range" min="0" max="0.6" step="0.05"></label><label><span>色温</span><input type="range" min="3200" max="8500" step="100"></label></div><!--v-if--><!--v-if--></section><section class="glass-panel"><h2>参考航线与安全约束</h2><div class="kpi-row"><span>航程<strong>1414.9 米</strong></span><span>评分<strong>94</strong></span><span>风险<strong>low</strong></span></div><p class="summary-text">航线总长约 1415 米，识别到 2 个风险点，主要风险为：航线距离通信塔低于安全缓冲距离。当前评分 76 分。</p></section><section class="glass-panel"><h2>自主/辅助边界</h2><p class="summary-text"> 视觉自主模式下，匹配结果会修正无人机导航状态；辅助导航模式下，匹配结果只作为定位参考和人工复核提示。 </p></section></aside></section><footer class="event-console"><section><h2>实时事件流</h2><div class="console-list"><article><strong>--</strong><span>等待任务推演</span><small>点击播放后，视觉匹配、风险告警和重规划事件将随时间推进。</small></article></div></section></footer></main></div>
+    <script type="module" src="/src/main.js?t=1781432846219"></script>
   
 
 

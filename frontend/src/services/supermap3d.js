@@ -204,6 +204,8 @@ export function installMapImageryFallback(viewer, SuperMap3D, supermapConfig = n
 
   let mapLayer = null;
   try {
+    installOnlineBasemap(viewer, SuperMap3D, supermapConfig);
+    installOnlineTerrain(viewer, SuperMap3D, supermapConfig);
     if (!luojiaScene && SuperMap3D?.SuperMapImageryProvider && mapUrl && viewer.__luojiaMapImageryFallbackUrl !== mapUrl) {
       mapLayer = viewer.imageryLayers.addImageryProvider(
         new SuperMap3D.SuperMapImageryProvider({
@@ -217,6 +219,114 @@ export function installMapImageryFallback(viewer, SuperMap3D, supermapConfig = n
     console.warn("Failed to add SuperMap map imagery fallback", error);
   }
   return installStaticOrthoFallback(viewer, SuperMap3D, supermapConfig) || mapLayer;
+}
+
+export function installOnlineBasemap(viewer, SuperMap3D, supermapConfig = null) {
+  const service = supermapConfig?.services?.online_basemap;
+  const url = service?.url || "";
+  if (!viewer?.imageryLayers || !url) {
+    if (viewer) {
+      viewer.__onlineBasemap = {
+        installed: false,
+        status: url ? "unsupported" : "not_configured",
+        source: url,
+      };
+    }
+    return null;
+  }
+  if (viewer.__onlineBasemap?.source === url && viewer.__onlineBasemap?.layer) {
+    return viewer.__onlineBasemap.layer;
+  }
+
+  try {
+    const providerType = service.provider || service.type || "url_template";
+    let provider = null;
+    if (providerType === "supermap" && SuperMap3D?.SuperMapImageryProvider) {
+      provider = new SuperMap3D.SuperMapImageryProvider({ url });
+    } else if (SuperMap3D?.UrlTemplateImageryProvider) {
+      provider = new SuperMap3D.UrlTemplateImageryProvider({
+        url,
+        credit: service.credit || service.name || "online basemap",
+        minimumLevel: service.minimum_level ?? 0,
+        maximumLevel: service.maximum_level ?? 18,
+      });
+    }
+    if (!provider) {
+      throw new Error("No supported imagery provider for online basemap");
+    }
+
+    const layer = viewer.imageryLayers.addImageryProvider(provider, 0);
+    layer.alpha = service.alpha ?? 0.72;
+    layer.show = service.visible !== false;
+    viewer.__onlineBasemap = {
+      installed: true,
+      status: "installed",
+      source: url,
+      provider: providerType,
+      layer,
+    };
+    return layer;
+  } catch (error) {
+    console.warn("Failed to add online basemap", error);
+    viewer.__onlineBasemap = {
+      installed: false,
+      status: "failed",
+      source: url,
+      error: error?.message || String(error),
+    };
+    return null;
+  }
+}
+
+export function installOnlineTerrain(viewer, SuperMap3D, supermapConfig = null) {
+  const service = supermapConfig?.services?.online_terrain;
+  const url = service?.url || "";
+  if (!viewer || !url) {
+    if (viewer) {
+      viewer.__onlineTerrain = {
+        installed: false,
+        status: url ? "unsupported" : "not_configured",
+        source: url,
+      };
+    }
+    return null;
+  }
+  if (viewer.__onlineTerrain?.source === url && viewer.__onlineTerrain?.provider) {
+    return viewer.__onlineTerrain.provider;
+  }
+
+  try {
+    let provider = null;
+    if (SuperMap3D?.SuperMapTerrainProvider) {
+      provider = new SuperMap3D.SuperMapTerrainProvider({ url });
+    } else if (SuperMap3D?.CesiumTerrainProvider) {
+      provider = new SuperMap3D.CesiumTerrainProvider({ url });
+    }
+    if (!provider) {
+      throw new Error("No supported terrain provider for online terrain");
+    }
+    if ("terrainProvider" in viewer) {
+      viewer.terrainProvider = provider;
+    } else if (viewer.scene?.globe) {
+      viewer.scene.globe.terrainProvider = provider;
+    }
+    viewer.__onlineTerrain = {
+      installed: true,
+      status: "installed",
+      source: url,
+      provider,
+    };
+    return provider;
+  } catch (error) {
+    console.warn("Failed to add online terrain", error);
+    viewer.__onlineTerrain = {
+      installed: false,
+      status: "failed",
+      source: url,
+      error: error?.message || String(error),
+    };
+    return null;
+  }
 }
 
 function installStaticOrthoFallback(viewer, SuperMap3D, supermapConfig = null) {
@@ -361,6 +471,12 @@ export function getSuperMapDebugState(viewer, supermapConfig = null) {
     imageryLayerCount: viewer?.imageryLayers?.length ?? null,
     sceneLayerCount: sceneLayers.length,
     sceneLayers: sceneLayers.map((layer) => layer?.name || layer?._name || layer?.caption || layer?.dataName).filter(Boolean),
+    onlineBasemapInstalled: Boolean(viewer?.__onlineBasemap?.installed),
+    onlineBasemapStatus: viewer?.__onlineBasemap?.status || "not_configured",
+    onlineBasemapSource: viewer?.__onlineBasemap?.source || "",
+    onlineTerrainInstalled: Boolean(viewer?.__onlineTerrain?.installed),
+    onlineTerrainStatus: viewer?.__onlineTerrain?.status || "not_configured",
+    onlineTerrainSource: viewer?.__onlineTerrain?.source || "",
   };
 }
 
@@ -1081,6 +1197,26 @@ export function fitToTask(viewer, SuperMap3D, task, supermapConfig = null) {
   };
   if (viewer.camera.flyTo) {
     viewer.camera.flyTo({ destination, orientation, duration: 0.75 });
+    return;
+  }
+  viewer.camera.setView({ destination, orientation });
+}
+
+export function fitToLargeArea(viewer, SuperMap3D, supermapConfig = null) {
+  if (!viewer?.camera || !SuperMap3D.Cartesian3) return;
+  const view = supermapConfig?.presentation?.large_area_view || {};
+  const destination = SuperMap3D.Cartesian3.fromDegrees(
+    view.lon ?? 105,
+    view.lat ?? 30,
+    view.altitude_m ?? 14500000
+  );
+  const orientation = {
+    heading: SuperMap3D.Math?.toRadians ? SuperMap3D.Math.toRadians(view.heading_deg ?? 0) : 0,
+    pitch: SuperMap3D.Math?.toRadians ? SuperMap3D.Math.toRadians(view.pitch_deg ?? -90) : -1.57,
+    roll: 0,
+  };
+  if (viewer.camera.flyTo) {
+    viewer.camera.flyTo({ destination, orientation, duration: 1.2 });
     return;
   }
   viewer.camera.setView({ destination, orientation });

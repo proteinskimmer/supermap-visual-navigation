@@ -1,6 +1,6 @@
 # Version Record
 
-Version: `v0.5a-orb-navigation-verified`
+Version: `v0.5`
 
 Recorded at: `2026-06-10`
 
@@ -74,3 +74,15 @@ The current UAV frames are real flight-camera images.
 ## Worktree Note
 
 This record is a delivery-material baseline and does not by itself imply a clean Git release tag.
+
+## Git Tag
+
+Saved on 2026-06-14:
+
+```text
+tag: v0.5
+commit: baa6121
+message: Archive v0.5 visual navigation gate
+```
+
+Post-tag work has started under R9 for global/large-area 3D context display. R9 is not part of the `v0.5` tag unless committed and tagged separately later.

@@ -2317,3 +2317,28 @@
   - The system still must not be described as real-flight visual autonomous navigation.
   - UAV frames are semi-real/generated from orthophoto, route, camera, DEM/building context, not real UAV camera footage.
   - Next gate is report-page screenshot evidence and 3 complete rehearsal runs.
+
+### 2026-06-14 v0.5 tag and R9 large-area 3D context start
+
+- Version save:
+  - Created Git commit `baa6121 Archive v0.5 visual navigation gate`.
+  - Created annotated Git tag `v0.5`.
+  - `docs/delivery/version_record.md` now records the `v0.5` tag and commit.
+- R9 implementation:
+  - Added configurable optional services `online_basemap` and `online_terrain` to SuperMap service templates.
+  - Added frontend large-area view support:
+    - `fitToLargeArea()` flies the SuperMap camera to a global/regional overview.
+    - `SuperMapScene` now has a `全球视角` control.
+    - DOM exposes `data-view-scope`, `data-online-basemap-status`, and `data-online-terrain-status`.
+  - Added optional online provider installers:
+    - `installOnlineBasemap()` supports URL-template or SuperMap imagery services.
+    - `installOnlineTerrain()` reserves SuperMap/Cesium terrain-provider wiring when a terrain URL is configured.
+  - Added R9 plan: `docs/project_management/18_large_area_3d_plan.md`.
+- Verification:
+  - `npm run build` passed.
+  - `powershell -ExecutionPolicy Bypass -File E:\supermap_project\scripts\check_v05_navigation_gate.ps1 -PythonExe E:\anaconda\envs\supermap_nav\python.exe -SkipRuntime` passed.
+  - DOM gate now checks the large-area view button and online layer status markers.
+- Strict status:
+  - Large-area 3D context is a display/context enhancement.
+  - Visual autonomous navigation remains locked to local Luojia high-precision DEM, orthophoto, building, UAV frame, and ORB evidence data.
+  - No online basemap/terrain provider has been selected or licensed yet; real online URL configuration and screenshot evidence remain pending.

@@ -6,6 +6,7 @@ import {
   destroyViewer,
   detectWebGL2,
   drawDemoOverlay,
+  fitToLargeArea,
   fitToTask,
   getSuperMapDebugState,
   installGentleWheelZoom,
@@ -49,6 +50,7 @@ const hasWebGL2 = shallowRef(false);
 const debugState = shallowRef(null);
 const luojiaBuildings = shallowRef([]);
 const luojiaTerrain = shallowRef(null);
+const viewScope = shallowRef("task");
 let cameraFitted = false;
 let wheelZoomCleanup = null;
 
@@ -268,7 +270,15 @@ function cleanupWheelZoom() {
 
 function resetStandardView() {
   if (!viewerRef.value || !sdkRef.value || status.value !== "ready") return;
+  viewScope.value = "task";
   fitToTask(viewerRef.value, sdkRef.value, props.selectedTask, props.supermapConfig);
+  refreshDebugState();
+}
+
+function showLargeAreaView() {
+  if (!viewerRef.value || !sdkRef.value || status.value !== "ready") return;
+  viewScope.value = "large";
+  fitToLargeArea(viewerRef.value, sdkRef.value, props.supermapConfig);
   refreshDebugState();
 }
 
@@ -294,11 +304,23 @@ function refreshDebugState() {
         :class="['supermap-mount', isLuojiaMode ? 'luojia-base-mount' : '']"
         data-supermap-mount
         :data-scene-status="status"
+        :data-view-scope="viewScope"
         :data-luojia-mode="isLuojiaMode ? 'true' : 'false'"
+        :data-online-basemap-status="debugState?.onlineBasemapStatus || 'not_configured'"
+        :data-online-terrain-status="debugState?.onlineTerrainStatus || 'not_configured'"
         :data-luojia-fallback-installed="debugState?.fallbackInstalled ? 'true' : 'false'"
         :data-luojia-terrain-installed="debugState?.terrainInstalled ? 'true' : 'false'"
       ></div>
       <div class="scene-control-bar">
+        <button
+          type="button"
+          title="飞到全球/大范围三维浏览视角"
+          data-large-area-view-button
+          :disabled="status !== 'ready'"
+          @click="showLargeAreaView"
+        >
+          全球视角
+        </button>
         <button type="button" title="重新加载珞珈底图" :disabled="status !== 'ready'" @click="reloadSceneBase">
           重载底图
         </button>
@@ -319,6 +341,9 @@ function refreshDebugState() {
           珞珈备用底图：{{ debugState.fallbackInstalled ? "已安装" : "未安装" }} /
           场景图层：{{ debugState.sceneLayerCount }} /
           影像图层：{{ debugState.imageryLayerCount }}
+        </small>
+        <small v-if="debugState">
+          在线底图：{{ debugState.onlineBasemapStatus }} / 在线地形：{{ debugState.onlineTerrainStatus }}
         </small>
         <small v-if="debugState?.terrainInstalled">
           高程地形网格：{{ debugState.terrainVertices }} 个顶点 / {{ debugState.terrainTriangles }} 个三角面

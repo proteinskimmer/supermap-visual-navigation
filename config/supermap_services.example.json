@@ -30,6 +30,22 @@
       "url": "",
       "type": "spatial_analysis",
       "status": "optional"
+    },
+    "online_basemap": {
+      "name": "Online basemap for global overview",
+      "url": "",
+      "type": "url_template",
+      "provider": "url_template",
+      "status": "optional",
+      "usage": "global_or_large_area_background_only"
+    },
+    "online_terrain": {
+      "name": "Online terrain for global overview",
+      "url": "",
+      "type": "terrain",
+      "provider": "supermap",
+      "status": "optional",
+      "usage": "global_or_large_area_3d_context_only"
     }
   },
   "layers": {
@@ -65,4 +81,3 @@
     }
   }
 }
-

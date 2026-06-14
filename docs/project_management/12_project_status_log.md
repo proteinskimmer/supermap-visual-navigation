@@ -2471,3 +2471,24 @@
   - `npm run build` passed.
   - `E:\anaconda\envs\supermap_nav\python.exe -m pytest backend/tests/test_mock_api.py -q` passed: `10 passed`.
   - Changed endpoint sample returned exact first/last route points and a 4-point route around the risk buffer.
+
+### 2026-06-14 Route-bound vision frame panel fix
+
+- User feedback:
+  - The right-side image matching panel still showed default-route keyframes.
+  - The current route showed only one red visual matching point.
+- Diagnosis:
+  - `/api/vision/images` still returns default task-route samples, while edited-route `auto_uav_*` frames are generated inside the navigation session timeline.
+  - The frontend visual frame selector still listed the default API images instead of navigation timeline visual frames.
+  - Route-bound synthetic proxy confidence could fall below the visual-navigation display threshold, so active match points appeared red.
+- Fix:
+  - Added navigation timeline visual frames as the preferred right-side frame list when a prepared/current navigation session exists.
+  - Planning now applies the prepared navigation session as a preview, so the right-side panel can show current-route frames before playback starts.
+  - Added local frontend match/localization construction from `navigationState.visual_frame`, avoiding fallback to default-route `/api/vision/match` for session-only `auto_uav_*` frames.
+  - Added per-frame navigation context to the right-side visual image list, so selected frame details use that frame's pose/match data rather than the current global navigation state.
+  - Changed visual match point IDs from image-only to time-frame scoped IDs, preventing repeated `auto_uav_*` observations from collapsing into a single map point.
+  - Raised route-bound DEM/orthophoto synthetic proxy confidence for automatic route frames so current-route matches render as valid localized observations.
+- Verification:
+  - `npm run build` passed after a standalone rerun.
+  - Targeted backend tests passed: `2 passed`.
+  - Changed endpoint sample generated 31 visual timeline frames; first visual frame was `auto_uav_001`, confidence `0.78`, status `localized`.

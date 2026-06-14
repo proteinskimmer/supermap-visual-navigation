@@ -418,11 +418,15 @@ def _view_for_match(localization: dict, match: dict | None) -> dict | None:
 
 def _match_result_from_synthetic_views(response: dict) -> dict:
     candidates = []
+    auto_route_frame = str(response.get("image_id", "")).startswith("auto_uav_")
     for view in response.get("synthetic_views", []):
         confidence = max(0.42, min(0.9, view.get("score_prior", 0.55) + 0.12 - (view["rank"] - 1) * 0.06))
         center = [view["pose"]["lon"], view["pose"]["lat"], view["pose"]["altitude_m"]]
         offset = [round((1 - confidence) * 38, 1), round((view["rank"] - 1) * -14.0, 1)]
         reason = f"{view['view_id']} generated from route-distance/key-change automatic frame selection"
+        if auto_route_frame:
+            confidence = max(confidence, 0.78 - (view["rank"] - 1) * 0.09)
+            reason = f"{view['view_id']} route-bound DEM/orthophoto frame aligned with current planned trajectory"
         if response.get("frame_trigger") == "route_arrival":
             confidence = max(0.5, 0.88 - (view["rank"] - 1) * 0.08)
             center = [

@@ -106,12 +106,35 @@ const activeNavigationVisionImage = computed(() => {
     frame_trigger: "visual_fusion",
     source_tile_id: frame.tile_id,
     camera: { height_m: navigationState.value?.visual_position?.altitude_m },
+    visual_frame: frame,
+    navigation_frame: navigationState.value,
   };
 });
+const navigationVisionImages = computed(() => {
+  const byId = new Map();
+  navigationTimeline.value.forEach((frame) => {
+    const visualFrame = frame.visual_frame;
+    if (!visualFrame?.image_id || byId.has(visualFrame.image_id)) return;
+    byId.set(visualFrame.image_id, {
+      id: visualFrame.image_id,
+      name: visualFrame.name,
+      query_image: visualFrame.query_image,
+      capture_time_s: visualFrame.capture_time_s,
+      source: "navigation_timeline",
+      frame_trigger: "visual_fusion",
+      source_tile_id: visualFrame.tile_id,
+      camera: { height_m: frame.visual_position?.altitude_m },
+      visual_frame: visualFrame,
+      navigation_frame: frame,
+    });
+  });
+  return [...byId.values()].sort((a, b) => (a.capture_time_s || 0) - (b.capture_time_s || 0));
+});
+const displayedVisionImages = computed(() => navigationVisionImages.value.length ? navigationVisionImages.value : visionImages.value);
 const selectedVisionImage = computed(() =>
   activeNavigationVisionImage.value ||
-  visionImages.value.find((image) => image.id === activeVisionImageId.value) ||
-  visionImages.value.find((image) => image.id === selectedVisionImageId.value) ||
+  displayedVisionImages.value.find((image) => image.id === activeVisionImageId.value) ||
+  displayedVisionImages.value.find((image) => image.id === selectedVisionImageId.value) ||
   null
 );
 const bestVisionCandidate = computed(() => {
@@ -153,7 +176,7 @@ const visualMatchPoints = computed(() => {
       const visual = frame.visual_position;
       const visualFrame = frame.visual_frame || {};
       return {
-        id: visual.match_id || visual.image_id || `${frame.time_s}-${visual.tile_id}`,
+        id: `${Math.round((frame.time_s || 0) * 10)}-${visual.match_id || visual.image_id || visual.tile_id}`,
         point: poseToPoint(frame.reference_position) || poseToPoint(visual),
         visualPoint: poseToPoint(visual),
         confidence: visual.confidence || 0,
@@ -171,7 +194,7 @@ const visualMatchPoints = computed(() => {
 });
 const activeVisualControlPoint = computed(() => {
   if (!activeVisionImageId.value) return null;
-  return visualMatchPoints.value.find((match) => match.imageId === activeVisionImageId.value) || null;
+  return [...visualMatchPoints.value].reverse().find((match) => match.imageId === activeVisionImageId.value) || null;
 });
 const sceneVisionResult = computed(() => {
   if (simulation.value && !activeVisualControlPoint.value) return null;
@@ -344,6 +367,17 @@ function clearPreparedNavigation() {
   navigationPreparationMessage.value = "";
 }
 
+function applyNavigationPreview(session) {
+  if (!session?.timeline?.length || simulation.value) return;
+  navigationSession.value = session;
+  navigationTimeline.value = session.timeline || [];
+  const firstVisualFrame = navigationTimeline.value.find((frame) => frame.visual_frame) || navigationTimeline.value[0];
+  navigationState.value = firstVisualFrame || null;
+  if (firstVisualFrame?.active_frame_id) {
+    selectedVisionImageId.value = firstVisualFrame.active_frame_id;
+  }
+}
+
 async function createNavigationSession(route = selectedRoute.value) {
   if (!selectedTask.value || !route) {
     throw new Error("缺少任务或航线，无法启动推演。");
@@ -381,6 +415,7 @@ async function prepareNavigationSession({ silent = true } = {}) {
     if (navigationPreparationKey === key) {
       preparedNavigationSession.value = session;
       preparedNavigationKey.value = key;
+      applyNavigationPreview(session);
       navigationPreparationMessage.value = "推演时间线已准备";
     }
     return session;
@@ -829,6 +864,12 @@ function visionCacheKey(imageId) {
 }
 
 function applyImmediateVisionMatch(imageId) {
+  const image = displayedVisionImages.value.find((item) => item.id === imageId);
+  if (image?.visual_frame) {
+    visionResult.value = buildNavigationFrameMatch(image);
+    visualLocalization.value = buildNavigationFrameLocalization(image);
+    return;
+  }
   const key = visionCacheKey(imageId);
   const cachedMatch = visionMatchCache.value[key];
   const cachedLocalization = visualLocalizationCache.value[key];
@@ -837,7 +878,10 @@ function applyImmediateVisionMatch(imageId) {
 }
 
 function buildInstantVisionMatch(imageId) {
-  const image = visionImages.value.find((item) => item.id === imageId) || selectedVisionImage.value;
+  const image = displayedVisionImages.value.find((item) => item.id === imageId) || selectedVisionImage.value;
+  if (image?.visual_frame) {
+    return buildNavigationFrameMatch(image);
+  }
   const sourceTileId = image?.source_tile_id;
   const rankedTiles = rankTilesNearSource(sourceTileId).slice(0, visionTopK.value);
   return {
@@ -867,6 +911,84 @@ function buildInstantVisionMatch(imageId) {
   };
 }
 
+function buildNavigationFrameMatch(image) {
+  const frame = image.visual_frame;
+  const navigationFrame = image.navigation_frame || navigationState.value || {};
+  const tile = visionTiles.value.find((item) => item.tile_id === frame.tile_id);
+  return {
+    match_id: `navigation_${frame.image_id}`,
+    task_id: selectedTask.value?.id || "task_001",
+    image_id: frame.image_id,
+    query_image: frame.query_image,
+    provider: "navigation_timeline_visual_frame",
+    status: frame.status || "localized",
+    algorithm_trace: ["navigation_timeline", "dem_ortho_synthetic_view", "visual_fusion"],
+    candidates: [
+      {
+        tile_id: frame.tile_id,
+        confidence: frame.confidence || 0,
+        matched_points: frame.matched_points || 0,
+        inlier_ratio: frame.inlier_ratio || 0,
+        bbox: tile?.bbox || [],
+        center: poseToPoint(navigationFrame.visual_position) || tile?.center || [],
+        offset_m: frame.correction_vector_m?.slice(0, 2) || [0, 0],
+        status: (frame.confidence || 0) >= 0.5 ? "best" : "needs_review",
+        reason: frame.reason || "current navigation visual frame",
+        rank: 1,
+      },
+    ],
+    candidate_count: 1,
+    total_candidate_count: 1,
+  };
+}
+
+function buildNavigationFrameLocalization(image) {
+  const frame = image.visual_frame;
+  if (!frame) return null;
+  const navigationFrame = image.navigation_frame || navigationState.value || {};
+  const pose = navigationFrame.visual_position;
+  const syntheticImage = frame.synthetic_image || "/demo/luojia_ortho_preview.jpg";
+  return {
+    localization_id: `navigation_${frame.image_id}`,
+    task_id: selectedTask.value?.id || "task_001",
+    image_id: frame.image_id,
+    query_image: frame.query_image,
+    provider: "navigation_timeline_visual_frame",
+    status: frame.status || "localized",
+    confidence: frame.confidence || 0,
+    error_radius_m: frame.error_radius_m || 0,
+    matched_points: frame.matched_points || 0,
+    inlier_ratio: frame.inlier_ratio || 0,
+    correction_vector_m: frame.correction_vector_m || [0, 0, 0],
+    best_estimated_pose: pose,
+    image_simulation: image.uav_frame_simulation || {},
+    synthetic_views: [
+      {
+        view_id: frame.synthetic_view_id || `syn_${frame.image_id}`,
+        tile_id: frame.tile_id,
+        image_url: syntheticImage,
+        pose: pose || {},
+        rank: 1,
+      },
+    ],
+    matches: [
+      {
+        view_id: frame.synthetic_view_id || `syn_${frame.image_id}`,
+        tile_id: frame.tile_id,
+        confidence: frame.confidence || 0,
+        matched_points: frame.matched_points || 0,
+        inlier_ratio: frame.inlier_ratio || 0,
+        correction_vector_m: frame.correction_vector_m || [0, 0, 0],
+        error_radius_m: frame.error_radius_m || 0,
+        estimated_pose: pose,
+        status: (frame.confidence || 0) >= 0.5 ? "best" : "needs_review",
+        reason: frame.reason || "current navigation visual frame",
+        rank: 1,
+      },
+    ],
+  };
+}
+
 function rankTilesNearSource(sourceTileId) {
   if (!visionTiles.value.length) return [];
   const source = visionTiles.value.find((tile) => tile.tile_id === sourceTileId) || visionTiles.value[0];
@@ -889,11 +1011,15 @@ function tileGridDistance(tile, row, col) {
 async function runVisionMatch(options = {}) {
   const execute = async () => {
     const requestedImageId = activeVisionImageId.value || selectedVisionImageId.value;
-    const imageId = visionImages.value.some((image) => image.id === requestedImageId) || activeNavigationVisionImage.value?.id === requestedImageId
+    const imageId = displayedVisionImages.value.some((image) => image.id === requestedImageId) || activeNavigationVisionImage.value?.id === requestedImageId
       ? requestedImageId
-      : visionImages.value[0]?.id || "demo_uav_001";
+      : displayedVisionImages.value[0]?.id || "demo_uav_001";
     selectedVisionImageId.value = imageId;
     applyImmediateVisionMatch(imageId);
+    const displayedImage = displayedVisionImages.value.find((image) => image.id === imageId);
+    if (displayedImage?.visual_frame) {
+      return;
+    }
 
     const key = visionCacheKey(imageId);
     const basePayload = {
@@ -949,7 +1075,7 @@ async function runVisionMatch(options = {}) {
 }
 
 async function selectVisionImage(imageId) {
-  const image = visionImages.value.find((item) => item.id === imageId);
+  const image = displayedVisionImages.value.find((item) => item.id === imageId);
   selectedVisionImageId.value = imageId;
   if (image?.capture_time_s !== undefined && navigationTimeline.value.length) {
     jumpSimulationToTime(image.capture_time_s);
@@ -1295,7 +1421,7 @@ watch(activeVisionImageId, async (imageId, previousImageId) => {
           </div>
           <div class="vision-select">
             <button
-              v-for="(image, index) in visionImages"
+                v-for="(image, index) in displayedVisionImages"
               :key="image.id"
               :class="{ active: selectedVisionImageId === image.id }"
               @click="selectVisionImage(image.id)"

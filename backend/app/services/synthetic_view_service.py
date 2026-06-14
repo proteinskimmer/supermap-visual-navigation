@@ -13,6 +13,7 @@ from app.services.vision_matcher_provider import (
     build_v05a_synthetic_view,
     is_precomputed_matcher,
     is_supported_matcher,
+    localize_with_opencv_features,
     localize_with_opencv_orb,
     normalize_matcher_mode,
     unavailable_localization,
@@ -98,7 +99,7 @@ def localize_with_synthetic_views(
     route_prior_pose: dict | None = None,
     top_k_tiles: int = 3,
     image_override: dict | None = None,
-    matcher_mode: str = "synthetic_v04",
+    matcher_mode: str = "opencv_auto",
     lighting_options: dict | None = None,
 ) -> dict:
     task = _task_or_404(task_id)
@@ -106,11 +107,13 @@ def localize_with_synthetic_views(
     normalized_matcher = normalize_matcher_mode(matcher_mode)
     if not is_supported_matcher(normalized_matcher):
         raise HTTPException(status_code=400, detail=f"unsupported matcher mode: {matcher_mode}")
-    render_mode = "v05a" if normalized_matcher == "opencv_orb" else "synthetic_v04"
+    render_mode = "v05a" if not is_precomputed_matcher(normalized_matcher) else "synthetic_v04"
     response = build_synthetic_view_response(task_id, image_id, initial_pose, route_prior_pose, top_k_tiles, image_override, render_mode, lighting_options)
     if not is_precomputed_matcher(normalized_matcher):
         if normalized_matcher == "opencv_orb":
             return localize_with_opencv_orb(task_id, image_id, response, origin)
+        if normalized_matcher.startswith("opencv_"):
+            return localize_with_opencv_features(task_id, image_id, response, origin, normalized_matcher)
         return unavailable_localization(task_id, image_id, response, normalized_matcher)
 
     match_result = _match_result_from_synthetic_views(response) if image_override else get_match_result(task_id, image_id, top_k_tiles)

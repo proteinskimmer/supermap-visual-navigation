@@ -307,9 +307,17 @@ class SyntheticViewResponse(BaseModel):
 class SyntheticViewMatch(BaseModel):
     view_id: str
     tile_id: str
+    provider: str = ""
+    transform_model: str = ""
+    keypoint_count_query: int = Field(default=0, ge=0)
+    keypoint_count_train: int = Field(default=0, ge=0)
+    raw_match_count: int = Field(default=0, ge=0)
     confidence: float = Field(ge=0, le=1)
     matched_points: int = Field(ge=0)
     inlier_ratio: float = Field(ge=0, le=1)
+    reprojection_error_px: float = Field(default=0, ge=0)
+    prior_error_m: float = Field(default=0, ge=0)
+    score_components: dict[str, Any] = Field(default_factory=dict)
     offset_m: list[float]
     correction_vector_m: list[float]
     error_radius_m: float = Field(ge=0)
@@ -328,8 +336,11 @@ class VisualLocalizationRequest(SyntheticViewRequest):
         "precomputed_proxy",
         "opencv_orb",
         "opencv_sift",
+        "opencv_akaze",
+        "opencv_brisk",
+        "opencv_auto",
         "external_deep_matcher",
-    ] = "synthetic_v04"
+    ] = "opencv_auto"
 
 
 class VisualLocalizationResult(BaseModel):
@@ -338,6 +349,8 @@ class VisualLocalizationResult(BaseModel):
     image_id: str
     query_image: str
     provider: str
+    selected_provider: str = ""
+    provider_results: list[dict[str, Any]] = Field(default_factory=list)
     status: str
     image_simulation: dict[str, Any] = Field(default_factory=dict)
     initial_pose: CameraPose
@@ -425,7 +438,7 @@ class NavigationSession(BaseModel):
     session_id: str
     task_id: str
     active_route_id: str
-    matcher_mode: str = "synthetic_v04"
+    matcher_mode: str = "opencv_auto"
     route: Route
     duration_s: int = Field(ge=1)
     state: Literal["ready"]
@@ -443,8 +456,11 @@ class NavigationStartRequest(BaseModel):
         "precomputed_proxy",
         "opencv_orb",
         "opencv_sift",
+        "opencv_akaze",
+        "opencv_brisk",
+        "opencv_auto",
         "external_deep_matcher",
-    ] = "synthetic_v04"
+    ] = "opencv_auto"
 
 
 class NavigationLocalizeRequest(BaseModel):
@@ -457,8 +473,11 @@ class NavigationLocalizeRequest(BaseModel):
         "precomputed_proxy",
         "opencv_orb",
         "opencv_sift",
+        "opencv_akaze",
+        "opencv_brisk",
+        "opencv_auto",
         "external_deep_matcher",
-    ] = "synthetic_v04"
+    ] = "opencv_auto"
 
 
 class NavigationReplanRequest(BaseModel):

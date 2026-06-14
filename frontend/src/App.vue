@@ -71,7 +71,7 @@ const pendingVisionMatchRequests = new Map();
 const pendingVisualLocalizationRequests = new Map();
 
 const selectedTask = computed(() => taskDetail.value?.task || null);
-const navigationMatcherMode = computed(() => "precomputed_proxy");
+const navigationMatcherMode = computed(() => "opencv_auto");
 const taskDetailForDisplay = computed(() => {
   if (!taskDetail.value) return null;
   const task = endpointEditDraft.value
@@ -131,10 +131,13 @@ const navigationVisionImages = computed(() => {
   return [...byId.values()].sort((a, b) => (a.capture_time_s || 0) - (b.capture_time_s || 0));
 });
 const displayedVisionImages = computed(() => navigationVisionImages.value.length ? navigationVisionImages.value : visionImages.value);
+const manuallySelectedVisionImage = computed(() =>
+  displayedVisionImages.value.find((image) => image.id === selectedVisionImageId.value) || null
+);
 const selectedVisionImage = computed(() =>
+  manuallySelectedVisionImage.value ||
   activeNavigationVisionImage.value ||
   displayedVisionImages.value.find((image) => image.id === activeVisionImageId.value) ||
-  displayedVisionImages.value.find((image) => image.id === selectedVisionImageId.value) ||
   null
 );
 const bestVisionCandidate = computed(() => {
@@ -153,11 +156,52 @@ const bestVisionCandidate = computed(() => {
   return visionResult.value?.candidates?.find((candidate) => candidate.status === "best") || null;
 });
 const bestSyntheticView = computed(() => {
-  const bestMatch = visualLocalization.value?.matches?.[0];
+  const bestMatch = visibleVisualLocalization.value?.matches?.[0];
   if (!bestMatch) return null;
-  return visualLocalization.value.synthetic_views?.find((view) => view.view_id === bestMatch.view_id) || null;
+  return visibleVisualLocalization.value.synthetic_views?.find((view) => view.view_id === bestMatch.view_id) || null;
 });
-const activeOrbEvidence = computed(() => visualLocalization.value?.matches?.[0]?.evidence?.urls || null);
+const selectedVisionFrameId = computed(() => selectedVisionImage.value?.id || activeVisionImageId.value || selectedVisionImageId.value);
+const visibleVisualLocalization = computed(() => {
+  const localization = visualLocalization.value;
+  const frameId = selectedVisionFrameId.value;
+  if (!localization || (frameId && localization.image_id !== frameId)) return null;
+  return localization;
+});
+const bestLocalizationMatch = computed(() => visibleVisualLocalization.value?.matches?.[0] || null);
+const activeMatchEvidence = computed(() => bestLocalizationMatch.value?.evidence?.urls || null);
+const selectedMatcherLabel = computed(() =>
+  visibleVisualLocalization.value?.selected_provider ||
+  bestLocalizationMatch.value?.provider ||
+  visibleVisualLocalization.value?.provider ||
+  "-"
+);
+const selectedLocalizationFrameLabel = computed(() =>
+  visibleVisualLocalization.value?.image_id || selectedVisionFrameId.value || "-"
+);
+const providerComparisonRows = computed(() => {
+  const results = visibleVisualLocalization.value?.provider_results || [];
+  if (!results.length) return [];
+  return results.map((item) => {
+    const best = item.best || item.matches?.[0] || {};
+    return {
+      provider: item.provider,
+      status: item.status,
+      confidence: best.confidence || 0,
+      matchedPoints: best.matched_points || 0,
+      inlierRatio: best.inlier_ratio || 0,
+      errorRadiusM: best.error_radius_m ?? "-",
+      reprojectionErrorPx: best.reprojection_error_px ?? "-",
+      priorErrorM: best.prior_error_m ?? "-",
+      scoreComponents: best.score_components || {},
+      evidence: best.evidence?.urls || null,
+      failureReason: item.failure_reason || best.failure_reason || "",
+    };
+  }).sort((left, right) => {
+    if (left.provider === selectedMatcherLabel.value) return -1;
+    if (right.provider === selectedMatcherLabel.value) return 1;
+    return (right.confidence || 0) - (left.confidence || 0);
+  });
+});
 const elapsedSeconds = computed(() => {
   if (navigationState.value) return navigationState.value.time_s;
   const total = navigationSession.value?.duration_s || currentRouteForDisplay.value?.estimated_time_s || 180;
@@ -859,7 +903,7 @@ function routeSignature() {
 }
 
 function visionCacheKey(imageId) {
-  return `${selectedTask.value?.id || "task_001"}|${routeSignature()}|${imageId}|${visionTopK.value}`;
+  return `${selectedTask.value?.id || "task_001"}|${routeSignature()}|${imageId}|${visionTopK.value}|${navigationMatcherMode.value}|${JSON.stringify(lightingOptions.value)}`;
 }
 
 function applyImmediateVisionMatch(imageId) {
@@ -1009,14 +1053,14 @@ function tileGridDistance(tile, row, col) {
 
 async function runVisionMatch(options = {}) {
   const execute = async () => {
-    const requestedImageId = activeVisionImageId.value || selectedVisionImageId.value;
+    const requestedImageId = options.imageId || activeVisionImageId.value || selectedVisionImageId.value;
     const imageId = displayedVisionImages.value.some((image) => image.id === requestedImageId) || activeNavigationVisionImage.value?.id === requestedImageId
       ? requestedImageId
       : displayedVisionImages.value[0]?.id || "demo_uav_001";
     selectedVisionImageId.value = imageId;
     applyImmediateVisionMatch(imageId);
     const displayedImage = displayedVisionImages.value.find((image) => image.id === imageId);
-    if (displayedImage?.visual_frame) {
+    if (displayedImage?.visual_frame && !options.forceRemote) {
       return;
     }
 
@@ -1027,26 +1071,28 @@ async function runVisionMatch(options = {}) {
     };
     const token = ++visionRequestToken;
 
-    const matchPromise = pendingVisionMatchRequests.get(key) || api
-      .visionMatch({
-        ...basePayload,
-        top_k: visionTopK.value,
-        algorithm_mode: "precomputed",
-      })
-      .finally(() => pendingVisionMatchRequests.delete(key));
-    pendingVisionMatchRequests.set(key, matchPromise);
+    if (!displayedImage?.visual_frame) {
+      const matchPromise = pendingVisionMatchRequests.get(key) || api
+        .visionMatch({
+          ...basePayload,
+          top_k: visionTopK.value,
+          algorithm_mode: "precomputed",
+        })
+        .finally(() => pendingVisionMatchRequests.delete(key));
+      pendingVisionMatchRequests.set(key, matchPromise);
 
-    const match = await matchPromise;
-    visionMatchCache.value = { ...visionMatchCache.value, [key]: match };
-    if (token === visionRequestToken && selectedVisionImageId.value === imageId) {
-      visionResult.value = match;
+      const match = await matchPromise;
+      visionMatchCache.value = { ...visionMatchCache.value, [key]: match };
+      if (token === visionRequestToken && selectedVisionImageId.value === imageId) {
+        visionResult.value = match;
+      }
     }
 
     const localizationPromise = pendingVisualLocalizationRequests.get(key) || api
       .visionLocalize({
         ...basePayload,
         top_k_tiles: visionTopK.value,
-        matcher_mode: "precomputed_proxy",
+        matcher_mode: navigationMatcherMode.value,
         lighting_options: lightingOptions.value,
       })
       .catch(() => null)
@@ -1058,7 +1104,7 @@ async function runVisionMatch(options = {}) {
       visualLocalizationCache.value = { ...visualLocalizationCache.value, [key]: localization };
     }
     if (token === visionRequestToken && selectedVisionImageId.value === imageId) {
-      visualLocalization.value = localization;
+      visualLocalization.value = localization || visualLocalization.value;
     }
   };
 
@@ -1080,7 +1126,7 @@ async function selectVisionImage(imageId) {
     jumpSimulationToTime(image.capture_time_s);
   }
   applyImmediateVisionMatch(imageId);
-  await runVisionMatch();
+  await runVisionMatch({ imageId, forceRemote: true });
 }
 
 async function loadReport() {
@@ -1119,7 +1165,7 @@ function evidenceSrc(url) {
 }
 
 function lightingValue(key, fallback = "-") {
-  const lighting = visualLocalization.value?.image_simulation?.lighting_model || selectedVisionImage.value?.uav_frame_simulation?.lighting_model;
+  const lighting = visibleVisualLocalization.value?.image_simulation?.lighting_model || selectedVisionImage.value?.uav_frame_simulation?.lighting_model;
   const value = lighting?.[key];
   return value === undefined || value === null || value === "" ? fallback : value;
 }
@@ -1470,9 +1516,9 @@ watch(activeVisionImageId, async (imageId, previousImageId) => {
             <span>匹配瓦片<strong>{{ currentVisualObservation.tileId || bestVisionCandidate?.tile_id || "-" }}</strong></span>
             <span>置信度<strong>{{ confidencePercent(currentVisualObservation.confidence) }}</strong></span>
           </div>
-          <div v-if="visualLocalization" class="synthetic-compare">
+          <div v-if="visibleVisualLocalization" class="synthetic-compare">
             <figure>
-              <img :src="visualLocalization.query_image" alt="无人机当前影像帧" />
+              <img :src="visibleVisualLocalization.query_image" alt="无人机当前影像帧" />
               <figcaption>无人机图像</figcaption>
             </figure>
             <figure>
@@ -1480,14 +1526,16 @@ watch(activeVisionImageId, async (imageId, previousImageId) => {
               <figcaption>合成视图 {{ bestSyntheticView?.view_id || "-" }}</figcaption>
             </figure>
           </div>
-          <div v-if="visualLocalization" class="synthetic-metrics">
-            <span>误差半径<strong>{{ visualLocalization.error_radius_m }} 米</strong></span>
-            <span>修正向量<strong>{{ visualLocalization.correction_vector_m.join(" / ") }} 米</strong></span>
-            <span>定位状态<strong>{{ localizationStatusLabel(visualLocalization.status) }}</strong></span>
+          <div v-if="visibleVisualLocalization" class="synthetic-metrics">
+            <span>误差半径<strong>{{ visibleVisualLocalization.error_radius_m }} 米</strong></span>
+            <span>修正向量<strong>{{ visibleVisualLocalization.correction_vector_m.join(" / ") }} 米</strong></span>
+            <span>定位状态<strong>{{ localizationStatusLabel(visibleVisualLocalization.status) }}</strong></span>
           </div>
-          <p v-if="!bestVisionCandidate && !visualLocalization" class="summary-text">等待无人机影像帧进入匹配流程。</p>
-          <div v-if="visualLocalization" class="provider-metrics">
-            <span>匹配器<strong>{{ visualLocalization.provider }}</strong></span>
+          <p v-if="!bestVisionCandidate && !visibleVisualLocalization" class="summary-text">等待无人机影像帧进入匹配流程。</p>
+          <div v-if="visibleVisualLocalization" class="provider-metrics">
+            <span>当前帧<strong>{{ selectedLocalizationFrameLabel }}</strong></span>
+            <span>匹配器<strong>{{ visibleVisualLocalization.provider }}</strong></span>
+            <span>选中算法<strong>{{ selectedMatcherLabel }}</strong></span>
             <span>太阳角<strong>{{ lightingValue("sun_azimuth_deg") }} / {{ lightingValue("sun_elevation_deg") }}</strong></span>
           </div>
           <div class="lighting-controls">
@@ -1512,13 +1560,44 @@ watch(activeVisionImageId, async (imageId, previousImageId) => {
               <input v-model.number="lightingOptions.color_temperature_k" type="range" min="3200" max="8500" step="100" @change="runVisionMatch" />
             </label>
           </div>
-          <div v-if="activeOrbEvidence" class="orb-evidence-grid">
+          <details v-if="providerComparisonRows.length" class="provider-comparison-panel">
+            <summary>
+              <strong>算法对比</strong>
+              <span>{{ providerComparisonRows.length }} 个结果 · 当前 {{ selectedMatcherLabel }}</span>
+            </summary>
+            <div class="provider-comparison-grid">
+              <article
+                v-for="row in providerComparisonRows"
+                :key="row.provider"
+                :class="{ selected: row.provider === selectedMatcherLabel }"
+              >
+                <div class="provider-row-head">
+                  <strong>{{ row.provider }}</strong>
+                  <span>{{ localizationStatusLabel(row.status) }}</span>
+                </div>
+                <small>置信度 {{ confidencePercent(row.confidence) }} / 内点 {{ confidencePercent(row.inlierRatio) }} / 匹配点 {{ row.matchedPoints }}</small>
+                <small>误差 {{ row.errorRadiusM }}m / 先验 {{ row.priorErrorM }}m / 重投影 {{ row.reprojectionErrorPx }}px</small>
+                <small v-if="row.failureReason">{{ row.failureReason }}</small>
+                <div v-if="row.evidence" class="provider-evidence-grid">
+                  <figure>
+                    <img :src="evidenceSrc(row.evidence.match_lines)" alt="算法匹配连线" />
+                    <figcaption>匹配连线</figcaption>
+                  </figure>
+                  <figure>
+                    <img :src="evidenceSrc(row.evidence.ransac_inliers)" alt="算法 RANSAC 内点" />
+                    <figcaption>RANSAC 内点</figcaption>
+                  </figure>
+                </div>
+              </article>
+            </div>
+          </details>
+          <div v-if="activeMatchEvidence" class="orb-evidence-grid">
             <figure>
-              <img :src="evidenceSrc(activeOrbEvidence.match_lines)" alt="ORB 匹配连线" />
-              <figcaption>ORB 匹配</figcaption>
+              <img :src="evidenceSrc(activeMatchEvidence.match_lines)" alt="特征匹配连线" />
+              <figcaption>{{ selectedMatcherLabel }} 匹配</figcaption>
             </figure>
             <figure>
-              <img :src="evidenceSrc(activeOrbEvidence.ransac_inliers)" alt="RANSAC 内点匹配" />
+              <img :src="evidenceSrc(activeMatchEvidence.ransac_inliers)" alt="RANSAC 内点匹配" />
               <figcaption>RANSAC 内点</figcaption>
             </figure>
           </div>

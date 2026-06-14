@@ -224,3 +224,40 @@ powershell -ExecutionPolicy Bypass -File scripts/check_backend_smoke_full.ps1
   - Archive report-page screenshot evidence showing `navigation_quality`.
   - Complete 3 full rehearsal runs: task load, route plan, play autonomous navigation, visual matching evidence, reference/fused trajectory comparison, risk event, report generation.
   - Record any rehearsal interruption in `12_project_status_log.md` before polishing PPT/video.
+
+## 11. 2026-06-14 v0.5d visual matcher deepening
+
+- Implemented the multi-provider OpenCV matcher layer:
+  - `opencv_orb`;
+  - `opencv_sift`;
+  - `opencv_akaze`;
+  - `opencv_brisk`;
+  - `opencv_auto`.
+- `opencv_auto` is now the default visual autonomous navigation matcher. It runs the available OpenCV feature providers and selects one navigation observation, not an average of several weak observations.
+- The auto selector scores feature count, inlier ratio, RANSAC reprojection error, and route-prior consistency. This prevents visually plausible but geographically wrong matches from directly driving autonomous navigation.
+- The output contract now includes provider-level diagnostics for expert review:
+  - selected provider;
+  - per-provider results;
+  - keypoint counts;
+  - raw match count;
+  - reprojection error;
+  - route-prior error;
+  - score components;
+  - evidence image URLs.
+- Semi-real UAV frames remain generated from DEM/orthophoto route and tile data when real UAV images are unavailable. Camera distortion parameters are recorded and used for matching-time undistortion.
+- Lighting remains parameterized by frontend controls. Latitude/longitude are not hardcoded; they come from the frame/route/tile point used to build the UAV frame or synthetic view.
+- `external_deep_matcher` remains a planned adapter for LoFTR/LightGlue-style models. No deep model weights are downloaded in this step.
+- Frontend update:
+  - visual localization requests default to `opencv_auto`;
+  - the evidence panel labels the selected provider dynamically instead of always saying ORB;
+  - the expert comparison panel shows ORB/SIFT/AKAZE/BRISK metrics when available;
+  - lighting changes invalidate the visual localization cache so regenerated images and evidence are actually requested.
+- Navigation update:
+  - `POST /api/navigation/start` defaults to `matcher_mode=opencv_auto`;
+  - terminal route-arrival frames still perform a landing correction;
+  - if the real matcher is not navigation-grade, the system explicitly marks the v0.4 proxy fallback instead of hiding it.
+- Verification:
+  - `python -m pytest backend/tests` passed: 12 passed.
+  - `npm run build` passed.
+  - `scripts/check_backend_smoke_full.ps1` passed.
+  - `scripts/generate_v05_match_evidence.py --task-id task_001 --top-k-tiles 3 --limit 6` passed with `provider=opencv_auto`, `localized_count=5`.

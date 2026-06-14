@@ -2661,3 +2661,20 @@
   - `npm run build`: passed.
   - `powershell -ExecutionPolicy Bypass -File scripts/check_backend_smoke_full.ps1 -PythonExe E:\anaconda\envs\supermap_nav\python.exe`: passed.
   - `python scripts/generate_v05_match_evidence.py --task-id task_001 --top-k-tiles 3 --limit 6`: passed, `provider=opencv_auto`, `localized_count=5`.
+### 2026-06-14 当前软件版本提交与团队部署准备
+
+- 用户目标：
+  - 确认当前软件版本是否已经提交。
+  - 让组员能够通过 GitHub 和一键脚本快速部署到其他电脑，并尽量达到当前电脑的流畅运行水平。
+- 状态判断：
+  - `v0.6` 稳定检查点已经提交并推送。
+  - 后续中文协作文档和当前软件改动需要继续固化为新的 Git 检查点。
+- 本次整理：
+  - 将 `docs/deploy_one_click.md` 改为中文一键部署说明。
+  - 明确目标电脑需要安装 Git、Anaconda/Miniconda、Node.js、SuperMap iServer 2025、iClient3D 2025U1；iDesktopX 仅在重新制作或发布工作空间时必需。
+  - 明确一键脚本只能准备代码依赖、前端构建和 SDK 静态资源，首次 iServer 管理员初始化、许可、文件根目录和服务发布仍需要在目标电脑确认。
+  - 继续坚持生成证据图片、匹配缓存和临时运行产物不直接进入 Git 主仓库，避免仓库膨胀。
+- 验证：
+  - `npm run build` 通过。
+  - `E:\anaconda\envs\supermap_nav\python.exe -m pytest backend\tests -vv` 通过，12 passed，1 warning。
+  - `scripts/install_demo_one_click.ps1`、`scripts/start_demo_one_click.ps1`、`scripts/stop_demo_one_click.ps1`、`scripts/check_supermap_goal_evidence.ps1` PowerShell 解析通过。

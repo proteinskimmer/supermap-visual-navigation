@@ -15,7 +15,7 @@ _sessions: dict[str, dict] = {}
 NAVIGATION_FRAME_STEP_S = 2
 
 
-def start_navigation_session(task_id: str, route: dict, mode: str = "autonomous", matcher_mode: str = "synthetic_v04") -> dict:
+def start_navigation_session(task_id: str, route: dict, mode: str = "autonomous", matcher_mode: str = "opencv_auto") -> dict:
     try:
         task = get_task(task_id)
     except KeyError as exc:
@@ -52,7 +52,7 @@ def get_navigation_timeline(session_id: str) -> dict:
     return _get_session(session_id)
 
 
-def localize_visual_frame(task_id: str, image_id: str, matcher_mode: str = "synthetic_v04") -> dict:
+def localize_visual_frame(task_id: str, image_id: str, matcher_mode: str = "opencv_auto") -> dict:
     image = _image_by_id(task_id, image_id)
     localization = _localize_for_navigation(task_id, image, top_k_tiles=1, matcher_mode=matcher_mode)
     if not localization or not localization.get("matches"):
@@ -144,7 +144,7 @@ def _build_timeline(session_id: str, task: dict, route: dict, data: dict, mode: 
     return timeline, events
 
 
-def _build_visual_fixes(task_id: str, images: list[dict], matcher_mode: str = "synthetic_v04") -> list[dict]:
+def _build_visual_fixes(task_id: str, images: list[dict], matcher_mode: str = "opencv_auto") -> list[dict]:
     fixes = []
     for image in images:
         localization = _localize_for_navigation(task_id, image, top_k_tiles=3, matcher_mode=matcher_mode)
@@ -178,7 +178,7 @@ def _build_visual_fixes(task_id: str, images: list[dict], matcher_mode: str = "s
                     "error_radius_m": localization.get("error_radius_m", 0),
                     "correction_vector_m": localization.get("correction_vector_m", []),
                     "synthetic_view_id": match.get("view_id", ""),
-                    "localization_mode": localization.get("provider", ""),
+                    "localization_mode": localization.get("selected_provider") or localization.get("provider", ""),
                 },
             }
         )
@@ -251,7 +251,7 @@ def _build_state_frame(
     navigation_mode = _navigation_mode(active_fix, requested_mode)
     fused_point = _fused_point(reference_point, active_fix, time_s, navigation_mode, previous_frame, origin)
     if time_s >= duration - NAVIGATION_FRAME_STEP_S * 2:
-        fused_point = _terminal_fused_point(reference_point, previous_frame, time_s, origin)
+        fused_point = _terminal_fused_point(reference_point, previous_frame, time_s, origin, active_fix, navigation_mode)
     deviation = distance_m(reference_point, _pose_to_point(visual_position), origin) if visual_position else 0.0
     telemetry = _telemetry(
         time_s=time_s,
@@ -460,11 +460,20 @@ def _terminal_fused_point(
     previous_frame: dict | None,
     time_s: int,
     origin: list[float],
+    active_fix: dict | None = None,
+    navigation_mode: str = "autonomous",
 ) -> list[float]:
     if not previous_frame:
         return reference_point
     previous_point = _pose_to_point(previous_frame["fused_position"])
     delta_t = max(1, time_s - previous_frame["time_s"])
+    if (
+        active_fix
+        and active_fix.get("image", {}).get("frame_trigger") == "route_arrival"
+        and navigation_mode != "review"
+        and active_fix.get("visual_position")
+    ):
+        return _limit_step(previous_point, _pose_to_point(active_fix["visual_position"]), 10.0 * delta_t, origin)
     return _limit_step(previous_point, reference_point, 10.0 * delta_t, origin)
 
 

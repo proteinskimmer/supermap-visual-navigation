@@ -39,6 +39,16 @@ function Resolve-FirstExistingPath {
   return ""
 }
 
+function Resolve-ProjectRootPath {
+  param([string]$Path)
+  $rawPath = if ($null -eq $Path) { "" } else { [string]$Path }
+  $cleanPath = $rawPath.Trim().Trim('"').Trim("'")
+  if (-not $cleanPath) {
+    throw "ProjectRoot is empty."
+  }
+  return (Resolve-Path -LiteralPath $cleanPath).Path.TrimEnd("\", "/")
+}
+
 function Resolve-CommandPath {
   param([string]$Name)
   $command = Get-Command $Name -ErrorAction SilentlyContinue | Select-Object -First 1
@@ -81,7 +91,7 @@ function Find-SuperMapRoot {
   return ""
 }
 
-$ProjectRoot = (Resolve-Path -LiteralPath $ProjectRoot).Path
+$ProjectRoot = Resolve-ProjectRootPath -Path $ProjectRoot
 $FrontendDir = Join-Path $ProjectRoot "frontend"
 $EnvironmentFile = Join-Path $ProjectRoot "environment.yml"
 $PackageLock = Join-Path $FrontendDir "package-lock.json"

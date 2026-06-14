@@ -101,9 +101,9 @@ def test_simulation_replan_and_report_contract():
     assert report["vision"]["candidate_count"] >= 1
     assert report["vision_summary"]["image_count"] >= 4
     assert report["vision_summary"]["needs_review_count"] == 0
-    assert report["navigation_quality"]["matcher_mode"] == "opencv_orb"
+    assert report["navigation_quality"]["matcher_mode"] == "opencv_auto"
     assert report["navigation_quality"]["visual_observation_count"] >= 6
-    assert report["navigation_quality"]["provider_counts"]["opencv_orb"] >= 1
+    assert sum(report["navigation_quality"]["provider_counts"].values()) >= 1
     assert report["navigation_quality"]["confidence"]["average"] >= 0.65
     assert report["navigation_quality"]["fused_trajectory"]["smoothness_passed"] is True
     assert report["navigation_quality"]["fused_trajectory"]["average_deviation_m"] <= 10
@@ -154,7 +154,7 @@ def test_synthetic_view_localization_contract():
     views = unwrap(
         client.post(
             "/api/vision/synthetic-views",
-            json={"task_id": "task_001", "image_id": image["id"], "top_k_tiles": 3},
+            json={"task_id": "task_001", "image_id": image["id"], "top_k_tiles": 3, "matcher_mode": "precomputed_proxy"},
         )
     )
     assert views["candidate_count"] == 3
@@ -165,7 +165,7 @@ def test_synthetic_view_localization_contract():
     localization = unwrap(
         client.post(
             "/api/vision/localize",
-            json={"task_id": "task_001", "image_id": image["id"], "top_k_tiles": 3},
+            json={"task_id": "task_001", "image_id": image["id"], "top_k_tiles": 3, "matcher_mode": "precomputed_proxy"},
         )
     )
     assert localization["provider"] == "synthetic_view_v04_precomputed_proxy"
@@ -185,6 +185,10 @@ def test_v05_matcher_provider_status_and_orb_contract():
     matchers = unwrap(client.get("/api/vision/matchers"))
     assert matchers["precomputed_proxy"]["status"] == "available"
     assert "opencv_orb" in matchers
+    assert "opencv_sift" in matchers
+    assert "opencv_akaze" in matchers
+    assert "opencv_brisk" in matchers
+    assert "opencv_auto" in matchers
 
     localization = unwrap(
         client.post(
@@ -216,6 +220,26 @@ def test_v05_matcher_provider_status_and_orb_contract():
         assert localization["matched_points"] == 0
         assert localization["matches"] == []
         assert "OpenCV" in localization["failure_reason"] or "reserved for v0.5" in localization["failure_reason"]
+
+    auto_localization = unwrap(
+        client.post(
+            "/api/vision/localize",
+            json={
+                "task_id": "task_001",
+                "image_id": image["id"],
+                "top_k_tiles": 2,
+                "matcher_mode": "opencv_auto",
+            },
+        )
+    )
+    assert auto_localization["provider"] == "opencv_auto"
+    assert auto_localization["selected_provider"] in {"opencv_orb", "opencv_sift", "opencv_akaze", "opencv_brisk", ""}
+    assert auto_localization["provider_results"]
+    if auto_localization["matches"]:
+        best = auto_localization["matches"][0]
+        assert best["provider"] in {"opencv_orb", "opencv_sift", "opencv_akaze", "opencv_brisk"}
+        assert "reprojection_error_px" in best
+        assert "score_components" in best
 
 
 def test_risk_zone_edit_save_and_validation_contract(tmp_path, monkeypatch):
@@ -275,6 +299,7 @@ def test_visual_navigation_timeline_contract():
 
     session = unwrap(client.post("/api/navigation/start", json={"task_id": task["id"], "route": route, "mode": "autonomous"}))
     assert session["session_id"]
+    assert session["matcher_mode"] == "opencv_auto"
     assert session["active_route_id"] == route["id"]
     assert session["timeline"]
     assert session["events"][0]["type"] == "navigation_start"
@@ -362,7 +387,7 @@ def test_visual_navigation_timeline_can_be_orb_driven():
         for frame in session["timeline"]
         if frame.get("visual_position")
     }
-    assert providers == {"opencv_orb"}
+    assert "opencv_orb" in providers
 
     visual_frames = [frame for frame in session["timeline"] if frame.get("visual_position")]
     assert visual_frames

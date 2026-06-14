@@ -21,7 +21,8 @@ V05_SYNTHETIC_VIEW_DIR = PUBLIC_DEMO_ROOT / "synthetic_views"
 V05_EVIDENCE_DIR = PROJECT_ROOT / "demo_data" / "generated" / "v05_match_evidence"
 
 PRECOMPUTED_MATCHER_MODES = {"synthetic_v04", "precomputed", "precomputed_proxy"}
-REAL_MATCHER_MODES = {"opencv_orb", "opencv_sift", "external_deep_matcher"}
+OPENCV_FEATURE_MATCHERS = {"opencv_orb", "opencv_sift", "opencv_akaze", "opencv_brisk"}
+REAL_MATCHER_MODES = {*OPENCV_FEATURE_MATCHERS, "opencv_auto", "external_deep_matcher"}
 SUPPORTED_MATCHER_MODES = PRECOMPUTED_MATCHER_MODES | REAL_MATCHER_MODES
 DEFAULT_CAMERA_CALIBRATION = {
     "model": "pinhole_plumb_bob",
@@ -75,14 +76,14 @@ def provider_name(mode: str | None) -> str:
     normalized = normalize_matcher_mode(mode)
     if normalized == "precomputed_proxy":
         return "synthetic_view_v04_precomputed_proxy"
-    if normalized in {"opencv_orb", "opencv_sift"}:
+    if normalized in OPENCV_FEATURE_MATCHERS or normalized == "opencv_auto":
         return normalized
     return "external_deep_matcher"
 
 
 def matcher_runtime_status() -> dict:
     cv2 = _opencv_status()
-    return {
+    status = {
         "precomputed_proxy": {
             "status": "available",
             "provider": "synthetic_view_v04_precomputed_proxy",
@@ -97,12 +98,38 @@ def matcher_runtime_status() -> dict:
             "description": "v0.5a OpenCV ORB + BFMatcher/Hamming + RANSAC provider.",
         },
         "opencv_sift": {
-            "status": "planned" if cv2["available"] and cv2["has_sift"] else "unavailable",
+            "status": "available" if cv2["available"] and cv2["has_sift"] else "unavailable",
             "provider": "opencv_sift",
             "cv2_available": cv2["available"],
             "cv2_version": cv2["version"],
             "algorithm_available": cv2["has_sift"],
-            "description": "Optional v0.5 provider; OpenCV SIFT is detected but not wired into navigation yet.",
+            "description": "OpenCV SIFT + BFMatcher/L2 + ratio test + RANSAC provider for textured orthophoto matching.",
+        },
+        "opencv_akaze": {
+            "status": "available" if cv2["available"] and cv2["has_akaze"] else "unavailable",
+            "provider": "opencv_akaze",
+            "cv2_available": cv2["available"],
+            "cv2_version": cv2["version"],
+            "algorithm_available": cv2["has_akaze"],
+            "description": "OpenCV AKAZE binary descriptor provider for scale/illumination variation checks.",
+        },
+        "opencv_brisk": {
+            "status": "available" if cv2["available"] and cv2["has_brisk"] else "unavailable",
+            "provider": "opencv_brisk",
+            "cv2_available": cv2["available"],
+            "cv2_version": cv2["version"],
+            "algorithm_available": cv2["has_brisk"],
+            "description": "OpenCV BRISK binary descriptor provider for fast fallback feature matching.",
+        },
+        "opencv_auto": {
+            "status": "available"
+            if cv2["available"] and any(cv2[f"has_{name}"] for name in ["orb", "sift", "akaze", "brisk"])
+            else "unavailable",
+            "provider": "opencv_auto",
+            "cv2_available": cv2["available"],
+            "cv2_version": cv2["version"],
+            "algorithm_available": any(cv2[f"has_{name}"] for name in ["orb", "sift", "akaze", "brisk"]),
+            "description": "Runs ORB/SIFT/AKAZE/BRISK and selects the navigation-grade observation with the strongest geometric evidence.",
         },
         "external_deep_matcher": {
             "status": "planned",
@@ -110,20 +137,23 @@ def matcher_runtime_status() -> dict:
             "description": "Reserved adapter for LoFTR/LightGlue/DINO-style external matchers.",
         },
     }
+    return status
 
 
 def unavailable_reason(mode: str | None) -> str:
     normalized = normalize_matcher_mode(mode)
-    if normalized in {"opencv_orb", "opencv_sift"}:
+    if normalized in OPENCV_FEATURE_MATCHERS or normalized == "opencv_auto":
         cv2 = _opencv_status()
         if not cv2["available"]:
             return "OpenCV cv2 is not installed in the current supermap_nav environment."
-        if normalized == "opencv_orb" and not cv2["has_orb"]:
-            return "OpenCV is installed, but ORB_create is not available."
-        if normalized == "opencv_sift" and not cv2["has_sift"]:
-            return "OpenCV is installed, but SIFT_create is not available."
-        if normalized == "opencv_sift":
-            return "opencv_sift provider is reserved for a later v0.5 step."
+        if normalized == "opencv_auto":
+            missing = [name for name in ["orb", "sift", "akaze", "brisk"] if not cv2[f"has_{name}"]]
+            if len(missing) == 4:
+                return "OpenCV is installed, but no supported feature matcher is available."
+            return ""
+        algorithm = normalized.removeprefix("opencv_")
+        if not cv2.get(f"has_{algorithm}", False):
+            return f"OpenCV is installed, but {algorithm.upper()} is not available."
         return ""
     if normalized == "external_deep_matcher":
         return "External deep matcher provider is reserved for v0.5 integration."
@@ -287,27 +317,64 @@ def build_v05a_synthetic_view(
 
 
 def localize_with_opencv_orb(task_id: str, image_id: str, response: dict, origin: list[float]) -> dict:
-    cv2_status = _opencv_status()
-    if not cv2_status["available"] or not cv2_status["has_orb"]:
-        return unavailable_localization(task_id, image_id, response, "opencv_orb")
+    return localize_with_opencv_features(task_id, image_id, response, origin, "opencv_orb")
 
-    matches = []
-    for view in response.get("synthetic_views", []):
-        match = _match_orb_pair(response["query_image"], view, response, origin)
-        matches.append(match)
 
-    matches.sort(key=lambda item: (item["confidence"], item["inlier_ratio"], item["matched_points"]), reverse=True)
-    for rank, item in enumerate(matches, start=1):
+def localize_with_opencv_features(task_id: str, image_id: str, response: dict, origin: list[float], matcher_mode: str) -> dict:
+    normalized = normalize_matcher_mode(matcher_mode)
+    modes = _opencv_modes_for_request(normalized)
+    if not modes:
+        return unavailable_localization(task_id, image_id, response, normalized)
+
+    provider_results = []
+    all_matches = []
+    for mode in modes:
+        provider_matches = []
+        reason = unavailable_reason(mode)
+        if reason:
+            provider_results.append(
+                {
+                    "provider": mode,
+                    "status": "unavailable",
+                    "failure_reason": reason,
+                    "matches": [],
+                    "best": None,
+                }
+            )
+            continue
+        for view in response.get("synthetic_views", []):
+            match = _match_feature_pair(response["query_image"], view, response, origin, mode)
+            provider_matches.append(match)
+            all_matches.append(match)
+        provider_matches.sort(key=_match_sort_key, reverse=True)
+        for rank, item in enumerate(provider_matches, start=1):
+            item["provider_rank"] = rank
+        best_provider_match = provider_matches[0] if provider_matches else None
+        provider_results.append(
+            {
+                "provider": mode,
+                "status": "localized" if best_provider_match and best_provider_match["confidence"] >= 0.5 else "needs_review" if best_provider_match and best_provider_match["matched_points"] else "failed",
+                "failure_reason": "" if best_provider_match and best_provider_match["confidence"] >= 0.5 else (best_provider_match or {}).get("failure_reason", "no synthetic-view candidates were available"),
+                "best": best_provider_match,
+                "matches": provider_matches,
+            }
+        )
+
+    all_matches.sort(key=_match_sort_key, reverse=True)
+    for rank, item in enumerate(all_matches, start=1):
         item["rank"] = rank
 
-    best = matches[0] if matches else None
+    best = all_matches[0] if all_matches else None
+    selected_provider = best.get("provider", "") if best else ""
     status = "localized" if best and best["confidence"] >= 0.5 else "needs_review" if best and best["matched_points"] else "failed"
     return {
-        "localization_id": f"loc_{image_id}_opencv_orb_v05a",
+        "localization_id": f"loc_{image_id}_{normalized}_v05",
         "task_id": task_id,
         "image_id": image_id,
         "query_image": response["query_image"],
-        "provider": "opencv_orb",
+        "provider": normalized,
+        "selected_provider": selected_provider,
+        "provider_results": provider_results,
         "status": status,
         "image_simulation": response.get("image_simulation", {}),
         "initial_pose": response["initial_pose"],
@@ -319,13 +386,14 @@ def localize_with_opencv_orb(task_id: str, image_id: str, response: dict, origin
         "inlier_ratio": best["inlier_ratio"] if best else 0,
         "correction_vector_m": best["correction_vector_m"] if best and best["confidence"] >= 0.5 else [0.0, 0.0, 0.0],
         "synthetic_views": response["synthetic_views"],
-        "matches": matches,
-        "navigation_effect": _navigation_effect(status),
-        "failure_reason": "" if status == "localized" else (best["failure_reason"] if best else "no synthetic-view candidates were available"),
+        "matches": all_matches,
+        "navigation_effect": _navigation_effect(status, normalized, selected_provider),
+        "failure_reason": "" if status == "localized" else (best["failure_reason"] if best else _combined_failure_reason(provider_results)),
         "pipeline": [
             *response.get("pipeline", []),
-            "opencv_orb_keypoints",
-            "bfmatcher_hamming_ratio_test",
+            f"{normalized}_provider_selection",
+            "opencv_keypoints_descriptors",
+            "bfmatcher_knn_ratio_test",
             "ransac_homography",
             "pixel_offset_to_map_pose",
             "v05_match_evidence",
@@ -360,11 +428,16 @@ def unavailable_localization(task_id: str, image_id: str, response: dict, matche
 
 
 def _match_orb_pair(query_url: str, view: dict, response: dict, origin: list[float]) -> dict:
+    return _match_feature_pair(query_url, view, response, origin, "opencv_orb")
+
+
+def _match_feature_pair(query_url: str, view: dict, response: dict, origin: list[float], provider: str) -> dict:
     import cv2  # type: ignore
 
+    config = _feature_config(provider)
     query_path = _resolve_demo_path(query_url)
     train_path = _resolve_demo_path(view["image_url"])
-    base = f"{_safe_id(response['image_id'])}_{_safe_id(view['tile_id'])}_opencv_orb"
+    base = f"{_safe_id(response['image_id'])}_{_safe_id(view['tile_id'])}_{provider}"
     evidence = _evidence_paths(base)
     failure_reason = ""
 
@@ -372,69 +445,95 @@ def _match_orb_pair(query_url: str, view: dict, response: dict, origin: list[flo
     train = cv2.imread(str(train_path), cv2.IMREAD_COLOR)
     if query is None or train is None:
         failure_reason = f"OpenCV could not read query or synthetic view image: {query_url}, {view['image_url']}"
-        return _failed_match(view, response, origin, evidence, failure_reason)
+        return _failed_match(view, response, origin, evidence, failure_reason, provider=provider)
 
     _write_evidence_inputs(query_path, train_path, evidence)
-    query_gray = cv2.cvtColor(query, cv2.COLOR_BGR2GRAY)
+    query_for_match = _undistort_query_if_available(query, response)
+    train_for_match = train
+    query_gray = cv2.cvtColor(query_for_match, cv2.COLOR_BGR2GRAY)
     train_gray = cv2.cvtColor(train, cv2.COLOR_BGR2GRAY)
-    orb = cv2.ORB_create(nfeatures=1600, scaleFactor=1.2, nlevels=8)
-    kp_query, desc_query = orb.detectAndCompute(query_gray, None)
-    kp_train, desc_train = orb.detectAndCompute(train_gray, None)
-    if desc_query is None or desc_train is None or len(kp_query) < 8 or len(kp_train) < 8:
-        failure_reason = f"not enough ORB features: query={len(kp_query)}, synthetic={len(kp_train)}"
-        _write_match_images(query, kp_query, train, kp_train, [], [], evidence)
-        return _failed_match(view, response, origin, evidence, failure_reason)
+    detector = _create_detector(provider)
+    kp_query, desc_query = detector.detectAndCompute(query_gray, None)
+    kp_train, desc_train = detector.detectAndCompute(train_gray, None)
+    keypoint_count_query = len(kp_query)
+    keypoint_count_train = len(kp_train)
+    if desc_query is None or desc_train is None or keypoint_count_query < config["min_features"] or keypoint_count_train < config["min_features"]:
+        failure_reason = f"not enough {config['label']} features: query={keypoint_count_query}, synthetic={keypoint_count_train}"
+        _write_match_images(query_for_match, kp_query, train_for_match, kp_train, [], [], evidence, config["label"])
+        return _failed_match(view, response, origin, evidence, failure_reason, provider=provider, keypoint_count_query=keypoint_count_query, keypoint_count_train=keypoint_count_train)
 
-    matcher = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=False)
+    matcher = cv2.BFMatcher(_cv2_norm(config["norm"]), crossCheck=False)
     raw_matches = matcher.knnMatch(desc_query, desc_train, k=2)
     good = []
     for pair in raw_matches:
         if len(pair) < 2:
             continue
         first, second = pair
-        if first.distance < 0.88 * second.distance:
+        if first.distance < config["ratio"] * second.distance:
             good.append(first)
-    if len(good) < 8:
+    if len(good) < config["min_matches"]:
         failure_reason = f"not enough ratio-test matches: {len(good)}"
-        _write_match_images(query, kp_query, train, kp_train, good, [], evidence)
-        return _failed_match(view, response, origin, evidence, failure_reason, matched_points=len(good))
+        _write_match_images(query_for_match, kp_query, train_for_match, kp_train, good, [], evidence, config["label"])
+        return _failed_match(view, response, origin, evidence, failure_reason, matched_points=len(good), provider=provider, keypoint_count_query=keypoint_count_query, keypoint_count_train=keypoint_count_train, raw_match_count=len(raw_matches))
 
     src = _np_array([kp_query[item.queryIdx].pt for item in good])
     dst = _np_array([kp_train[item.trainIdx].pt for item in good])
     homography, mask = cv2.findHomography(src, dst, cv2.RANSAC, 4.0)
     inliers = [match for match, keep in zip(good, mask.ravel().tolist() if mask is not None else []) if keep]
-    if homography is None or len(inliers) < 6:
+    if homography is None or len(inliers) < config["min_inliers"]:
         failure_reason = f"RANSAC could not estimate a stable homography: inliers={len(inliers)}"
-        _write_match_images(query, kp_query, train, kp_train, good, inliers, evidence)
-        return _failed_match(view, response, origin, evidence, failure_reason, matched_points=len(good), inlier_ratio=_safe_ratio(len(inliers), len(good)))
+        _write_match_images(query_for_match, kp_query, train_for_match, kp_train, good, inliers, evidence, config["label"])
+        return _failed_match(
+            view,
+            response,
+            origin,
+            evidence,
+            failure_reason,
+            matched_points=len(good),
+            inlier_ratio=_safe_ratio(len(inliers), len(good)),
+            provider=provider,
+            keypoint_count_query=keypoint_count_query,
+            keypoint_count_train=keypoint_count_train,
+            raw_match_count=len(raw_matches),
+        )
 
     offset_px = _homography_center_offset(homography, query.shape, train.shape)
     offset_m = _pixel_offset_to_meters(offset_px, train.shape, view, origin)
     estimated_pose = _estimated_pose_from_offset(response["route_prior_pose"], view["pose"], offset_m, origin)
     correction = _correction_vector(response["initial_pose"], estimated_pose, origin)
     inlier_ratio = _safe_ratio(len(inliers), len(good))
-    confidence = _confidence(len(good), inlier_ratio)
-    error_radius = _error_radius(confidence, inlier_ratio, len(good))
+    reprojection_error_px = _reprojection_error_px(src, dst, homography, mask)
+    prior_error_m = _prior_error_m(response["route_prior_pose"], estimated_pose, origin)
+    confidence = _confidence(len(good), inlier_ratio, reprojection_error_px, config["confidence_bias"], prior_error_m)
+    error_radius = _error_radius(confidence, inlier_ratio, len(good), reprojection_error_px, prior_error_m)
     status = "best" if confidence >= 0.5 else "needs_review"
-    failure_reason = "" if confidence >= 0.5 else "ORB/RANSAC confidence is below navigation threshold"
-    _write_match_images(query, kp_query, train, kp_train, good, inliers, evidence)
+    failure_reason = "" if confidence >= 0.5 else f"{config['label']}/RANSAC confidence is below navigation threshold"
+    _write_match_images(query_for_match, kp_query, train_for_match, kp_train, good, inliers, evidence, config["label"])
     result = {
         "view_id": view["view_id"],
         "tile_id": view["tile_id"],
+        "provider": provider,
+        "transform_model": "homography_ransac",
+        "keypoint_count_query": keypoint_count_query,
+        "keypoint_count_train": keypoint_count_train,
+        "raw_match_count": len(raw_matches),
         "confidence": confidence,
         "matched_points": len(good),
         "inlier_ratio": inlier_ratio,
+        "reprojection_error_px": reprojection_error_px,
+        "prior_error_m": prior_error_m,
+        "score_components": _score_components(len(good), inlier_ratio, reprojection_error_px, config["confidence_bias"], prior_error_m),
         "offset_m": offset_m,
         "correction_vector_m": correction,
         "error_radius_m": error_radius,
         "estimated_pose": estimated_pose,
         "status": status,
         "failure_reason": failure_reason,
-        "reason": "OpenCV ORB descriptors matched against v0.5a synthetic view; RANSAC homography converted image-center offset to map pose.",
+        "reason": f"{config['label']} descriptors matched against v0.5a synthetic view; RANSAC homography converted image-center offset to map pose.",
         "evidence": _evidence_payload(evidence),
         "rank": 1,
     }
-    _write_result_json(evidence["json"], response, view, result)
+    _write_result_json(evidence["json"], response, view, result, provider)
     return result
 
 
@@ -446,25 +545,37 @@ def _failed_match(
     failure_reason: str,
     matched_points: int = 0,
     inlier_ratio: float = 0.0,
+    provider: str = "opencv_orb",
+    keypoint_count_query: int = 0,
+    keypoint_count_train: int = 0,
+    raw_match_count: int = 0,
 ) -> dict:
     estimated_pose = view["pose"]
     result = {
         "view_id": view["view_id"],
         "tile_id": view["tile_id"],
+        "provider": provider,
+        "transform_model": "homography_ransac",
+        "keypoint_count_query": keypoint_count_query,
+        "keypoint_count_train": keypoint_count_train,
+        "raw_match_count": raw_match_count,
         "confidence": 0.0,
         "matched_points": matched_points,
         "inlier_ratio": round(inlier_ratio, 3),
+        "reprojection_error_px": 999.0,
+        "prior_error_m": 999.0,
+        "score_components": _score_components(matched_points, inlier_ratio, 999.0, 0.0, 999.0),
         "offset_m": [0.0, 0.0],
         "correction_vector_m": _correction_vector(response["initial_pose"], estimated_pose, origin),
         "error_radius_m": 999,
         "estimated_pose": estimated_pose,
         "status": "failed",
         "failure_reason": failure_reason,
-        "reason": "OpenCV ORB provider failed before producing a navigation-grade pose.",
+        "reason": f"{provider} provider failed before producing a navigation-grade pose.",
         "evidence": _evidence_payload(evidence),
         "rank": 1,
     }
-    _write_result_json(evidence["json"], response, view, result)
+    _write_result_json(evidence["json"], response, view, result, provider)
     return result
 
 
@@ -496,13 +607,13 @@ def _write_evidence_inputs(query_path: Path, train_path: Path, evidence: dict[st
         _atomic_copyfile(train_path, evidence["synthetic"])
 
 
-def _write_match_images(query, kp_query, train, kp_train, matches, inliers, evidence: dict[str, Path]) -> None:
+def _write_match_images(query, kp_query, train, kp_train, matches, inliers, evidence: dict[str, Path], label: str = "OpenCV") -> None:
     import cv2  # type: ignore
 
     if matches:
         _atomic_cv2_imwrite(evidence["matches"], cv2.drawMatches(query, kp_query, train, kp_train, matches[:80], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS))
     else:
-        _atomic_cv2_imwrite(evidence["matches"], _side_by_side_placeholder(query, train, "No ORB ratio-test matches"))
+        _atomic_cv2_imwrite(evidence["matches"], _side_by_side_placeholder(query, train, f"No {label} ratio-test matches"))
     if inliers:
         _atomic_cv2_imwrite(evidence["inliers"], cv2.drawMatches(query, kp_query, train, kp_train, inliers[:80], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS))
     else:
@@ -522,13 +633,20 @@ def _side_by_side_placeholder(query, train, label: str):
     return canvas
 
 
-def _write_result_json(path: Path, response: dict, view: dict, result: dict) -> None:
+def _write_result_json(path: Path, response: dict, view: dict, result: dict, provider: str) -> None:
     payload = {
         "image_id": response["image_id"],
         "tile_id": view["tile_id"],
-        "provider": "opencv_orb",
+        "provider": provider,
+        "transform_model": result.get("transform_model", ""),
+        "keypoint_count_query": result.get("keypoint_count_query", 0),
+        "keypoint_count_train": result.get("keypoint_count_train", 0),
+        "raw_match_count": result.get("raw_match_count", 0),
         "matched_points": result["matched_points"],
         "inlier_ratio": result["inlier_ratio"],
+        "reprojection_error_px": result.get("reprojection_error_px", 0),
+        "prior_error_m": result.get("prior_error_m", 0),
+        "score_components": result.get("score_components", {}),
         "confidence": result["confidence"],
         "error_radius_m": result["error_radius_m"],
         "offset_m": result["offset_m"],
@@ -708,10 +826,115 @@ def _evidence_payload(evidence: dict[str, Path]) -> dict:
     return {"files": files, "urls": urls}
 
 
+def _opencv_modes_for_request(mode: str) -> list[str]:
+    if mode == "opencv_auto":
+        return [name for name in ["opencv_orb", "opencv_sift", "opencv_akaze", "opencv_brisk"] if not unavailable_reason(name)]
+    return [mode] if mode in OPENCV_FEATURE_MATCHERS else []
+
+
+def _feature_config(provider: str) -> dict:
+    configs = {
+        "opencv_orb": {
+            "label": "ORB",
+            "norm": "hamming",
+            "ratio": 0.88,
+            "min_features": 8,
+            "min_matches": 8,
+            "min_inliers": 6,
+            "confidence_bias": 0.0,
+        },
+        "opencv_sift": {
+            "label": "SIFT",
+            "norm": "l2",
+            "ratio": 0.78,
+            "min_features": 8,
+            "min_matches": 8,
+            "min_inliers": 6,
+            "confidence_bias": 0.04,
+        },
+        "opencv_akaze": {
+            "label": "AKAZE",
+            "norm": "hamming",
+            "ratio": 0.82,
+            "min_features": 8,
+            "min_matches": 8,
+            "min_inliers": 6,
+            "confidence_bias": 0.02,
+        },
+        "opencv_brisk": {
+            "label": "BRISK",
+            "norm": "hamming",
+            "ratio": 0.82,
+            "min_features": 8,
+            "min_matches": 8,
+            "min_inliers": 6,
+            "confidence_bias": -0.01,
+        },
+    }
+    return configs[provider]
+
+
+def _create_detector(provider: str):
+    import cv2  # type: ignore
+
+    if provider == "opencv_orb":
+        return cv2.ORB_create(nfeatures=1800, scaleFactor=1.2, nlevels=8)
+    if provider == "opencv_sift":
+        return cv2.SIFT_create(nfeatures=1800, contrastThreshold=0.025, edgeThreshold=12)
+    if provider == "opencv_akaze":
+        return cv2.AKAZE_create()
+    if provider == "opencv_brisk":
+        return cv2.BRISK_create(thresh=24, octaves=4)
+    raise ValueError(f"unsupported OpenCV feature provider: {provider}")
+
+
+def _cv2_norm(norm: str) -> int:
+    import cv2  # type: ignore
+
+    return cv2.NORM_L2 if norm == "l2" else cv2.NORM_HAMMING
+
+
+def _undistort_query_if_available(image, response: dict):
+    calibration = (response.get("image_simulation") or {}).get("camera_calibration") or {}
+    coeffs = calibration.get("distortion_coefficients") or {}
+    required = ["fx", "fy", "cx", "cy"]
+    if not all(key in calibration for key in required) or not all(key in coeffs for key in ["k1", "k2", "p1", "p2", "k3"]):
+        return image
+    import cv2  # type: ignore
+    import numpy as np  # type: ignore
+
+    camera_matrix = np.array(
+        [[calibration["fx"], 0, calibration["cx"]], [0, calibration["fy"], calibration["cy"]], [0, 0, 1]],
+        dtype=np.float32,
+    )
+    distortion = np.array([coeffs["k1"], coeffs["k2"], coeffs["p1"], coeffs["p2"], coeffs["k3"]], dtype=np.float32)
+    return cv2.undistort(image, camera_matrix, distortion)
+
+
 def _np_array(points: list[tuple[float, float]]):
     import numpy as np  # type: ignore
 
     return np.float32(points).reshape(-1, 1, 2)
+
+
+def _reprojection_error_px(src, dst, homography, mask) -> float:
+    import cv2  # type: ignore
+    import numpy as np  # type: ignore
+
+    if homography is None or mask is None:
+        return 999.0
+    projected = cv2.perspectiveTransform(src, homography)
+    keep = mask.ravel().astype(bool)
+    if not np.any(keep):
+        return 999.0
+    errors = np.linalg.norm(projected[keep] - dst[keep], axis=2)
+    return round(float(np.mean(errors)), 2)
+
+
+def _prior_error_m(route_prior_pose: dict, estimated_pose: dict, origin: list[float]) -> float:
+    px, py = lonlat_to_xy([route_prior_pose["lon"], route_prior_pose["lat"]], origin)
+    ex, ey = lonlat_to_xy([estimated_pose["lon"], estimated_pose["lat"]], origin)
+    return round(((ex - px) ** 2 + (ey - py) ** 2) ** 0.5, 1)
 
 
 def _homography_center_offset(homography, query_shape, train_shape) -> list[float]:
@@ -754,25 +977,70 @@ def _correction_vector(initial_pose: dict, estimated_pose: dict, origin: list[fl
     return [round(ex - ix, 1), round(ey - iy, 1), round(estimated_pose["altitude_m"] - initial_pose["altitude_m"], 1)]
 
 
-def _confidence(matched_points: int, inlier_ratio: float) -> float:
-    return round(max(0.0, min(0.95, 0.22 + min(matched_points / 80, 1) * 0.28 + inlier_ratio * 0.5)), 3)
+def _confidence(
+    matched_points: int,
+    inlier_ratio: float,
+    reprojection_error_px: float = 999.0,
+    bias: float = 0.0,
+    prior_error_m: float = 999.0,
+) -> float:
+    reprojection_score = max(0.0, min(1.0, 1.0 - max(reprojection_error_px - 1.0, 0.0) / 8.0))
+    prior_score = max(0.0, min(1.0, 1.0 - max(prior_error_m - 12.0, 0.0) / 80.0))
+    feature_score = 0.18 + min(matched_points / 90, 1) * 0.27 + inlier_ratio * 0.42 + reprojection_score * 0.1 + bias
+    constrained = feature_score * (0.45 + 0.55 * prior_score)
+    return round(max(0.0, min(0.97, constrained)), 3)
 
 
-def _error_radius(confidence: float, inlier_ratio: float, matched_points: int) -> float:
+def _error_radius(
+    confidence: float,
+    inlier_ratio: float,
+    matched_points: int,
+    reprojection_error_px: float = 999.0,
+    prior_error_m: float = 999.0,
+) -> float:
     match_penalty = max(0.0, 35.0 - min(matched_points, 70) * 0.5)
-    return round(max(8.0, 90.0 * (1 - confidence) + 30.0 * (1 - inlier_ratio) + match_penalty), 1)
+    reprojection_penalty = max(0.0, min(35.0, reprojection_error_px * 3.0))
+    prior_penalty = max(0.0, min(160.0, max(prior_error_m - 12.0, 0.0) * 0.8))
+    return round(max(6.0, 82.0 * (1 - confidence) + 30.0 * (1 - inlier_ratio) + match_penalty + reprojection_penalty + prior_penalty), 1)
+
+
+def _score_components(matched_points: int, inlier_ratio: float, reprojection_error_px: float, bias: float, prior_error_m: float) -> dict:
+    return {
+        "match_count_score": round(min(matched_points / 90, 1), 3),
+        "inlier_ratio_score": round(inlier_ratio, 3),
+        "reprojection_score": round(max(0.0, min(1.0, 1.0 - max(reprojection_error_px - 1.0, 0.0) / 8.0)), 3),
+        "route_prior_score": round(max(0.0, min(1.0, 1.0 - max(prior_error_m - 12.0, 0.0) / 80.0)), 3),
+        "provider_bias": round(bias, 3),
+    }
+
+
+def _match_sort_key(match: dict) -> tuple:
+    return (
+        match.get("confidence", 0),
+        -match.get("error_radius_m", 999),
+        match.get("inlier_ratio", 0),
+        match.get("matched_points", 0),
+        -match.get("prior_error_m", 999),
+        -match.get("reprojection_error_px", 999),
+    )
 
 
 def _safe_ratio(numerator: int, denominator: int) -> float:
     return round(numerator / denominator, 3) if denominator else 0.0
 
 
-def _navigation_effect(status: str) -> str:
+def _combined_failure_reason(provider_results: list[dict]) -> str:
+    reasons = [item.get("failure_reason", "") for item in provider_results if item.get("failure_reason")]
+    return "; ".join(reasons[:3]) or "no OpenCV feature matcher produced a navigation-grade visual observation"
+
+
+def _navigation_effect(status: str, requested_provider: str = "opencv_orb", selected_provider: str = "") -> str:
     if status == "localized":
-        return "opencv_orb visual observation can correct the simulated navigation state toward the estimated pose"
+        provider = selected_provider or requested_provider
+        return f"{provider} visual observation is the direct autonomous navigation position source for the simulated fused state"
     if status == "needs_review":
-        return "opencv_orb produced evidence but confidence is below autonomous navigation threshold"
-    return "opencv_orb did not produce a navigation-grade visual observation"
+        return f"{requested_provider} produced evidence but confidence is below autonomous navigation threshold"
+    return f"{requested_provider} did not produce a navigation-grade visual observation"
 
 
 def _safe_id(value: str) -> str:
@@ -787,6 +1055,8 @@ def _opencv_status() -> dict:
             "version": "",
             "has_orb": False,
             "has_sift": False,
+            "has_akaze": False,
+            "has_brisk": False,
         }
     import cv2  # type: ignore
 
@@ -795,4 +1065,6 @@ def _opencv_status() -> dict:
         "version": getattr(cv2, "__version__", ""),
         "has_orb": hasattr(cv2, "ORB_create"),
         "has_sift": hasattr(cv2, "SIFT_create"),
+        "has_akaze": hasattr(cv2, "AKAZE_create"),
+        "has_brisk": hasattr(cv2, "BRISK_create"),
     }

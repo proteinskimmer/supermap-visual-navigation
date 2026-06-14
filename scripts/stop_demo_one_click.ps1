@@ -6,6 +6,17 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+function Resolve-ProjectRootPath {
+  param([string]$Path)
+  $rawPath = if ($null -eq $Path) { "" } else { [string]$Path }
+  $cleanPath = $rawPath.Trim().Trim('"').Trim("'")
+  if (-not $cleanPath) {
+    throw "ProjectRoot is empty."
+  }
+  return (Resolve-Path -LiteralPath $cleanPath).Path.TrimEnd("\", "/")
+}
+
+$ProjectRoot = Resolve-ProjectRootPath -Path $ProjectRoot
 $stateDir = Join-Path $ProjectRoot ".tmp\demo_runtime"
 $pidFiles = @(
   (Join-Path $stateDir "frontend.pid"),

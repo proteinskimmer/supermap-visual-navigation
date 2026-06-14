@@ -26,7 +26,7 @@ def report(task_id: str):
     vision = get_match_result(task_id, first_image["id"]) or get_match_result(task_id, "demo_uav_001")
     if not vision:
         raise HTTPException(status_code=404, detail=f"vision report data not found for task: {task_id}")
-    navigation_session = start_navigation_session(task_id, route, mode="autonomous", matcher_mode="opencv_orb")
+    navigation_session = start_navigation_session(task_id, route, mode="autonomous", matcher_mode="opencv_auto")
     navigation_quality = summarize_navigation_quality(navigation_session, task)
     events = build_simulation_events(route)
     events.append(build_vision_event(vision, first_image.get("capture_time_s")))
